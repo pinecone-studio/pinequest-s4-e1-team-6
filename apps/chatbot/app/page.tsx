@@ -1,65 +1,160 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useRef } from "react";
+import { useUser } from "@clerk/nextjs";
+import { useChatLogic } from "./chat/hooks/useChatLogic";
+import { SparklesCore } from "@/lib/utils/chat-animation/sparkles";
+import { useScrollEffect } from "./chat/hooks/useScrollEffect";
+import { MessageList } from "./chat/homeChat/product/message-list";
+import { WelcomeSection } from "./chat/homeChat/robot-text/welcome-section";
+import Sidebar from "./chat/sidebar/page";
+import Header from "./chat/header/page";
+import ChatInput from "./chat/chatInput/page";
+import { AnimatePresence } from "framer-motion";
+import QPayPayment from "./chat/payment/components/QPayPayment ";
+import OrderAddress from "./chat/payment/components/form";
+import OrderReceipt from "./chat/ZahialgaHarah/OrderReceipt";
+import OrdersButton from "./chat/ZahialgaHarah/OrdersButton";
+import Navbar from "./chat/homeChat/product/Navbar";
 
 export default function Home() {
+  const { user, isLoaded } = useUser();
+  const {
+    activeChatId,
+    setActiveChatId,
+    allChats,
+    sidebarHistory,
+    isTyping,
+    sendMessage,
+    isLoading,
+    addVisualResult,
+    isStreaming,
+    deleteChat: handleDeleteChat,
+  } = useChatLogic();
+
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [orderStep, setOrderStep] = useState<"NONE" | "ADDRESS" | "PAYMENT">(
+    "NONE",
+  );
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [receiptData, setReceiptData] = useState<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const currentChatMessages = activeChatId ? allChats[activeChatId] || [] : [];
+
+  useScrollEffect(messagesEndRef, [currentChatMessages, isTyping]);
+
+  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+
+  const handleOrderInitiate = (product: any) => {
+    setSelectedProduct(product);
+    setOrderStep("ADDRESS");
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex h-screen w-full bg-slate-50 dark:bg-[#0D0D0D] overflow-hidden relative">
+      <Sidebar
+        toggleSidebar={toggleSidebar}
+        isCollapsed={isCollapsed}
+        collapsed={isCollapsed}
+        history={sidebarHistory || []}
+        onNewChat={() => setActiveChatId(null)}
+        onSelectChat={(id) => setActiveChatId(id)}
+        isLoading={isLoading}
+        onDeleteChat={handleDeleteChat}
+        activeChatId={activeChatId}
+      />
+
+      <div className="flex-1 flex flex-col w-full min-w-0 h-screen relative z-10 overflow-hidden">
+        <Header toggleSidebar={toggleSidebar} />
+        <OrdersButton />
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <SparklesCore
+            id="tsparticlesfullpage"
+            background="transparent"
+            minSize={0.6}
+            maxSize={1.4}
+            particleDensity={30}
+            className="w-full h-full"
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        {/* Content Area */}
+        <main className="flex-1 overflow-y-auto bg-transparent p-4 relative z-20 custom-scrollbar">
+          {currentChatMessages.length === 0 ? (
+            <div className="min-h-full flex flex-col justify-center">
+              <WelcomeSection
+                onSelect={(q) => sendMessage(q)}
+                userName={isLoaded ? user?.firstName : null}
+              />
+              <Navbar isAdmin={false} />
+            </div>
+          ) : (
+            <MessageList
+              messages={currentChatMessages}
+              isTyping={isTyping}
+              onProductClick={() => {}}
+              onBuy={handleOrderInitiate}
+              messagesEndRef={messagesEndRef}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          )}
+        </main>
+        <AnimatePresence>
+          {orderStep === "ADDRESS" && (
+            <OrderAddress
+              onClose={() => setOrderStep("NONE")}
+              // onConfirm-д product-ийн датаг хамт дамжуулах боломжтой болгох
+              onConfirm={() => {
+                console.log(
+                  "Address confirmed, moving to payment. Price:",
+                  selectedProduct?.price,
+                );
+                setOrderStep("PAYMENT");
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {orderStep === "PAYMENT" && selectedProduct && (
+            <QPayPayment
+              amount={selectedProduct.price}
+              orderId={selectedProduct.id || `ORD-${Date.now()}`}
+              onSuccess={(details) => {
+                setOrderStep("NONE");
+
+                setReceiptData({
+                  productName: selectedProduct.name || selectedProduct.title,
+                  amount: details.amount,
+                  orderId: details.transactionId,
+                  date: details.date,
+                  image: selectedProduct.image || selectedProduct.thumbnail,
+                });
+              }}
+              onCancel={() => setOrderStep("NONE")}
+              items={[]}
+            />
+          )}
+        </AnimatePresence>
+
+        {currentChatMessages.length === 0 ? (
+          <div className="absolute inset-0 flex items-center justify-center z-30">
+            <ChatInput
+              onSendMessage={sendMessage}
+              onVisualResult={addVisualResult}
+              history={currentChatMessages}
+              isTyping={isTyping || isStreaming}
+            />
+          </div>
+        ) : (
+          <div className="relative z-30 border-t border-black/5 dark:border-white/10">
+            <ChatInput
+              onSendMessage={sendMessage}
+              onVisualResult={addVisualResult}
+              history={currentChatMessages}
+              isTyping={isTyping || isStreaming}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
