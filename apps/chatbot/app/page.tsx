@@ -14,7 +14,6 @@ import QPayPayment from "./chat/payment/components/QPayPayment ";
 import OrderAddress from "./chat/payment/components/form";
 import OrderReceipt from "./chat/ZahialgaHarah/OrderReceipt";
 import OrdersButton from "./chat/ZahialgaHarah/OrdersButton";
-import Navbar from "./chat/homeChat/product/Navbar";
 
 export default function Home() {
   const { user, isLoaded } = useUser();
@@ -77,7 +76,6 @@ export default function Home() {
           />
         </div>
 
-        {/* Content Area */}
         <main className="flex-1 overflow-y-auto bg-transparent p-4 relative z-20 custom-scrollbar">
           {currentChatMessages.length === 0 ? (
             <div className="min-h-full flex flex-col justify-center">
@@ -85,7 +83,6 @@ export default function Home() {
                 onSelect={(q) => sendMessage(q)}
                 userName={isLoaded ? user?.firstName : null}
               />
-              <Navbar isAdmin={false} />
             </div>
           ) : (
             <MessageList
@@ -101,7 +98,6 @@ export default function Home() {
           {orderStep === "ADDRESS" && (
             <OrderAddress
               onClose={() => setOrderStep("NONE")}
-              // onConfirm-д product-ийн датаг хамт дамжуулах боломжтой болгох
               onConfirm={() => {
                 console.log(
                   "Address confirmed, moving to payment. Price:",
@@ -130,7 +126,6 @@ export default function Home() {
                 });
               }}
               onCancel={() => setOrderStep("NONE")}
-              items={[]}
             />
           )}
         </AnimatePresence>

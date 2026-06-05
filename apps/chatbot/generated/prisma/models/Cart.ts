@@ -151,7 +151,7 @@ export type CartGroupByOutputType = {
   _max: CartMaxAggregateOutputType | null
 }
 
-type GetCartGroupByPayload<T extends CartGroupByArgs> = Prisma.PrismaPromise<
+export type GetCartGroupByPayload<T extends CartGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CartGroupByOutputType, T['by']> &
       {
