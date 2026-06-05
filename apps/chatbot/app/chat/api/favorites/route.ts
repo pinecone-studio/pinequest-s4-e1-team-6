@@ -111,6 +111,7 @@ export async function GET() {
 
     return NextResponse.json(favorites);
   } catch (error) {
+    console.error("FAVORITES_GET_ERROR:", error);
     return NextResponse.json(
       { error: "Татахад алдаа гарлаа" },
       { status: 500 },
