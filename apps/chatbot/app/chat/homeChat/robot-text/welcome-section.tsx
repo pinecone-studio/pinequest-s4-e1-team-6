@@ -163,11 +163,13 @@ export function WelcomeSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-wrap items-center justify-center gap-x-1.5 text-xs md:text-lg font-light text-white/80 text-center mb-8 md:mb-16 max-w-[280px] md:max-w-lg mx-auto"
+          className="flex items-center justify-center gap-x-1.5 text-xs md:text-lg font-light text-white/80 text-center mb-8 md:mb-16 max-w-none md:max-w-max mx-auto whitespace-nowrap"
         >
-          <span>Таны</span>
-          <span className="text-white italic font-bold">үнэ цэнийг</span>
-          <span>төгс илэрхийлэх шийдэл энд бий.</span>
+          <span>Таны сонирхолд нийцсэн</span>
+          <span className="text-white italic font-bold">
+            шилдэг бүтээгдэхүүнүүдийг AI туслах
+          </span>
+          <span>тань санал болгож байна.</span>
         </motion.p>
 
         <div className="hidden md:grid grid-cols-4 gap-4 w-full max-w-4xl px-2 mt-15">
