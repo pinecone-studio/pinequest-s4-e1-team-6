@@ -1,6 +1,6 @@
 "use client";
 
-import { NewChatBtn, ChatHistory } from "../components"; // Adjust path if needed
+import { NewChatBtn, ChatHistory } from "."; // Adjust path if needed
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ClerkAuth, DarkMode } from "@/app/chat/header/components";
@@ -171,7 +171,7 @@ export default function Sidebar({
 
         {/* BOTTOM SECTION */}
         <div className="mt-auto w-full px-2 pb-3 bg-inherit ">
-          <div className="h-px bg-black/5 dark:bg-white/5 my-2 mx-2"  />
+          <div className="h-px bg-black/5 dark:bg-white/5 my-2 mx-2" />
           <DarkMode collapsed={isCollapsed} />
           <ClerkAuth collapsed={isCollapsed} />
         </div>

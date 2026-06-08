@@ -71,7 +71,7 @@ export default function HorizontalProductStack({
     <div className="relative flex h-[550px] w-full items-center justify-center overflow-visible select-none">
       <button
         onClick={() => navigate(-1)}
-        className="absolute left-4 z-[60] p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all"
+        className="absolute left-4 z-[60] p-3 rounded-full bg-white/15 backdrop-blur-md border border-[#d7cbff]/30 text-white hover:bg-white/25 transition-all"
       >
         <ChevronLeft />
       </button>
@@ -111,7 +111,7 @@ export default function HorizontalProductStack({
 
       <button
         onClick={() => navigate(1)}
-        className="absolute right-4 z-[60] p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all"
+        className="absolute right-4 z-[60] p-3 rounded-full bg-white/15 backdrop-blur-md border border-[#d7cbff]/30 text-white hover:bg-white/25 transition-all"
       >
         <ChevronRight />
       </button>

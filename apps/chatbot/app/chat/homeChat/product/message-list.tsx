@@ -171,7 +171,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                     />
                   )}
                   {hasText && (
-                    <div className="px-5 py-3 rounded-[1.6rem] rounded-tr-md bg-blue-600 text-white shadow-lg text-sm md:text-base">
+                    <div className="px-5 py-3 rounded-[1.6rem] rounded-tr-md bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] text-white shadow-lg shadow-[#8f7bff]/20 text-sm md:text-base">
                       {rawText}
                     </div>
                   )}
@@ -179,7 +179,7 @@ export const MessageList: React.FC<MessageListProps> = ({
               ) : (
                 <div className="w-full space-y-4">
                   {hasText && (
-                    <div className="max-w-[88%] px-6 py-4 rounded-[1.8rem] rounded-tl-md bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-100 dark:border-white/5 shadow-sm">
+                    <div className="max-w-[88%] px-6 py-4 rounded-[1.8rem] rounded-tl-md bg-white/85 dark:bg-[#17162a]/70 backdrop-blur-xl border border-[#c9b7ff]/50 dark:border-white/5 shadow-sm">
                       <div className="prose dark:prose-invert max-w-none text-sm md:text-[15px] leading-relaxed">
                         <ReactMarkdown
                           components={{
@@ -203,7 +203,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                               paymentTrigger.price,
                             )
                           }
-                          className="mt-5 w-full md:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm uppercase"
+                          className="mt-5 w-full md:w-auto px-8 py-3 bg-gradient-to-r from-[#9f8cff] to-[#6f7bff] text-white font-bold rounded-xl shadow-lg shadow-[#8f7bff]/25 flex items-center justify-center gap-2 text-sm uppercase"
                         >
                           🛍️ Захиалах
                         </motion.button>

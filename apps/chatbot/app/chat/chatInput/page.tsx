@@ -238,10 +238,10 @@ export default function ChatInput({
       <div
         className="
           flex flex-col w-full rounded-2xl overflow-hidden
-          bg-white border border-slate-200 shadow-sm
+          bg-white/90 border border-[#d7cbff] shadow-[0_16px_40px_rgba(127,102,255,0.12)]
           dark:bg-white/5 dark:border-white/10 dark:shadow-2xl dark:backdrop-blur-xl
-          focus-within:border-[#077eef]/60 dark:focus-within:border-[#077eef]/50
-          focus-within:shadow-[0_0_0_4px_rgba(7,126,239,0.08)]
+          focus-within:border-[#9f8cff]/70 dark:focus-within:border-[#c9b7ff]/50
+          focus-within:shadow-[0_0_0_4px_rgba(159,140,255,0.12)]
           transition-all duration-200
         "
       >
@@ -251,7 +251,7 @@ export default function ChatInput({
               <img
                 src={previewImage.url}
                 alt="preview"
-                className="h-20 w-20 object-cover rounded-xl border border-slate-200 dark:border-white/20"
+                className="h-20 w-20 object-cover rounded-xl border border-[#d7cbff] dark:border-white/20"
               />
               <button
                 onClick={handleRemoveImage}
@@ -278,7 +278,7 @@ export default function ChatInput({
             disabled={combinedLoading}
             className="
               p-2 rounded-xl transition-all disabled:opacity-30
-              text-slate-400 hover:text-slate-700 hover:bg-slate-100
+              text-[#8b7bff] hover:text-[#6f7bff] hover:bg-[#f1ecff]
               dark:text-gray-500 dark:hover:text-white dark:hover:bg-white/10
             "
           >

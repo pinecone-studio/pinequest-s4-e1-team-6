@@ -98,9 +98,9 @@ export const ProductCard = ({
  
   return (
     <div
-      className={`relative mx-auto flex flex-col h-125 w-72 md:w-[320px] overflow-hidden rounded-[2.5rem] bg-[#121212] border transition-all duration-700 ${
+      className={`relative mx-auto flex flex-col h-125 w-72 md:w-[320px] overflow-hidden rounded-[2.5rem] bg-[#17162a] border transition-all duration-700 ${
         isCurrent
-          ? "border-[#077eef] shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+          ? "border-[#9f8cff] shadow-[0_20px_50px_rgba(159,140,255,0.28)]"
           : "border-white/5"
       }`}
     >
@@ -126,7 +126,7 @@ export const ProductCard = ({
  
         {productData.brand && (
           <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-1">
-            <Tag size={12} className="text-[#C5A059]" />
+            <Tag size={12} className="text-[#d8c9ff]" />
             <span className="text-white text-[10px] font-medium">
               {productData.brand}
             </span>
@@ -159,7 +159,7 @@ export const ProductCard = ({
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-1.5 text-white/50">
-              <Store size={14} className="text-[#077eef]" />
+              <Store size={14} className="text-[#c9b7ff]" />
               <span className="text-[11px] font-bold uppercase tracking-wider line-clamp-1">
                 {productData.storeName}
               </span>
@@ -176,7 +176,7 @@ export const ProductCard = ({
             {productData.name}
           </h3>
  
-          <p className="text-blue-300 text-2xl font-black">
+          <p className="text-[#d9ccff] text-2xl font-black">
             {(() => {
               const numericPrice = parseFloat(
                 String(productData.price).replace(/[^0-9.]/g, ""),
@@ -204,7 +204,7 @@ export const ProductCard = ({
                     e.preventDefault();
                     if (onOrder) onOrder();
                   }}
-                  className="flex-1 h-12 bg-[#077eef] rounded-2xl text-white font-bold active:scale-95 transition-all text-sm disabled:opacity-50"
+                  className="flex-1 h-12 bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] rounded-2xl text-white font-bold active:scale-95 transition-all text-sm disabled:opacity-50"
                   disabled={productData.stock === 0}
                 >
                   {productData.stock === 0 ? "Дууссан" : "Захиалах"}
