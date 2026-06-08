@@ -49,7 +49,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 dark:bg-[#0D0D0D] overflow-hidden relative">
+    <div className="relative flex h-screen w-full overflow-hidden bg-[#8b7bff] transition-colors duration-300 dark:bg-[#0B1020]">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 left-[-8rem] h-[32rem] w-[32rem] rounded-full bg-[#a18cff]/45 blur-3xl animate-float-slow dark:bg-[#6c7bff]/25" />
+        <div className="absolute top-12 right-[-6rem] h-[24rem] w-[24rem] rounded-full bg-[#b79dff]/35 blur-3xl animate-float-medium dark:bg-[#4aa3ff]/20" />
+        <div className="absolute bottom-[-10rem] left-1/3 h-[26rem] w-[26rem] rounded-full bg-[#c9b7ff]/35 blur-3xl animate-float-fast dark:bg-[#7c6dff]/22" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_34%),linear-gradient(135deg,#b29cff_0%,#9c88ff_28%,#8b7bff_60%,#90c8ff_100%)] opacity-95 dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.06),transparent_34%),linear-gradient(135deg,#111827_0%,#1f2a60_38%,#0f172a_100%)] dark:opacity-100" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0)_42%,rgba(255,255,255,0.18)_43%,rgba(255,255,255,0)_58%,rgba(255,255,255,0.08)_100%)] dark:bg-[linear-gradient(120deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0)_42%,rgba(255,255,255,0.08)_43%,rgba(255,255,255,0)_58%,rgba(255,255,255,0.03)_100%)]" />
+      </div>
       <Sidebar
         toggleSidebar={toggleSidebar}
         isCollapsed={isCollapsed}
@@ -150,6 +157,44 @@ export default function Home() {
           </div>
         )}
       </div>
+      <style jsx global>{`
+        @keyframes float-slow {
+          0%,
+          100% {
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+          50% {
+            transform: translate3d(2rem, -1.25rem, 0) scale(1.08);
+          }
+        }
+        @keyframes float-medium {
+          0%,
+          100% {
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+          50% {
+            transform: translate3d(-1.5rem, 1rem, 0) scale(1.06);
+          }
+        }
+        @keyframes float-fast {
+          0%,
+          100% {
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+          50% {
+            transform: translate3d(1rem, 1.25rem, 0) scale(1.04);
+          }
+        }
+        .animate-float-slow {
+          animation: float-slow 16s ease-in-out infinite;
+        }
+        .animate-float-medium {
+          animation: float-medium 12s ease-in-out infinite;
+        }
+        .animate-float-fast {
+          animation: float-fast 10s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }

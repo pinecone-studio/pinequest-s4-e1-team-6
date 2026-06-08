@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { productId, name, price, image, storeId } = body;
+    const { productId, name, price, image } = body;
 
     if (!productId) {
       return NextResponse.json(
@@ -80,9 +80,14 @@ export async function POST(req: Request) {
       });
       return NextResponse.json({ saved: true, data: newFavorite });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("FAVORITE_API_ERROR:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -93,21 +98,52 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { clerkUserId },
-      include: {
-        favorites: {
-          include: {
-            product: true,
-          },
-        },
-      },
     });
 
     if (!user) return NextResponse.json([]);
 
-    const favorites = user.favorites.map((f) => ({
-      productId: f.productId,
-      product: f.product,
-    }));
+    const favoriteRows = await prisma.favorite.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        productId: true,
+      },
+    });
+
+    if (favoriteRows.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: [...new Set(favoriteRows.map((favorite) => favorite.productId))],
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        images: true,
+        description: true,
+        storeId: true,
+        brand: true,
+        slug: true,
+      },
+    });
+
+    const productById = new Map(products.map((product) => [product.id, product]));
+    const favorites = favoriteRows.flatMap((favorite) => {
+      const product = productById.get(favorite.productId);
+      if (!product) return [];
+
+      return [
+        {
+          productId: favorite.productId,
+          product,
+        },
+      ];
+    });
 
     return NextResponse.json(favorites);
   } catch (error) {

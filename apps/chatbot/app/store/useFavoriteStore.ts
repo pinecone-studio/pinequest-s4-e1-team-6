@@ -1,10 +1,25 @@
 import { create } from "zustand";
 
+type FavoriteProduct = {
+  id: string;
+  name?: string;
+  price?: number;
+  image?: string;
+  description?: string;
+  storeId?: string;
+  images?: string[];
+};
+
+type FavoriteResponse = {
+  productId: string;
+  product: FavoriteProduct;
+};
+
 interface FavoriteStore {
   savedIds: string[];
-  savedProducts: any[];
+  savedProducts: FavoriteProduct[];
   isLoading: boolean;
-  toggleFavorite: (product: any) => Promise<void>;
+  toggleFavorite: (product: FavoriteProduct) => Promise<void>;
   fetchFavorites: () => Promise<void>;
 }
 
@@ -16,15 +31,17 @@ export const useFavoriteStore = create<FavoriteStore>((set, get) => ({
   fetchFavorites: async () => {
     try {
       const res = await fetch("/chat/api/favorites");
-      if (res.ok) return;
-      const data = await res.json();
+      if (!res.ok) return;
+      const data: FavoriteResponse[] = await res.json();
       set({
-        savedIds: data.map((f: any) => f.productId),
-        savedProducts: data.map((f: any) => f.product),
+        savedIds: data.map((favorite) => favorite.productId),
+        savedProducts: data.map((favorite) => favorite.product),
       });
-    } catch (err) {}
+    } catch {
+      // Ignore fetch errors; callers can retry on the next open.
+    }
   },
-  toggleFavorite: async (product: any) => {
+  toggleFavorite: async (product) => {
     const isSaved = get().savedIds.includes(product.id);
 
     if (isSaved) {
@@ -52,6 +69,8 @@ export const useFavoriteStore = create<FavoriteStore>((set, get) => ({
           storeId: product.storeId,
         }),
       });
-    } catch (err) {}
+    } catch {
+      // Ignore network errors; optimistic UI already updated.
+    }
   },
 }));

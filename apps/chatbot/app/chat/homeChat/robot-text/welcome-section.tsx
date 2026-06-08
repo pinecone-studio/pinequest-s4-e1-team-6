@@ -84,7 +84,7 @@ function PerspectiveMagneticCard({
           rotateY,
           transformStyle: "preserve-3d",
         }}
-        className="group relative flex flex-col items-start p-4 rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-2xl border border-[#077eef]/10 hover:border-[#077eef]/60 dark:hover:border-[#077eef]/50 hover:shadow-[0_20px_40px_rgba(7,126,239,0.1)] transition-all duration-300 w-full h-[110px]"
+        className="group relative flex flex-col items-start p-4 rounded-2xl bg-white/12 backdrop-blur-2xl border border-white/15 hover:border-white/35 hover:shadow-[0_20px_40px_rgba(255,255,255,0.12)] transition-all duration-300 w-full h-[110px]"
       >
         <div
           className="relative z-10 flex flex-col h-full justify-between w-full text-left pointer-events-none"
@@ -94,10 +94,10 @@ function PerspectiveMagneticCard({
             {emoji}
           </span>
           <div>
-            <p className="text-[9px] font-black tracking-widest text-[#077eef]/60 uppercase mb-0.5">
+            <p className="text-[9px] font-black tracking-widest text-white/60 uppercase mb-0.5">
               {desc}
             </p>
-            <p className="text-sm font-bold text-slate-800 dark:text-white/90 group-hover:text-[#077eef] transition-colors line-clamp-1">
+            <p className="text-sm font-bold text-white/90 group-hover:text-white transition-colors line-clamp-1">
               {label}
             </p>
           </div>
@@ -138,23 +138,23 @@ export function WelcomeSection({
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[70vh] md:min-h-[85vh] overflow-hidden px-6 pb-38">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(7,126,239,0.05),transparent_70%)]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.12),transparent_70%)]" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center w-full max-w-5xl">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-4 md:mb-8 px-3 py-1 rounded-full border border-[#077eef]/20 bg-[#077eef]/5 backdrop-blur-sm"
+          className="mb-4 md:mb-8 px-3 py-1 rounded-full border border-white/20 bg-white/15 backdrop-blur-sm shadow-sm"
         >
-          <span className="text-[#077eef] text-[7px] md:text-[9px] font-black tracking-[0.3em] md:tracking-[0.4em] uppercase">
+          <span className="text-white text-[7px] md:text-[9px] font-black tracking-[0.3em] md:tracking-[0.4em] uppercase">
             AI Lifestyle Curated
           </span>
         </motion.div>
 
-        <h1 className="text-3xl md:text-7xl font-black tracking-tighter text-center leading-tight md:leading-[1.1] mb-4 md:mb-6">
-          <span className="text-slate-900 dark:text-white">Сайн уу, </span>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#077eef] via-cyan-400 to-[#077eef] animate-shimmer bg-[length:200%_auto] italic">
+        <h1 className="text-3xl md:text-7xl font-black tracking-tighter text-center leading-tight md:leading-[1.1] mb-6 b md:mb-6 ">
+          <span className="text-white">Сайн уу, </span>
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-[#d7e7ff] to-white animate-shimmer bg-[length:200%_auto] pr-4 italic">
             {firstName}!
           </span>
         </h1>
@@ -163,10 +163,10 @@ export function WelcomeSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-wrap items-center justify-center gap-x-1.5 text-xs md:text-lg font-light text-slate-500 dark:text-slate-400 text-center mb-8 md:mb-16 max-w-[280px] md:max-w-lg mx-auto"
+          className="flex flex-wrap items-center justify-center gap-x-1.5 text-xs md:text-lg font-light text-white/80 text-center mb-8 md:mb-16 max-w-[280px] md:max-w-lg mx-auto"
         >
           <span>Таны</span>
-          <span className="text-[#077eef] italic font-bold">үнэ цэнийг</span>
+          <span className="text-white italic font-bold">үнэ цэнийг</span>
           <span>төгс илэрхийлэх шийдэл энд бий.</span>
         </motion.p>
 

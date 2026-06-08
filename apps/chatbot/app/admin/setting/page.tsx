@@ -8,7 +8,7 @@ export const revalidate = 0;
 
 export default async function AdminSettingsPage() {
   const { userId } = await auth();
-  if (!userId) return redirect("/login");
+  if (!userId) return redirect("/chat/sign-in");
 
   const user = await currentUser();
   const role = (user?.publicMetadata as any)?.role;
