@@ -14,7 +14,7 @@ export const NavigationControls = ({ onPrev, onNext, total = 0, current }: Navig
     <div className="absolute left-2 md:left-6 z-50">
       <button
         onClick={onPrev}
-        className="p-3 md:p-5 rounded-full bg-white/5 backdrop-blur-2xl border border-white/10 text-white/60 hover:text-[#C5A059] hover:border-[#C5A059]/50 active:scale-90 transition-all shadow-2xl"
+        className="p-3 md:p-5 rounded-full bg-white/5 backdrop-blur-2xl border border-white/10 text-white/60 hover:text-[#9f8cff] hover:border-[#9f8cff]/50 active:scale-90 transition-all shadow-2xl"
       >
         <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
       </button>
@@ -23,7 +23,7 @@ export const NavigationControls = ({ onPrev, onNext, total = 0, current }: Navig
     <div className="absolute right-2 md:right-6 z-50">
       <button
         onClick={onNext}
-        className="p-3 md:p-5 rounded-full bg-white/5 backdrop-blur-2xl border border-white/10 text-white/60 hover:text-[#C5A059] hover:border-[#C5A059]/50 active:scale-90 transition-all shadow-2xl"
+        className="p-3 md:p-5 rounded-full bg-white/5 backdrop-blur-2xl border border-white/10 text-white/60 hover:text-[#9f8cff] hover:border-[#9f8cff]/50 active:scale-90 transition-all shadow-2xl"
       >
         <ChevronRight className="w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
       </button>
@@ -34,7 +34,7 @@ export const NavigationControls = ({ onPrev, onNext, total = 0, current }: Navig
         <div
           key={i}
           className={`h-1.5 transition-all duration-500 rounded-full ${
-            i === current ? "w-8 bg-[#C5A059]" : "w-1.5 bg-white/20"
+            i === current ? "w-8 bg-[#9f8cff]" : "w-1.5 bg-white/20"
           }`}
         />
       ))}

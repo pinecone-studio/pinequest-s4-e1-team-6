@@ -1,104 +1,52 @@
 "use client";
-import React, { useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-
-const suggestions = [
-  {
-    label: "Шинэ коллекц",
-    query: "Шинэ пүүз харуулаач",
-    emoji: "👟",
-    desc: "Latest Drops",
-  },
-  {
-    label: "Өв соёл",
-    query: "Үндэсний хувцас харъя",
-    emoji: "👗",
-    desc: "Heritage Style",
-  },
-  {
-    label: "Self Care",
-    query: "Шилдэг косметик",
-    emoji: "💄",
-    desc: "Beauty Essentials",
-  },
-  {
-    label: "Трэндүүд",
-    query: "Trending одоо юу байна?",
-    emoji: "🚀",
-    desc: "What's Hot",
-  },
-];
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  FEATURE_PRESETS,
+  type FeatureSlug,
+} from "@/app/chat/explore/feature-presets";
 
 function PerspectiveMagneticCard({
-  label,
-  emoji,
-  desc,
+  title,
+  badge,
+  prompt,
+  accent,
   onClick,
   index,
 }: {
-  label: string;
-  emoji: string;
-  desc: string;
+  title: string;
+  badge: string;
+  prompt: string;
+  accent: string;
   onClick: () => void;
   index: number;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const springX = useSpring(x, { stiffness: 80, damping: 20 });
-  const springY = useSpring(y, { stiffness: 80, damping: 20 });
-
-  const rotateX = useTransform(springY, [-100, 100], [12, -12]);
-  const rotateY = useTransform(springX, [-100, 100], [-12, 12]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    x.set(e.clientX - centerX);
-    y.set(e.clientY - centerY);
-  };
-
   return (
-    <div style={{ perspective: "1000px" }} className="w-full">
+    <div className="w-full">
       <motion.button
-        ref={ref}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={() => {
-          x.set(0);
-          y.set(0);
-        }}
         onClick={(e) => {
           e.preventDefault();
           onClick();
         }}
-        style={{
-          x: springX,
-          y: springY,
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
-        className="group relative flex flex-col items-start p-4 rounded-2xl bg-white/12 backdrop-blur-2xl border border-white/15 hover:border-white/35 hover:shadow-[0_20px_40px_rgba(255,255,255,0.12)] transition-all duration-300 w-full h-[110px]"
+        className="relative flex h-[124px] w-full flex-col items-start rounded-2xl border border-white/15 bg-white/12 p-4 backdrop-blur-2xl transition-none"
       >
-        <div
-          className="relative z-10 flex flex-col h-full justify-between w-full text-left pointer-events-none"
-          style={{ transform: "translateZ(30px)" }}
-        >
-          <span className="text-2xl mb-1 group-hover:scale-110 transition-transform duration-500 origin-left">
-            {emoji}
+        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${accent} opacity-20 blur-2xl`} />
+        <div className="relative z-10 flex h-full w-full flex-col justify-between text-left pointer-events-none">
+          <span className="inline-flex w-fit rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[9px] font-black tracking-[0.25em] text-white/75 uppercase">
+            {badge}
           </span>
           <div>
             <p className="text-[9px] font-black tracking-widest text-white/60 uppercase mb-0.5">
-              {desc}
+              Feature
             </p>
-            <p className="text-sm font-bold text-white/90 group-hover:text-white transition-colors line-clamp-1">
-              {label}
+            <p className="text-sm font-bold text-white/90 line-clamp-2">
+              {title}
+            </p>
+            <p className="mt-1 text-[11px] leading-snug text-white/60 line-clamp-2">
+              {prompt}
             </p>
           </div>
         </div>
@@ -109,31 +57,14 @@ function PerspectiveMagneticCard({
 
 export function WelcomeSection({
   onSelect,
+  onOpenFeature,
   userName,
 }: {
   onSelect: (q: string) => void;
+  onOpenFeature?: (slug: FeatureSlug) => void;
   userName?: string | null;
 }) {
   const firstName = userName ? userName.split(" ")[0] : "Зочин";
-
-  const handleSuggestionClick = (query: string) => {
-    onSelect(query);
-    setTimeout(() => {
-      const chatInput = document.querySelector(
-        'input[type="text"]',
-      ) as HTMLInputElement;
-      const chatForm = document.querySelector("form");
-      if (chatInput) {
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-          window.HTMLInputElement.prototype,
-          "value",
-        )?.set;
-        nativeInputValueSetter?.call(chatInput, query);
-        chatInput.dispatchEvent(new Event("input", { bubbles: true }));
-        if (chatForm) chatForm.requestSubmit();
-      }
-    }, 50);
-  };
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[70vh] md:min-h-[85vh] overflow-hidden px-6 pb-38">
@@ -152,7 +83,7 @@ export function WelcomeSection({
           </span>
         </motion.div>
 
-        <h1 className="text-3xl md:text-7xl font-black tracking-tighter text-center leading-tight md:leading-[1.1] mb-6 b md:mb-6 ">
+        <h1 className="text-3xl md:text-7xl font-black tracking-tighter text-center leading-tight md:leading-[1.1] mb-6 md:mb-6 ">
           <span className="text-white">Сайн уу, </span>
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-[#d7e7ff] to-white animate-shimmer bg-[length:200%_auto] pr-4 italic">
             {firstName}!
@@ -173,11 +104,20 @@ export function WelcomeSection({
         </motion.p>
 
         <div className="hidden md:grid grid-cols-4 gap-4 w-full max-w-4xl px-2 mt-15">
-          {suggestions.map((item, i) => (
+          {FEATURE_PRESETS.map((item, i) => (
             <PerspectiveMagneticCard
               key={i}
-              {...item}
-              onClick={() => handleSuggestionClick(item.query)}
+              title={item.heroTitle}
+              badge={item.title}
+              prompt={item.heroDescription}
+              accent={item.accent}
+              onClick={() => {
+                if (onOpenFeature) {
+                  onOpenFeature(item.slug);
+                  return;
+                }
+                onSelect(item.prompt);
+              }}
               index={i}
             />
           ))}

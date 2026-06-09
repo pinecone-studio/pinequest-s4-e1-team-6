@@ -60,9 +60,9 @@ export default function Sidebar() {
             const active = path === item.href;
             return (
               <Link key={item.name} href={item.href} 
-                className={`flex items-center gap-3 p-3.5 rounded-xl transition-all group relative
-                ${active ? "bg-indigo-600/10 text-indigo-400 border border-indigo-600/10" : "text-gray-400 hover:bg-white/5 hover:text-white"}`}>
-                <Icon size={19} className={active ? "scale-110" : "group-hover:scale-110 transition-transform"} />
+                className={`flex items-center gap-3 p-3.5 rounded-xl relative
+                ${active ? "bg-indigo-600/10 text-indigo-400 border border-indigo-600/10" : "text-gray-400"}`}>
+                <Icon size={19} className={active ? "scale-110" : ""} />
                 {!collapsed && <span className="text-sm font-medium tracking-wide">{item.name}</span>}
                 {active && <div className="absolute left-0 top-1/4 h-1/2 w-0.5 bg-indigo-400 rounded-full" />}
               </Link>

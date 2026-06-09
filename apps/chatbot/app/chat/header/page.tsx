@@ -33,7 +33,7 @@ export default function Header({
   </span>
 
   {/* Mart хэсэг нь тусдаа гоё хүрээтэй хайрцаг дотор */}
-  <div className="ml-1.5 p-[1.5px] rounded-lg bg-gradient-to-r from-amber-400 via-pink-500 to-indigo-500 transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(168,85,247,0.4)]">
+  <div className="ml-1.5 p-[1.5px] rounded-lg bg-gradient-to-r from-[#9f8cff] via-[#7c5cff] to-[#56a8ff] transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(124,92,255,0.35)]">
     <div className="px-2 py-0.5 rounded-[6px] bg-white dark:bg-neutral-950">
       <span className="text-sm md:text-base font-extrabold tracking-wide uppercase text-neutral-900 dark:text-neutral-100">
         Mart
