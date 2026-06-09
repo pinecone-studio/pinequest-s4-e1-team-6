@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { useCart } from "@/app/chat/hooks/useCart";
+import { parsePrice } from "@/lib/utils/price";
  
 export const ProductCard = ({
   product,
@@ -178,9 +179,7 @@ export const ProductCard = ({
  
           <p className="text-[#d9ccff] text-2xl font-black">
             {(() => {
-              const numericPrice = parseFloat(
-                String(productData.price).replace(/[^0-9.]/g, ""),
-              );
+              const numericPrice = parsePrice(productData.price);
               return isNaN(numericPrice) || numericPrice === 0
                 ? "Үнэгүй"
                 : numericPrice.toLocaleString() + "₮";

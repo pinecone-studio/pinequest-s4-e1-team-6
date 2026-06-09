@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { createPortal } from "react-dom";
+import { parsePrice } from "@/lib/utils/price";
 
 interface Product {
   id: string;
@@ -29,10 +30,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
 
   if (!product) return null;
 
-  const numericPrice =
-    typeof product.price === "string"
-      ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
-      : Number(product.price);
+  const numericPrice = parsePrice(product.price);
 
   const handleAddCart = async () => {
     setIsAdding(true);

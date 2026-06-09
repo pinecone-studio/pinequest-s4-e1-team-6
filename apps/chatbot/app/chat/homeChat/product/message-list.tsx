@@ -8,6 +8,7 @@ import { ProductCarousel } from "@/app/chat/products/scrollEffect/ProductCarouse
 import OrderAddress from "../../payment/components/form";
 import QPayPayment from "../../payment/components/QPayPayment ";
 import OrderReceipt from "../../ZahialgaHarah/OrderReceipt";
+import { parsePrice } from "@/lib/utils/price";
 
 interface Product {
   id: string;
@@ -107,10 +108,7 @@ export const MessageList: React.FC<MessageListProps> = ({
     const product = { ...addressFormProduct };
     setAddressFormProduct(null);
 
-    const numericPrice =
-      typeof product.price === "string"
-        ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
-        : product.price;
+    const numericPrice = parsePrice(product.price);
 
     setTimeout(() => {
       setActivePayment({
