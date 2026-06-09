@@ -40,8 +40,8 @@ export const VisualSearchResults: React.FC<VisualSearchResultsProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-2 mb-3 px-1"
       >
-        <Sparkles size={11} className="text-[#C5A059]" />
-        <span className="text-xs font-semibold tracking-widest uppercase text-[#C5A059]/80">
+        <Sparkles size={11} className="text-[#8b7bff]" />
+        <span className="text-xs font-semibold tracking-widest uppercase text-[#8b7bff]/80">
           Зургаар хайсан үр дүн
         </span>
         <span className="text-white/30 text-xs">· {products.length} бараа</span>
@@ -54,13 +54,13 @@ export const VisualSearchResults: React.FC<VisualSearchResultsProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             className="flex-shrink-0 flex flex-col items-center"
           >
-            <div className="relative w-16 h-16 rounded-xl overflow-hidaden border border-[#C5A059]/40 shadow-[0_0_12px_rgba(197,160,89,0.2)]">
+            <div className="relative w-16 h-16 rounded-xl overflow-hidaden border border-[#8b7bff]/40 shadow-[0_0_12px_rgba(139,123,255,0.2)]">
               <img src={sourceImage} alt="Хайлтын зураг" className="w-full h-full object-cover" />
               <div className="absolute bottom-0.5 right-0.5 bg-black/70 rounded-full p-0.5">
-                <Search size={7} className="text-[#C5A059]" />
+                <Search size={7} className="text-[#8b7bff]" />
               </div>
             </div>
-            <div className="w-px flex-1 mt-1 bg-gradient-to-b from-[#C5A059]/30 to-transparent min-h-[16px]" />
+            <div className="w-px flex-1 mt-1 bg-gradient-to-b from-[#8b7bff]/30 to-transparent min-h-[16px]" />
           </motion.div>
         )}
 
@@ -81,7 +81,7 @@ export const VisualSearchResults: React.FC<VisualSearchResultsProps> = ({
                 onClick={() => { setSelected(product); onProductClick(product); }}
               >
                 <div className={`rounded-2xl overflow-hidden border transition-all duration-300 ${
-                  isHovered ? "border-[#C5A059]/60 shadow-[0_4px_20px_rgba(197,160,89,0.15)]" : "border-white/5"
+                  isHovered ? "border-[#8b7bff]/60 shadow-[0_4px_20px_rgba(139,123,255,0.15)]" : "border-white/5"
                 } bg-[#111]`}>
                   <div className="relative aspect-[3/4] overflow-hidden">
                     <img
@@ -93,7 +93,7 @@ export const VisualSearchResults: React.FC<VisualSearchResultsProps> = ({
 
                     <div className="absolute bottom-0 left-0 right-0 p-2">
                       <p className="text-white text-[11px] font-semibold leading-tight line-clamp-2 mb-0.5">{product.name}</p>
-                      <p className="text-[#C5A059] text-xs font-black">
+                      <p className="text-[#9f8cff] text-xs font-black">
                         {price > 0 ? `${price.toLocaleString()}₮` : product.price}
                       </p>
                     </div>
@@ -108,7 +108,7 @@ export const VisualSearchResults: React.FC<VisualSearchResultsProps> = ({
                         >
                           <button
                             onClick={(e) => { e.stopPropagation(); onBuy(product.name, String(product.price)); }}
-                            className="flex items-center gap-1 bg-[#C5A059] hover:bg-[#d4af6a] text-black text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-lg transition-colors"
+                            className="flex items-center gap-1 bg-[#8b7bff] hover:bg-[#7266f2] text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-lg transition-colors"
                           >
                             <ShoppingBag size={11} />
                             Захиалах
@@ -152,12 +152,12 @@ export const VisualSearchResults: React.FC<VisualSearchResultsProps> = ({
                   <p className="text-white/45 text-sm mb-4 line-clamp-2">{selected.description}</p>
                 )}
                 <div className="flex items-center justify-between">
-                  <p className="text-[#C5A059] text-xl font-black">
+                  <p className="text-[#8b7bff] text-xl font-black">
                     {parsePrice(selected.price) > 0 ? `${parsePrice(selected.price).toLocaleString()}₮` : selected.price}
                   </p>
                   <button
                     onClick={() => { onBuy(selected.name, String(selected.price)); setSelected(null); }}
-                    className="flex items-center gap-1.5 bg-[#C5A059] hover:bg-[#d4af6a] text-black font-bold px-4 py-2.5 rounded-2xl text-sm transition-colors"
+                    className="flex items-center gap-1.5 bg-[#8b7bff] hover:bg-[#7266f2] text-white font-bold px-4 py-2.5 rounded-2xl text-sm transition-colors"
                   >
                     <ShoppingBag size={13} />
                     Захиалах

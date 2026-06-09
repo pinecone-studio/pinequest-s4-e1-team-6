@@ -67,7 +67,7 @@ export const ChatHistory = ({
       part.toLowerCase() === query.toLowerCase() ? (
         <span
           key={i}
-          className="bg-yellow-200 dark:bg-yellow-500/40 rounded px-0.5"
+          className="bg-[#d8d1ff] dark:bg-[#9f8cff]/40 rounded px-0.5"
         >
           {part}
         </span>
