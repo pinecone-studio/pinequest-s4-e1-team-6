@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import HomeClient from "./HomeClient";
 
 export default function Page() {
-  redirect("/admin");
+  return (
+    <Suspense fallback={null}>
+      <HomeClient />
+    </Suspense>
+  );
 }
