@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { index } from "@/lib/api/pinecone";
 import { prisma } from "@/lib/prisma";
+import { getStoreNamespaces } from "@/lib/search/get-store-namespaces";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY,
@@ -18,7 +19,9 @@ function normalizeOpenAIRole(
   role: IncomingMessage["role"],
 ): "user" | "assistant" | "system" {
   const r = role.toLowerCase();
-  if (r === "user" || r === "assistant" || r === "system") return r as any;
+  if (r === "user" || r === "assistant" || r === "system") {
+    return r;
+  }
   return "user";
 }
 
@@ -54,13 +57,7 @@ export async function POST(req: Request) {
         input: lastUserMessage,
       });
 
-      const namespaces = [
-        "Turuu's store",
-        "sadadasda",
-        "sephora",
-        "ETRNTY",
-        "Tugss store",
-      ];
+      const namespaces = await getStoreNamespaces();
 
       const queryPromises = namespaces.map((ns) =>
         index.namespace(ns).query({
@@ -234,10 +231,12 @@ STORE_ID: ${storeId}`;
     }
 
     return NextResponse.json({ reply: aiReply });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Unknown server error";
     console.error("API_GLOBAL_ERROR:", error);
     return NextResponse.json(
-      { error: "Internal Error", details: error.message },
+      { error: "Internal Error", details: message },
       { status: 500 },
     );
   }
