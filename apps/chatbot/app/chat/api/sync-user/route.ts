@@ -21,7 +21,8 @@ export async function POST() {
 
     const email =
       clerkUser.emailAddresses.find(
-        (e) => e.id === clerkUser.primaryEmailAddressId,
+        (e: { id: string; emailAddress: string }) =>
+          e.id === clerkUser.primaryEmailAddressId,
       )?.emailAddress || clerkUser.emailAddresses[0]?.emailAddress;
 
     if (!email) {

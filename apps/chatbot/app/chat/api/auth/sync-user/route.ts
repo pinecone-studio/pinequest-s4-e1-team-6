@@ -28,7 +28,8 @@ export async function POST() {
  
     const primaryEmail =
       clerkUser.emailAddresses.find(
-        (email) => email.id === clerkUser.primaryEmailAddressId,
+        (email: { id: string; emailAddress: string }) =>
+          email.id === clerkUser.primaryEmailAddressId,
       )?.emailAddress ||
       clerkUser.emailAddresses[0]?.emailAddress ||
       "";
