@@ -4,6 +4,13 @@ import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, useMapEvents, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
+type MapClickEvent = {
+  latlng: {
+    lat: number;
+    lng: number;
+  };
+};
+
 interface LocationPickerProps {
   onLocationSelect: (lat: number, lng: number) => void;
   initialPos?: [number, number];
@@ -18,7 +25,7 @@ function MapController({
   const map = useMap();
 
   useMapEvents({
-    click(e) {
+    click(e: MapClickEvent) {
       const { lat, lng } = e.latlng;
       map.flyTo([lat, lng], map.getZoom(), {
         animate: true,
@@ -103,6 +110,8 @@ function LocateMeButton({
   );
 }
 
+const LeafletMapContainer = MapContainer as React.ComponentType<any>;
+
 export default function LocationPicker({
   onLocationSelect,
   initialPos,
@@ -111,7 +120,7 @@ export default function LocationPicker({
 
   return (
     <div className="relative w-full h-[300px] rounded-xl overflow-hidden border-2 border-slate-200 shadow-lg">
-      <MapContainer
+      <LeafletMapContainer
         center={defaultPos}
         zoom={16}
         style={{ height: "100%", width: "100%" }}
@@ -120,7 +129,7 @@ export default function LocationPicker({
         <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
         <MapController onChange={onLocationSelect} />
         <LocateMeButton onChange={onLocationSelect} />
-      </MapContainer>
+      </LeafletMapContainer>
 
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[100%] z-[1000] pointer-events-none">
         <div className="relative flex flex-col items-center">
