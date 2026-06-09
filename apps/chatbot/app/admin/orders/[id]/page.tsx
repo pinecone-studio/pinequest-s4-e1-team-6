@@ -8,7 +8,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}`)
+    fetch(`/api/orders/${id}`)
       .then((res) => res.json())
       .then((data) => setOrder(data));
   }, [id]);

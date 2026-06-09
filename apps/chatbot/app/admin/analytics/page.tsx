@@ -14,7 +14,7 @@ export default function AnalyticsPage() {
   const [days, setDays] = useState(7);
 
   const fetchData = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`);
+    const res = await fetch("/api/orders");
     const data = await res.json();
 
     const now = new Date();
