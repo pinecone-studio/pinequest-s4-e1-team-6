@@ -24,6 +24,8 @@ export async function PATCH(req: Request) {
       description,
       brand,
       size,
+      sizes,
+      sizeStock,
     } = body;
 
     if (!id || !storeName) {
@@ -44,7 +46,10 @@ export async function PATCH(req: Request) {
         brand: brand || "",
         stock: Number(stock) || 0,
         store_name: storeName,
-        size: size || 0,
+        size: size || "",
+        sizes: Array.isArray(sizes) ? sizes.map(String) : [],
+        sizeStock: sizeStock || "",
+        size_stock: sizeStock || "",
       },
     });
 

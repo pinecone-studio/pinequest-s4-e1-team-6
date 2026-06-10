@@ -13,7 +13,7 @@ export const Footer = ({
   quantity: number;
   numericPrice: number;
   isAdding: boolean;
-  onBuy: (name: string, price: any) => void;
+  onBuy: (name: string, price: any, product?: any) => void;
   handleAddCart: () => void;
 }) => {
   const [step, setStep] = useState<'detail' | 'form'>('detail');
@@ -28,7 +28,7 @@ export const Footer = ({
 
       <div className="grid grid-cols-1 gap-3">
         <button
-          onClick={() => onBuy(product.name, product.price)}
+          onClick={() => onBuy(product.name, product.price, product)}
           className="w-full bg-white text-black font-black py-4.5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-slate-200 active:scale-95 shadow-lg shadow-white/5"
         >
           <CreditCard size={20} />

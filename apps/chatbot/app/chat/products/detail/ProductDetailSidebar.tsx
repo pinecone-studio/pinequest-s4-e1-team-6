@@ -15,12 +15,14 @@ interface Product {
   price: string | number;
   image: string;
   description?: string;
+  storeId?: string;
+  storeName?: string;
 }
 
 interface Props {
   product: Product | null;
   onClose: () => void;
-  onBuy: (name: string, price: any) => void;
+  onBuy: (name: string, price: any, product?: Product) => void;
 }
 
 export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
@@ -124,7 +126,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
             numericPrice={numericPrice}
             isAdding={isAdding}
             onBuy={(name, price) => {
-              onBuy(name, price);
+              onBuy(name, price, product);
               onClose(); 
             }}
             handleAddCart={handleAddCart}

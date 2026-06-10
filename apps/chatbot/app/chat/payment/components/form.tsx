@@ -7,7 +7,7 @@ import { LOCATION_DATA } from "./form1";
  
 interface Props {
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (data: FormData) => void;
 }
  
 type FormData = {
@@ -142,7 +142,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
       phone: true,
     });
     setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) onConfirm();
+    if (Object.keys(newErrors).length === 0) onConfirm(formData);
   };
  
   const ErrorMsg = ({ field }: { field: keyof FormErrors }) => (

@@ -18,6 +18,7 @@ export default function AdminDashboardContent({
   const [tempName, setTempName] = useState("");
   const [isSettingUp, setIsSettingUp] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
     const checkStore = async () => {
@@ -89,9 +90,21 @@ export default function AdminDashboardContent({
     }
   };
 
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch("/admin/api/orders", { cache: "no-store" });
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setOrders([]);
+    }
+  };
+
   useEffect(() => {
     if (storeName) {
       fetchProducts();
+      fetchOrders();
     }
   }, [storeName]);
 
@@ -170,12 +183,12 @@ export default function AdminDashboardContent({
           <p className="opacity-70 text-sm font-bold uppercase tracking-wider">
             Захиалга
           </p>
-          <h2 className="text-5xl font-black mt-2">0</h2>
+          <h2 className="text-5xl font-black mt-2">{orders.length}</h2>
         </div>
       </div>
 
       <div className="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-6 border border-white/10">
-        <RevenueChart orders={[]} />
+        <RevenueChart orders={orders} />
       </div>
     </div>
   );

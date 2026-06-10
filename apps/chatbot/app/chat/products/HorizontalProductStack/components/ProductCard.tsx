@@ -37,6 +37,12 @@ export const ProductCard = ({
       id: product.id ?? product.product_id ?? product.name,
       name: meta.name || product.product_name || product.name || "Нэргүй бараа",
       brand: product.brand || meta.brand || "",
+      storeId:
+        product.storeId ||
+        product.store_id ||
+        meta.storeId ||
+        meta.store_id ||
+        "",
       storeName:
         product.storeName?.trim() ||
         product.store_name?.trim() ||
@@ -201,7 +207,7 @@ export const ProductCard = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    if (onOrder) onOrder();
+                    if (onOrder) onOrder(productWithImage);
                   }}
                   className="flex-1 h-12 bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] rounded-2xl text-white font-bold active:scale-95 transition-all text-sm disabled:opacity-50"
                   disabled={productData.stock === 0}

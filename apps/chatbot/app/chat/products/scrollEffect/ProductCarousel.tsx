@@ -8,9 +8,9 @@ import HorizontalProductStack from "../HorizontalProductStack/page";
 interface Product {
   id: string;
   name: string;
-  price: string;
+  price: string | number;
   image: string;
-  description: string;
+  description?: string;
   storeId?: string;
   brand?: string;
   storeName?: string;
@@ -19,7 +19,7 @@ interface Product {
 interface ProductCarouselProps {
   products: Product[];
   onSelect: (product: Product) => void;
-  onBuy: (name: string, price: any) => void;
+  onBuy: (name: string, price: any, product?: Product) => void;
   history?: any[];
 }
 

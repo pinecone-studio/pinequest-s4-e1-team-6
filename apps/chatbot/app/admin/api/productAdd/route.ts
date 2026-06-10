@@ -82,6 +82,8 @@ export async function POST(req: NextRequest) {
       brand,
       stock,
       size,
+      sizes,
+      sizeStock,
       storeName,
     } = body;
 
@@ -137,7 +139,10 @@ export async function POST(req: NextRequest) {
             stock: Number(stock),
             store_name: storeName,
             storeId: store.id,
-            size: size || 0,
+            size: size || "",
+            sizes: Array.isArray(sizes) ? sizes.map(String) : [],
+            sizeStock: sizeStock || "",
+            size_stock: sizeStock || "",
           },
         },
       ],
