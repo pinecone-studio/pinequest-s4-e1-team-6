@@ -9,11 +9,11 @@ export async function updateAdminPassword(data: { password: string }) {
       return { success: false, error: "Нэвтрээгүй байна." };
     }
 
-    const client = await clerkClient();
+    // const client = await clerkClient();
 
-    await client.users.updateUser(userId, {
-      password: data.password,
-    });
+    // await client.users.updateUser(userId, {
+    //   password: data.password,
+    // });
 
     return { success: true };
   } catch (error: any) {
