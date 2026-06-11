@@ -1,127 +1,68 @@
 "use client";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "./components/ProductCard";
 import { useCart } from "@/app/context/CartContext";
+
+type ProductItem = {
+  id: string;
+  name: string;
+  price: string;
+  image: string;
+  description: string;
+  storeId?: string;
+  brand?: string;
+  storeName?: string;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
+type HorizontalProductStackProps = {
+  products?: ProductItem[];
+  onSelect?: (product: ProductItem) => void;
+  onBuy?: (name: string, price: string) => void;
+};
 
 export default function HorizontalProductStack({
   products = [],
   onSelect = () => {},
-  onBuy, 
-}: any) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  onBuy,
+}: HorizontalProductStackProps) {
   const [savedIds, setSavedIds] = useState<string[]>([]);
-  const lastNavigationTime = useRef(0);
   const { addToCart } = useCart();
 
-  const refreshFavorites = async () => {
-    const res = await fetch("/chat/api/favorites");
-    if (res.ok) {
-      const data = await res.json();
-      setSavedIds(data.map((f: any) => f.productId));
-    }
-  };
-
   useEffect(() => {
-    refreshFavorites();
+    void (async () => {
+      const res = await fetch("/chat/api/favorites");
+      if (!res.ok) return;
+      const data: { productId: string }[] = await res.json();
+      setSavedIds(data.map((favorite) => favorite.productId));
+    })();
   }, []);
 
-  const navigate = useCallback(
-    (newDir: number) => {
-      const now = Date.now();
-      if (now - lastNavigationTime.current < 250) return;
-      lastNavigationTime.current = now;
-      setCurrentIndex((prev) =>
-        newDir > 0
-          ? prev === products.length - 1
-            ? 0
-            : prev + 1
-          : prev === 0
-            ? products.length - 1
-            : prev - 1,
-      );
-    },
-    [products.length],
-  );
-
-  const getCardStyle = (index: number) => {
-    let diff = index - currentIndex;
-    const total = products.length;
-    if (diff > total / 2) diff -= total;
-    if (diff < -total / 2) diff += total;
-    if (diff === 0)
-      return { x: 0, scale: 1, opacity: 1, zIndex: 10, rotateY: 0 };
-    if (Math.abs(diff) === 1)
-      return {
-        x:
-          diff *
-          (typeof window !== "undefined" && window.innerWidth < 768
-            ? 140
-            : 200),
-        scale: 0.85,
-        opacity: 0.5,
-        zIndex: 5,
-        rotateY: diff * -15,
-      };
-    return { x: diff > 0 ? 500 : -500, scale: 0.5, opacity: 0, zIndex: 0 };
-  };
-
   return (
-    <div className="relative flex h-[550px] w-full items-center justify-center overflow-visible select-none">
-      <button
-        onClick={() => navigate(-1)}
-        className="absolute left-4 z-[60] p-3 rounded-full bg-white/15 backdrop-blur-md border border-[#d7cbff]/30 text-white hover:bg-white/25 transition-all"
-      >
-        <ChevronLeft />
-      </button>
-
-      <div
-        className="relative flex h-full w-full items-center justify-center"
-        style={{ perspective: "1000px" }}
-      >
-        {products.map((product: any, index: number) => {
-          const style = getCardStyle(index);
-          const isCurrent = index === currentIndex;
-          if (style.opacity === 0 && !isCurrent) return null;
-          return (
-            <motion.div
-              key={`${product.id}-${index}`}
-              className="absolute"
-              animate={style}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              style={{ zIndex: style.zIndex }}
-            >
-              <ProductCard
-                product={product}
-                isCurrent={isCurrent}
-                onSelect={() => onSelect(product)}
-                onSave={() => {}}
-                // ЭНД ХОЛБООС ХИЙГДЭЖ БАЙНА
-                onOrder={(orderedProduct: any) => {
-                  const selectedProduct = orderedProduct || product;
-                  if (onBuy) {
-                    onBuy(
-                      selectedProduct.name,
-                      selectedProduct.price,
-                      selectedProduct,
-                    );
-                  }
-                }}
-                onAddToCart={(p: any) => addToCart(p)}
-                savedIds={savedIds}
-              />
-            </motion.div>
-          );
-        })}
+    <div className="relative mx-auto w-full max-w-none select-none overflow-visible px-4 sm:px-8">
+      <div className="relative grid grid-cols-1 gap-8 lg:grid-cols-2">
+        {products.map((product, index) => (
+          <motion.div
+            key={`${product.id}-${index}`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: index * 0.03 }}
+            className="h-full"
+          >
+            <ProductCard
+              product={product}
+              layout="grid"
+              onSelect={() => onSelect(product)}
+              onSave={() => {}}
+              onOrder={() => onBuy?.(product.name, product.price)}
+              onAddToCart={(p) => addToCart(p)}
+              savedIds={savedIds}
+            />
+          </motion.div>
+        ))}
       </div>
-
-      <button
-        onClick={() => navigate(1)}
-        className="absolute right-4 z-[60] p-3 rounded-full bg-white/15 backdrop-blur-md border border-[#d7cbff]/30 text-white hover:bg-white/25 transition-all"
-      >
-        <ChevronRight />
-      </button>
     </div>
   );
 }

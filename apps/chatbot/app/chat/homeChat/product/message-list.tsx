@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
+import { Check, Copy } from "lucide-react";
 import PulsatingDots from "@/lib/utils/loading/pulsating-loader";
 import { ProductCarousel } from "@/app/chat/products/scrollEffect/ProductCarousel";
 import OrderAddress from "../../payment/components/form";
@@ -87,6 +88,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   const [addressFormProduct, setAddressFormProduct] = useState<any>(null);
   const [activePayment, setActivePayment] = useState<any>(null);
   const [receiptData, setReceiptData] = useState<any>(null);
+  const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
 
   const handleOpenOrderForm = (name: string, price: any, product?: Product) => {
     const allProducts = messages.flatMap((m) =>
@@ -174,6 +176,16 @@ export const MessageList: React.FC<MessageListProps> = ({
     });
   };
 
+  const handleCopyMessage = async (text: string, messageKey: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageKey(messageKey);
+      setTimeout(() => setCopiedMessageKey(null), 1500);
+    } catch (error) {
+      console.error("Copy failed:", error);
+    }
+  };
+
   return (
     <>
       <div className="max-w-3xl mx-auto pb-32 flex flex-col space-y-10 px-4">
@@ -209,43 +221,79 @@ export const MessageList: React.FC<MessageListProps> = ({
                     />
                   )}
                   {hasText && (
-                    <div className="px-5 py-3 rounded-[1.6rem] rounded-tr-md bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] text-white shadow-lg shadow-[#8f7bff]/20 text-sm md:text-base">
-                      {rawText}
+                    <div className="relative group/bubble w-fit">
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={() =>
+                          handleCopyMessage(rawText, `msg-${index}-user`)
+                        }
+                        className="absolute -top-2 -right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white/85 opacity-0 shadow-lg backdrop-blur-md transition-all hover:bg-black/45 group-hover/bubble:opacity-100"
+                        aria-label="Copy user message"
+                        title="Copy"
+                      >
+                        {copiedMessageKey === `msg-${index}-user` ? (
+                          <Check size={15} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
+                      </button>
+                      <div className="px-5 py-3 rounded-[1.6rem] rounded-tr-md bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] text-white shadow-lg shadow-[#8f7bff]/20 text-sm md:text-base">
+                        {rawText}
+                      </div>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="w-full space-y-4">
                   {hasText && (
-                    <div className="max-w-[88%] px-6 py-4 rounded-[1.8rem] rounded-tl-md bg-white/85 dark:bg-[#17162a]/70 backdrop-blur-xl border border-[#c9b7ff]/50 dark:border-white/5 shadow-sm">
-                      <div className="prose dark:prose-invert max-w-none text-sm md:text-[15px] leading-relaxed">
-                        <ReactMarkdown
-                          components={{
-                            img: () => null,
-                            p: ({ children }) => (
-                              <p className="m-0">{children}</p>
-                            ),
-                          }}
-                        >
-                          {rawText}
-                        </ReactMarkdown>
-                      </div>
+                    <div className="relative group/bubble max-w-[88%]">
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={() =>
+                          handleCopyMessage(rawText, `msg-${index}-ai`)
+                        }
+                        className="absolute -top-2 -right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#17162a]/90 text-white/75 opacity-0 shadow-lg backdrop-blur-md transition-all hover:bg-[#1f1d35] group-hover/bubble:opacity-100"
+                        aria-label="Copy AI message"
+                        title="Copy"
+                      >
+                        {copiedMessageKey === `msg-${index}-ai` ? (
+                          <Check size={15} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
+                      </button>
+                      <div className="px-6 py-4 rounded-[1.8rem] rounded-tl-md bg-white/85 dark:bg-[#17162a]/70 backdrop-blur-xl border border-[#c9b7ff]/50 dark:border-white/5 shadow-sm">
+                        <div className="prose dark:prose-invert max-w-none text-sm md:text-[15px] leading-relaxed">
+                          <ReactMarkdown
+                            components={{
+                              img: () => null,
+                              p: ({ children }) => (
+                                <p className="m-0">{children}</p>
+                              ),
+                            }}
+                          >
+                            {rawText}
+                          </ReactMarkdown>
+                        </div>
 
-                      {paymentTrigger && (
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() =>
-                            handleOpenOrderForm(
-                              paymentTrigger.name,
-                              paymentTrigger.price,
-                            )
-                          }
-                          className="mt-5 w-full md:w-auto px-8 py-3 bg-gradient-to-r from-[#9f8cff] to-[#6f7bff] text-white font-bold rounded-xl shadow-lg shadow-[#8f7bff]/25 flex items-center justify-center gap-2 text-sm uppercase"
-                        >
-                          🛍️ Захиалах
-                        </motion.button>
-                      )}
+                        {paymentTrigger && (
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() =>
+                              handleOpenOrderForm(
+                                paymentTrigger.name,
+                                paymentTrigger.price,
+                              )
+                            }
+                            className="mt-5 w-full md:w-auto px-8 py-3 bg-gradient-to-r from-[#9f8cff] to-[#6f7bff] text-white font-bold rounded-xl shadow-lg shadow-[#8f7bff]/25 flex items-center justify-center gap-2 text-sm uppercase"
+                          >
+                            🛍️ Захиалах
+                          </motion.button>
+                        )}
+                      </div>
                     </div>
                   )}
 

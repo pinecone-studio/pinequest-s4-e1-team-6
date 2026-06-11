@@ -61,114 +61,12 @@ function normalizeOpenAIRole(role: IncomingMessage["role"]): OpenAIRole {
   return "user";
 }
 
-function normalizeSearchText(value: unknown) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+function normalizeSearchText(value: string) {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-function expandSearchTerm(term: string) {
-  const variants = new Set([term]);
-  if (/^[a-z0-9-]+$/.test(term) && term.length > 4 && term.endsWith("n")) {
-    variants.add(term.slice(0, -1));
-  }
-  return Array.from(variants);
-}
-
-function extractSearchTerms(message: string) {
-  return normalizeSearchText(message)
-    .split(/\s+/)
-    .map((term) => term.trim())
-    .filter((term) => term.length > 1 && !SEARCH_STOP_WORDS.has(term))
-    .flatMap(expandSearchTerm);
-}
-
-function metadataText(metadata: Record<string, unknown> | undefined) {
-  if (!metadata) return "";
-  return normalizeSearchText(
-    [
-      metadata.name,
-      metadata.product_name,
-      metadata.name_search,
-      metadata.brand,
-      metadata.brand_search,
-      metadata.category,
-    ].join(" "),
-  );
-}
-
-function hasKeywordMatch(
-  metadata: Record<string, unknown> | undefined,
-  searchTerms: string[],
-) {
-  if (searchTerms.length === 0) return false;
-  const haystack = metadataText(metadata);
-  return searchTerms.some((term) => haystack.includes(term));
-}
-
-function uniqueById<T extends { id?: string }>(items: T[]) {
-  const seen = new Set<string>();
-  return items.filter((item) => {
-    const id = item.id || "";
-    if (!id) return true;
-    if (seen.has(id)) return false;
-    seen.add(id);
-    return true;
-  });
-}
-
-function hasUnavailableClaim(reply: string) {
-  const normalizedReply = normalizeSearchText(reply);
-  return ["алга", "байхгүй", "oldsongui", "oldsonгүй", "байхгуй", "bhgui"].some(
-    (marker) => normalizedReply.includes(marker),
-  );
-}
-
-function markdownSafe(value: unknown) {
-  return String(value || "")
-    .replace(/[|\[\]\n\r]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function formatProductMarkdown(match: ProductMatch) {
-  const metadata = match.metadata || {};
-  const name = metadata.name || metadata.product_name || "Нэргүй бараа";
-  const price = metadata.price || metadata.formatted_price || "0";
-  const desc = metadata.description || "Тайлбар байхгүй";
-  const id = match.id || metadata.id || "";
-  const brand = metadata.brand || "";
-  const storeName =
-    metadata.store_name || metadata.storeName || "Official Store";
-  const storeId = metadata.storeId || metadata.store_id || storeName;
-  const img = metadata.product_image_url || metadata.image_url || "";
-
-  return `![${markdownSafe(name)}|${markdownSafe(price)}|${markdownSafe(
-    desc,
-  )}|${markdownSafe(id)}|${markdownSafe(brand)}|${markdownSafe(
-    storeId,
-  )}|${markdownSafe(storeName)}](${img})`;
-}
-
-function buildMatchedProductReply(matches: ProductMatch[]) {
-  const productLines = matches
-    .slice(0, 20)
-    .map(formatProductMarkdown)
-    .join("\n");
-  return `Тийм ээ, таны хайсан бараатай тохирох дараах бүтээгдэхүүнүүд байна:\n\n${productLines}`;
-}
-
-async function getSearchNamespaces() {
-  try {
-    const stats = await index.describeIndexStats();
-    const dynamicNamespaces = Object.keys(stats.namespaces || {});
-    return Array.from(new Set([...FALLBACK_NAMESPACES, ...dynamicNamespaces]));
-  } catch (error) {
-    console.error("Pinecone namespace stats error:", error);
-    return FALLBACK_NAMESPACES;
-  }
+function includesNormalizedText(source: string, target: string) {
+  return normalizeSearchText(source).includes(normalizeSearchText(target));
 }
 
 export async function POST(req: Request) {
@@ -196,7 +94,8 @@ export async function POST(req: Request) {
     }
 
     let context = "";
-    let guardedKeywordMatches: ProductMatch[] = [];
+    let requestedBrand = "";
+    let requestedCategory = "";
     try {
       const searchTerms = extractSearchTerms(lastUserMessage);
       const embedding = await openai.embeddings.create({
@@ -219,34 +118,89 @@ export async function POST(req: Request) {
         result.status === "fulfilled" ? result.value.matches || [] : [],
       );
 
-      const keywordMatches = allMatches.filter((match) =>
-        hasKeywordMatch(
-          match.metadata as Record<string, unknown> | undefined,
-          searchTerms,
-        ),
-      );
-      guardedKeywordMatches = uniqueById(keywordMatches)
+      let topMatches = allMatches
         .sort((a, b) => (b.score || 0) - (a.score || 0))
         .slice(0, 20);
 
-      const semanticMatches = allMatches
-        .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 30);
+      const availableBrands = Array.from(
+        new Set(
+          allMatches
+            .map((match) => String(match.metadata?.brand || "").trim())
+            .filter(Boolean),
+        ),
+      );
 
-      const topMatches = uniqueById([...keywordMatches, ...semanticMatches])
-        .sort((a, b) => {
-          const aKeyword = hasKeywordMatch(
-            a.metadata as Record<string, unknown> | undefined,
-            searchTerms,
-          );
-          const bKeyword = hasKeywordMatch(
-            b.metadata as Record<string, unknown> | undefined,
-            searchTerms,
-          );
-          if (aKeyword !== bKeyword) return aKeyword ? -1 : 1;
-          return (b.score || 0) - (a.score || 0);
-        })
-        .slice(0, 80);
+      const availableCategories = Array.from(
+        new Set(
+          allMatches
+            .map((match) =>
+              String(
+                match.metadata?.category ||
+                  match.metadata?.product_type ||
+                  match.metadata?.main_category ||
+                  "",
+              ).trim(),
+            )
+            .filter(Boolean),
+        ),
+      );
+
+      const matchedBrand = availableBrands.find((brand) =>
+        includesNormalizedText(lastUserMessage, brand),
+      );
+
+      const matchedCategory = availableCategories.find((category) =>
+        includesNormalizedText(lastUserMessage, category),
+      );
+
+      if (matchedBrand || matchedCategory) {
+        requestedBrand = matchedBrand || "";
+        requestedCategory = matchedCategory || "";
+        const filteredMatches = topMatches.filter((match) => {
+          const matchBrand = String(match.metadata?.brand || "").trim();
+          const matchCategory = String(
+            match.metadata?.category ||
+              match.metadata?.product_type ||
+              match.metadata?.main_category ||
+              "",
+          ).trim();
+          const matchName = String(
+            match.metadata?.name || match.metadata?.product_name || "",
+          ).trim();
+
+          const brandOk = matchedBrand
+            ? includesNormalizedText(matchBrand, matchedBrand) ||
+              includesNormalizedText(matchName, matchedBrand)
+            : true;
+          const categoryOk = matchedCategory
+            ? includesNormalizedText(matchCategory, matchedCategory)
+            : true;
+
+          return brandOk && categoryOk;
+        });
+
+        if (filteredMatches.length > 0) {
+          topMatches = filteredMatches;
+        }
+      }
+
+      // context = topMatches
+      //   .map((m) => {
+      //     const name = m.metadata?.name || m.metadata?.product_name || "Нэргүй бараа";
+      //     const price = m.metadata?.price || m.metadata?.formatted_price || "0";
+      //     const img = m.metadata?.product_image_url || m.metadata?.image_url || "";
+      //     const desc = m.metadata?.description || "Тайлбар байхгүй";
+      //     const storeName = m.metadata?.store_name || "Official Store";
+
+      //     return `БҮТЭЭГДЭХҮҮН: ${name}
+      //     ҮНЭ: ${price}₮
+      //     ЗУРАГ: ${img}
+      //     ТАЙЛБАР: ${desc}
+      //     ID: ${m.id}
+      //     STORE_NAME: ${storeName}
+      //     STORE_ID: ${m.metadata?.store_id || "store-001"}`;
+      //   })
+      //   .join("\n---\n");
 
       context = topMatches
         .map((m) => {
@@ -260,22 +214,31 @@ export async function POST(req: Request) {
             m.metadata?.store_name || m.metadata?.storeName || "Official Store";
           const storeId = m.metadata?.storeId || m.metadata?.store_id || "";
           const brand = m.metadata?.brand || "";
-          const keywordMatch = hasKeywordMatch(
-            m.metadata as Record<string, unknown> | undefined,
-            searchTerms,
-          );
+          const category =
+            m.metadata?.category ||
+            m.metadata?.product_type ||
+            m.metadata?.main_category ||
+            "";
 
           return `БҮТЭЭГДЭХҮҮН: ${name}
 ҮНЭ: ${price}₮
 ЗУРАГ: ${img}
 ТАЙЛБАР: ${desc}
 БРЕНД: ${brand}
-KEYWORD_MATCH: ${keywordMatch ? "YES" : "NO"}
+CATEGORY: ${category}
 ID: ${m.id}
 STORE_NAME: ${storeName}
 STORE_ID: ${storeId}`;
         })
         .join("\n---\n");
+
+      if (requestedBrand || requestedCategory) {
+        context = `ХАИЛТЫН ШҮҮЛТ:
+REQUESTED_BRAND: ${requestedBrand || "NONE"}
+REQUESTED_CATEGORY: ${requestedCategory || "NONE"}
+
+${context}`;
+      }
 
       console.log("Олдсон барааны тоо:", topMatches.length);
       console.log("Keyword match барааны тоо:", keywordMatches.length);
@@ -288,33 +251,43 @@ STORE_ID: ${storeId}`;
       messages: [
         {
           role: "system",
-          content: `Чи бол өгөгдсөн Context (Pinecone дата) дээр тулгуурлан ажилладаг Монголын хамгийн ухаалаг "Shopping Assistant" юм. Чи ХОЁР горимд ажиллана — асуултын төрлийг эхлээд таниад дараа нь хариул.
+          content: `Чи бол өгөгдсөн Context (Pinecone дата) дээр үндэслэн ажилладаг Монголын хамгийн ухаалаг "Shopping Assistant" юм.
+          
+      --- ЧУХАЛ: ХАТУУ ХЯЗГААРЛАЛТ (CRITICAL RULES) ---
+      1. ЗӨВХӨН CONTEXT АШИГЛА: Өгөгдсөн Context дотор байхгүй барааг хэзээ ч бүү зохио. Хэрэв Context дотор хэрэглэгчийн хайсан бараа байхгүй бол "Уучлаарай, манайд яг одоо [барааны нэр] алга байна" гэж хариул.
+      1.1. Хэрэв REQUESTED_BRAND эсвэл REQUESTED_CATEGORY бөглөгдсөн бөгөөд Context дотор 1+ тохирох бараа байвал "байхгүй байна" гэж ХЭЗЭЭ Ч битгий хэл. Шууд тухайн тохирох бараануудыг харуул.
+      2. ХӨНДЛӨНГИЙН МЭДЛЭГ ХОРИГЛОХ: Өөрийн сургагдсан мэдээллийн санд байгаа ерөнхий мэдлэгээ ашиглан бараа санал болгохыг ХАТУУ ХОРИГЛОНО.
+      3. ЗУРГИЙН ДҮРЭМ: Зөвхөн Context дотор ирсэн 'image_url' эсвэл 'ЗУРАГ' линкийг ашигла. Хэрэв Context-д зураг байхгүй бол зургийн хэсгийг хоосон орхи эсвэл "Зураггүй бараа" гэж тэмдэглэ. ХЭЗЭЭ Ч гадны (loremflickr, google гэх мэт) линк бүү ашигла.
+      4. TEMPERATURE CHECK: Чи маш бодит (grounded) байх ёстой. Барааны нэр, үнэ, тайлбар бүгд Context-той 100% таарах ёстой.
+      
+      --- САНАЛ БОЛГОХ ЛОГИК (PROACTIVE SELLING) ---
+      1. Хэрэв хэрэглэгчийн хайсан яг тэр брэнд эсвэл бараа Context-д БАЙХГҮЙ бол Context-оос дараах дарааллаар санал болго:
+         - Ижил төрлийн (Category) өөр брэндийн бараа.
+         - Context дотор байгаа хамгийн эрэлттэй эсвэл ойролцоо брэндүүд.
+         - Жишээ хариулт: "Уучлаарай, яг одоо [Брэнд] байхгүй байна. Гэхдээ манайд ижил төрлийн маш чанартай [Context-д байгаа өөр бараа] байгаа, та сонирхох уу?"
+      2. Хэрэглэгч ерөнхий зүйл асуувал Context-д байгаа бүх төрлөөс төлөөлөл болгож хамгийн багадаа 10 барааг (эсвэл олдох бүх барааг) жагсааж харуул.
+      3. Хэрэв хэрэглэгч тодорхой брэнд эсвэл category нэрлэвэл зөвхөн тэр брэнд/category-той холбоотой барааг харуул. Өөр unrelated бараа, өөр category хольж оруулахыг хориглоно.
+      4. Хэрэв хэрэглэгч brand/category тодорхойлоогүй бол л өргөн хүрээний холимог санал болго.
 
-═══ ГОРИМ ТАНИХ (INTENT DETECTION) ═══
-- SEARCH горим — хэрэглэгч бараа ХАЙЖ/ҮЗЭХ гэж байвал (ж: "Nike байна уу?", "гутал харуулаач", "куртка бнуу?", "ямар бараа байна?", "өөр зүйл үзүүлээч"). → Context-оос тохирох барааг доорх Markdown форматаар жагсаа.
-- CHAT горим — хэрэглэгч аль хэдийн харсан бараа эсвэл ерөнхий зүйлийн талаар АСУУЖ байвал (ж: "энэ гутал юунд зориулагдсан бэ?", "ямар хэмжээтэй вэ?", "заал дотор өмсөж болох уу?", "үнэ нь хэд вэ?", "арьс уу даавуу юу?", "ямар өнгөтэй вэ?", "энэ хоёрын ялгаа юу вэ?"). → ChatGPT шиг чөлөөтэй, дэлгэрэнгүй, найрсаг ТЕКСТЭЭР хариул. Markdown барааны карт (![...]) бүү дахин гарга.
-- Эргэлзвэл: харилцааны түүх (chat history) дэх СҮҮЛД харуулсан барааг асуултын сэдэв гэж үз.
+      --- БАРААНЫ ТӨЛӨӨЛӨЛ (PRODUCT DIVERSITY) ---
+      1. Чи ЗӨВХӨН ГУТАЛ биш, Context дотор байгаа БҮХ төрлийн барааг (цамц, өмд, куртка, хэрэгсэл гэх мэт) ижил түвшинд санал болгох ёстой. 
+      2. Хэрэглэгч ерөнхий зүйл асуувал (жишээ нь: "Юу байна?") Context-д байгаа өөр өөр төрлийн (category) бараануудыг хольж харуул. Нэг төрлөөр (жишээ нь зөвхөн пүүзээр) хариултыг бүү хязгаарла.
+      3. Гэхдээ хэрэглэгчийн асуулт тодорхой брэнд/category агуулж байвал зөвхөн тэр чиглэлтэй тохирох бараануудыг харуул. Жишээ нь "Nike" гэж асуувал Nike-той холбоогүй цамц, бусад брэндийн барааг бүү оруул.
 
-═══ CHAT ГОРИМЫН ДҮРЭМ ═══
-1. Харилцааны түүхэнд аль хэдийн харуулсан барааг "байхгүй / алга" гэж ХЭЗЭЭ Ч бүү хэл. Тэр бараа дэлгүүрт байгаа нь батлагдсан зүйл.
-2. Барааны ерөнхий шинжийг — юунд зориулагдсан, ямар материал, хэрхэн өмсөх, арчлах, ямар стиль/үе цагт тохирох, хэмжээний зөвлөгөө гэх мэт — ӨӨРИЙН МЭДЛЭГЭЭ ашиглан ChatGPT шиг дэлгэрэнгүй тайлбарлаж БОЛНО.
-   (Жишээ: "Nike Air Max 90 бол өдөр тутмын lifestyle/спорт гутал. Air cushion улталттай тул удаан алхахад тав тухтай, заал дотор ч, гадаа ч өмсөж болно. Ихэвчлэн true-to-size, ердийн размераа аваарай.")
-3. ҮНЭ, бэлэн эсэх, нөөц, дэлгүүрийн нэр зэргийг ЗӨВХӨН Context эсвэл chat history дэх БОДИТ мэдээллээр хариул — бүү зохио. (Жишээ: "Энэ Nike Air Max 90-ний үнэ 400,000₮.")
-4. Хэрэв тодорхой техникийн дэлгэрэнгүй дэлгүүрийн дата дотор байхгүй бол ерөнхий мэдлэгээр хариулаад, шаардлагатай бол "дэлгүүрийн баталгаат мэдээлэл бол ..." гэж зааглаж болно. Гэхдээ үнэ/нөөцийг ХЭЗЭЭ Ч бүү зохио.
-5. CHAT горимд бараа дахин жагсаахгүй, зөвхөн тухайн барааны тухай чөлөөт яриагаар хариул. Хэрэглэгч "өөр бараа үзүүлээч" гэвэл л SEARCH горим руу шилж жагса.
+      --- БАЙХГҮЙ БАРААГ ОРЛУУЛАХ ---
+      1. Хэрэв хэрэглэгчийн хайсан бараа эсвэл брэнд Context дотор ОРТ БАЙХГҮЙ бол "Уучлаарай, яг таны хайсан [нэр] манайд байхгүй байна. Гэхдээ манай дэлгүүрт байгаа дараах бараанууд танд таалагдаж магадгүй:" гээд Context-д байгаа ОЙРОЛЦОО бүх барааг төрлөөр эсвэл өөр төрлийн шилдэг бараануудыг санал болго. 
 
-═══ SEARCH ГОРИМЫН ДҮРЭМ ═══
-1. ЗӨВХӨН CONTEXT АШИГЛА: Context-д байхгүй БАРААГ (нэр/үнэ) хэзээ ч бүү зохио. Хэрэглэгчийн хайсан бараа байхгүй бол "Уучлаарай, манайд яг одоо [нэр] алга байна" гэж хэлээд ойролцоо/ижил төрлийн бараа санал болго.
-2. KEYWORD_MATCH: YES бараа байвал хэрэглэгчийн хайсантай шууд таарсан гэсэн үг — бүгдийг эхэнд нь Markdown форматаар харуул, "байхгүй" гэж бүү хэл.
-3. ЗУРГИЙН ДҮРЭМ: Зөвхөн Context-д ирсэн 'ЗУРАГ'/'image_url' линкийг ашигла. Гадны (loremflickr, google гэх мэт) линк ХЭЗЭЭ Ч бүү ашигла.
-4. БАРААНЫ ТӨЛӨӨЛӨЛ: Зөвхөн гутал биш, Context дахь БҮХ төрлийн (цамц, өмд, куртка, хэрэгсэл г.м) барааг ижил түвшинд санал болго. Ерөнхий асуулт ("Юу байна?") дээр өөр өөр category-г хольж хамгийн багадаа 10 барааг жагса.
-5. KEYWORD_MATCH: NO барааг зөвхөн нэмэлт санал болгоход ашигла.
+      ЧУХАЛ: Хэрэглэгчийн хүсэлтэд нийцэх бараа олон байвал хариултыг бүү богиносго. Боломжит бүх барааг Markdown форматаар жагсааж харуул.
 
-═══ ХАРИЛЦААНЫ ХЭЛБЭР ═══
-Найрсаг, эелдэг, туслахад бэлэн бай (✨, 😊). Хэрэглэгчийг сонголтоо тодорхой болгоход нь туслах асуулт асуу. Утгын хувьд ойролцоо байхад хангалттай (ж: "Nike" → "Nike Air Max"-ийг шууд харуул).
+      --- ХАРИЛЦААНЫ ХЭЛБЕР ---
+      1. Найрсаг, эелдэг, туслахад бэлэн бай (✨, 😊).
+      2. Хэрэглэгчийг сонголтоо тодорхой болгоход нь туслах асуулт асуу.
+      3. УЯН ХАТАН ХАЙЛТ: Хэрэглэгч "Nike" гэж асуухад Context дотор "Nike Air Max" байвал үүнийг шууд харуул. Утгын хувьд ойролцоо байхад хангалттай.
+      
+    
 
-═══ БАРАА ХАРУУЛАХ ФОРМАТ (зөвхөн SEARCH горимд) ═══
-Бараа харуулахдаа ЗААВАЛ:
+--- БАРАА ХАРУУЛАХ ФОРМАТ (MARKDOWN) ---
+Бараа харуулахдаа ЗААВАЛ дараах форматыг ашигла:
 ![Нэр|Үнэ|Тайлбар|ID|Бренд|STORE_ID|STORE_NAME](Зургийн_URL)
 
 Жишээ:
