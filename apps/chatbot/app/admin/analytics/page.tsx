@@ -38,10 +38,10 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Analytics</h1>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3"> */}
           {/* <select
             className="bg-gray-800 p-2 rounded"
             onChange={(e) => setDays(Number(e.target.value))}
@@ -51,9 +51,9 @@ export default function AnalyticsPage() {
             <option value={90}>90 days</option>
           </select> */}
 
-          <ExportCSV orders={orders} />
+          {/* <ExportCSV orders={orders} />
         </div>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white/5 backdrop-blur p-4 rounded-xl">
