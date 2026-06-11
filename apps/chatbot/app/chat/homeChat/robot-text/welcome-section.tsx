@@ -33,7 +33,9 @@ function PerspectiveMagneticCard({
         }}
         className="relative flex h-[124px] w-full flex-col items-start rounded-2xl border border-white/15 bg-white/12 p-4 backdrop-blur-2xl transition-none"
       >
-        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${accent} opacity-20 blur-2xl`} />
+        <div
+          className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${accent} opacity-20 blur-2xl`}
+        />
         <div className="relative z-10 flex h-full w-full flex-col justify-between text-left pointer-events-none">
           <span className="inline-flex w-fit rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[9px] font-black tracking-[0.25em] text-white/75 uppercase">
             {badge}
@@ -94,7 +96,7 @@ export function WelcomeSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="flex items-center justify-center gap-x-1.5 text-xs md:text-lg font-light text-white/80 text-center mb-8 md:mb-16 max-w-none md:max-w-max mx-auto whitespace-nowrap"
+          className="flex items-center justify-center gap-x-1.5 text-xs md:text-lg font-light text-white/80 text-center mb-10 md:mb-16 max-w-none md:max-w-max mx-auto md:whitespace-nowrap md:flex-row flex-col"
         >
           <span>Таны сонирхолд нийцсэн</span>
           <span className="text-white italic font-bold">
