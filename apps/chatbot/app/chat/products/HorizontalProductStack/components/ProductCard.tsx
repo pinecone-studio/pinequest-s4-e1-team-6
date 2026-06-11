@@ -77,6 +77,12 @@ export const ProductCard = ({
       id: product.id ?? product.product_id ?? product.name,
       name: meta.name || product.product_name || product.name || "Нэргүй бараа",
       brand: product.brand || meta.brand || "",
+      storeId:
+        product.storeId ||
+        product.store_id ||
+        meta.storeId ||
+        meta.store_id ||
+        "",
       storeName:
         product.storeName?.trim() ||
         product.store_name?.trim() ||

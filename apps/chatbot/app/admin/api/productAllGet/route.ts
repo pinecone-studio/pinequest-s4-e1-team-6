@@ -29,6 +29,10 @@ export async function GET(req: Request) {
         category: meta.category || "Бусад",
         brand: meta.brand || "",
         stock: meta.stock || 0,
+        size: meta.size || "",
+        sizes: meta.sizes || [],
+        sizeStock: meta.sizeStock || meta.size_stock || "",
+        metadata: meta,
       };
     }) || [];
 

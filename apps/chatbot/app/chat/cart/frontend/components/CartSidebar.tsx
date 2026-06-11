@@ -18,6 +18,7 @@ export default function CartSidebar() {
 
   const [showLocationForm, setShowLocationForm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [addressData, setAddressData] = useState<any>(null);
 
   const totalPrice = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -36,7 +37,8 @@ export default function CartSidebar() {
         >
           <LocationForm
             onClose={() => setShowLocationForm(false)}
-            onConfirm={() => {
+            onConfirm={(data) => {
+              setAddressData(data);
               setShowLocationForm(false);
               setShowPayment(true);
             }}
@@ -55,7 +57,41 @@ export default function CartSidebar() {
           <QPayPayment
             amount={totalPrice}
             orderId={`CART-${Math.floor(Math.random() * 10000)}`}
-            onSuccess={() => {
+            onSuccess={async () => {
+              const fullAddress = [
+                addressData?.city,
+                addressData?.district,
+                addressData?.address,
+                addressData?.street,
+              ]
+                .filter(Boolean)
+                .join(", ");
+
+              try {
+                await fetch("/chat/api/orders", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    totalAmount: totalPrice,
+                    customerPhone: addressData?.phone,
+                    address: fullAddress,
+                    storeId: cartItems[0]?.storeId,
+                    storeName: cartItems[0]?.product?.storeName,
+                    items: cartItems.map((item) => ({
+                      productId: item.id,
+                      name: item.name,
+                      image: item.image,
+                      price: item.price,
+                      quantity: item.quantity,
+                      storeId: item.storeId,
+                      storeName: item.product?.storeName,
+                    })),
+                  }),
+                });
+              } catch (error) {
+                console.error("Cart order save error:", error);
+              }
+
               cartItems.forEach((item) => {
                 saveOrder({
                   orderId: `CART-${item.id}-${Date.now()}`,
@@ -63,6 +99,7 @@ export default function CartSidebar() {
                   amount: item.price * item.quantity,
                   date: new Date().toLocaleString(),
                   image: item.image,
+                  store_id: item.storeId,
                 });
               });
               setShowPayment(false);

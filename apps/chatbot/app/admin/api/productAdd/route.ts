@@ -66,7 +66,6 @@ import { NextRequest, NextResponse } from "next/server";
 //   }
 // }
 
-
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
@@ -74,13 +73,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const { name, description, price, imageUrl, category, brand, stock, size, storeName } = body;
+    const {
+      name,
+      description,
+      price,
+      imageUrl,
+      category,
+      brand,
+      stock,
+      size,
+      sizes,
+      sizeStock,
+      storeName,
+    } = body;
 
     if (!storeName) {
-      return NextResponse.json({ error: "storeName байхгүй байна." }, { status: 400 });
+      return NextResponse.json(
+        { error: "storeName байхгүй байна." },
+        { status: 400 },
+      );
     }
 
-    // ✅ Prisma-аас дэлгүүрийн ID-г авна
     const dbUser = await prisma.user.findUnique({
       where: { clerkUserId: userId },
     });
@@ -106,6 +119,9 @@ export async function POST(req: NextRequest) {
     );
     const generatedId = `prod_${Date.now()}`;
 
+    const normalizedName = String(name || "").toLowerCase();
+    const normalizedBrand = String(brand || "").toLowerCase();
+
     await index.namespace(storeName).upsert({
       records: [
         {
@@ -113,15 +129,20 @@ export async function POST(req: NextRequest) {
           values: vector,
           metadata: {
             name,
+            name_search: normalizedName,
             price: Number(price),
             product_image_url: imageUrl,
             description: description || "",
             category: category || "",
             brand: brand || "",
+            brand_search: normalizedBrand,
             stock: Number(stock),
             store_name: storeName,
-            storeId: store.id,      // ✅ Заавал нэмэх
-            size: size || 0,
+            storeId: store.id,
+            size: size || "",
+            sizes: Array.isArray(sizes) ? sizes.map(String) : [],
+            sizeStock: sizeStock || "",
+            size_stock: sizeStock || "",
           },
         },
       ],

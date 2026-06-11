@@ -20,6 +20,7 @@ interface OrderReceiptProps {
     orderId: string;
     date: string;
     image?: string;
+    store_id?: string;
     transactionId?: string;
   };
   onClose: () => void;
@@ -33,6 +34,7 @@ const OrderReceipt = ({ orderData, onClose }: OrderReceiptProps) => {
       amount: orderData.amount,
       date: orderData.date,
       image: orderData.image,
+      store_id: orderData.store_id,
     });
   }, []);
 

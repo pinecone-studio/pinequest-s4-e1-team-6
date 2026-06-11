@@ -84,6 +84,21 @@ export default function ProductTable({
     );
   };
 
+  const getSizeStockRows = (p: any) => {
+    const meta = p.metadata || p;
+    const raw = meta.sizeStock || meta.size_stock;
+    if (!raw) return [];
+
+    try {
+      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+      return Array.isArray(parsed)
+        ? parsed.filter((item) => item?.size && Number(item?.stock) > 0)
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
   const filtered = products.filter((p) => {
     const meta = p.metadata || {};
     const name = meta.name || p.name || "";
@@ -190,6 +205,7 @@ export default function ProductTable({
                 const price = meta.price || p.price || 0;
                 const brand = meta.brand || p.brand || "Тодорхойгүй";
                 const stock = meta.stock || p.stock || 0;
+                const sizeRows = getSizeStockRows(p);
 
                 return (
                   <tr
@@ -226,14 +242,28 @@ export default function ProductTable({
                       {brand}
                     </td>
                     <td className="px-6 py-4">
-                      <div
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                          stock > 0
-                            ? "bg-emerald-500/10 text-emerald-500"
-                            : "bg-rose-500/10 text-rose-500"
-                        }`}
-                      >
-                        {stock > 0 ? `${stock} ширхэг` : "Дууссан"}
+                      <div className="space-y-2">
+                        <div
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                            stock > 0
+                              ? "bg-emerald-500/10 text-emerald-500"
+                              : "bg-rose-500/10 text-rose-500"
+                          }`}
+                        >
+                          {stock > 0 ? `${stock} ширхэг` : "Дууссан"}
+                        </div>
+                        {sizeRows.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 max-w-52">
+                            {sizeRows.map((item: any) => (
+                              <span
+                                key={item.size}
+                                className="rounded-lg bg-gray-100 dark:bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-600 dark:text-gray-300"
+                              >
+                                {item.size}: {item.stock}ш
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">

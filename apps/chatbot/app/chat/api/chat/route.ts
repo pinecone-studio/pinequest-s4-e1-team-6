@@ -15,13 +15,49 @@ type IncomingMessage = {
   content: string;
 };
 
-function normalizeOpenAIRole(
-  role: IncomingMessage["role"],
-): "user" | "assistant" | "system" {
+type OpenAIRole = "user" | "assistant" | "system";
+
+type ProductMatch = {
+  id?: string;
+  score?: number;
+  metadata?: Record<string, unknown>;
+};
+
+const FALLBACK_NAMESPACES = [
+  "Turuu's store",
+  "sadadasda",
+  "sephora",
+  "ETRNTY",
+  "Tugss store",
+];
+
+const SEARCH_STOP_WORDS = new Set([
+  "bnuu",
+  "bn",
+  "baina",
+  "baraa",
+  "бараа",
+  "байна",
+  "байнуу",
+  "байгаа",
+  "байгаа юу",
+  "bgaa",
+  "yu",
+  "uu",
+  "юу",
+  "уу",
+  "вэ",
+  "ve",
+  "gehed",
+  "гэсэн",
+  "нертэй",
+  "нэртэй",
+]);
+
+function normalizeOpenAIRole(role: IncomingMessage["role"]): OpenAIRole {
   const r = role.toLowerCase();
-  if (r === "user" || r === "assistant" || r === "system") {
-    return r;
-  }
+  if (r === "assistant") return "assistant";
+  if (r === "system") return "system";
   return "user";
 }
 
@@ -57,28 +93,30 @@ export async function POST(req: Request) {
       );
     }
 
-    // --- VECTOR SEARCH ---
     let context = "";
     let requestedBrand = "";
     let requestedCategory = "";
     try {
+      const searchTerms = extractSearchTerms(lastUserMessage);
       const embedding = await openai.embeddings.create({
         model: "text-embedding-3-small",
         input: lastUserMessage,
       });
 
-      const namespaces = await getStoreNamespaces();
+      const namespaces = await getSearchNamespaces();
 
       const queryPromises = namespaces.map((ns) =>
         index.namespace(ns).query({
           vector: embedding.data[0].embedding,
-          topK: 20,
+          topK: 100,
           includeMetadata: true,
         }),
       );
 
-      const queryResults = await Promise.all(queryPromises);
-      const allMatches = queryResults.flatMap((res) => res.matches || []);
+      const queryResults = await Promise.allSettled(queryPromises);
+      const allMatches = queryResults.flatMap((result) =>
+        result.status === "fulfilled" ? result.value.matches || [] : [],
+      );
 
       let topMatches = allMatches
         .sort((a, b) => (b.score || 0) - (a.score || 0))
@@ -203,6 +241,7 @@ ${context}`;
       }
 
       console.log("Олдсон барааны тоо:", topMatches.length);
+      console.log("Keyword match барааны тоо:", keywordMatches.length);
     } catch (err) {
       console.error("Vector Search Error:", err);
     }
@@ -254,17 +293,17 @@ ${context}`;
 Жишээ:
 ![Nike Air Max|150000|Гүйлтийн гутал|prod_1748291234|Nike|cm9abc123|Turuu's store](https://image.url)
 
-ЧУХАЛ ДҮРЭМ:
-- Тусгаарлагч нь ЗААВАЛ | (pipe) байх ёстой
-- parts[5] = STORE_ID — Context дахь STORE_ID-г ЗААВАЛ бичнэ
-- parts[6] = STORE_NAME — Context дахь STORE_NAME-г ЗААВАЛ бичнэ  
-- STORE_ID хоосон байвал STORE_NAME-г давтаж бичнэ
- 
-      --- ТӨЛБӨРИЙН ЛОГИК ---
-      PAYMENT_TRIGGER:{"id":"id","name":"name","price":price}
- 
-      --- CONTEXT (ӨГӨГДӨЛ) ---
-      ${context}`,
+ЧУХАЛ:
+- Тусгаарлагч нь ЗААВАЛ | (pipe)
+- parts[5] = STORE_ID (Context дахь STORE_ID-г заавал бич)
+- parts[6] = STORE_NAME (Context дахь STORE_NAME-г заавал бич)
+- STORE_ID хоосон бол STORE_NAME-г давтаж бич
+
+═══ ТӨЛБӨРИЙН ЛОГИК ═══
+PAYMENT_TRIGGER:{"id":"id","name":"name","price":price}
+
+═══ CONTEXT (ӨГӨГДӨЛ) ═══
+${context}`,
         },
         ...messages.map((m) => ({
           role: normalizeOpenAIRole(m.role),
@@ -277,10 +316,13 @@ ${context}`;
       max_tokens: 2500,
     });
 
-    const aiReply =
+    let aiReply =
       chatResponse.choices[0]?.message?.content?.trim() || "Хариу олдсонгүй.";
 
-    // --- DB SAVE (PRISMA) ---
+    if (guardedKeywordMatches.length > 0 && hasUnavailableClaim(aiReply)) {
+      aiReply = buildMatchedProductReply(guardedKeywordMatches);
+    }
+
     const effectiveUserId = clerkUserId || fallbackUserId;
     if (effectiveUserId && chatId && !chatId.startsWith("guest_")) {
       try {
@@ -322,11 +364,10 @@ ${context}`;
 
     return NextResponse.json({ reply: aiReply });
   } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "Unknown server error";
     console.error("API_GLOBAL_ERROR:", error);
+    const details = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Internal Error", details: message },
+      { error: "Internal Error", details },
       { status: 500 },
     );
   }

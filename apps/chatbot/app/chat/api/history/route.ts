@@ -4,21 +4,39 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const { userId: clerkUserId } = await auth();
+    const { userId: clerkUserId, sessionClaims } = await auth();
 
     if (!clerkUserId) {
       return NextResponse.json({ error: "Нэвтэрнэ үү" }, { status: 401 });
     }
 
-    const dbUser = await prisma.user.findUnique({
+    let dbUser = await prisma.user.findUnique({
       where: { clerkUserId },
     });
 
     if (!dbUser) {
-      return NextResponse.json(
-        { error: "User not synced to database" },
-        { status: 404 },
-      );
+      const claims = (sessionClaims || {}) as Record<string, unknown>;
+      const email =
+        typeof claims.email === "string" && claims.email
+          ? claims.email
+          : `${clerkUserId}@clerk.local`;
+      const name =
+        [
+          typeof claims.first_name === "string" ? claims.first_name : "",
+          typeof claims.last_name === "string" ? claims.last_name : "",
+        ]
+          .join(" ")
+          .trim() ||
+        (typeof claims.full_name === "string" ? claims.full_name : null) ||
+        (typeof claims.username === "string" ? claims.username : null);
+      const imageUrl =
+        typeof claims.image_url === "string" ? claims.image_url : null;
+
+      dbUser = await prisma.user.upsert({
+        where: { email },
+        update: { clerkUserId, name, imageUrl },
+        create: { clerkUserId, email, password: null, name, imageUrl },
+      });
     }
 
     const sessions = await prisma.chatSession.findMany({

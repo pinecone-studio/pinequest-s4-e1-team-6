@@ -14,6 +14,7 @@ import { AnimatePresence } from "framer-motion";
 import QPayPayment from "./chat/payment/components/QPayPayment ";
 import OrderAddress from "./chat/payment/components/form";
 import OrdersButton from "./chat/ZahialgaHarah/OrdersButton";
+import { parsePrice } from "@/lib/utils/price";
 
 type SelectedProduct = {
   id?: string;
@@ -52,10 +53,7 @@ export default function HomeClient() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const handledPromptRef = useRef<string | null>(null);
   const currentChatMessages = activeChatId ? allChats[activeChatId] || [] : [];
-  const selectedProductPrice =
-    typeof selectedProduct?.price === "string"
-      ? Number.parseFloat(selectedProduct.price.replace(/[^0-9.]/g, ""))
-      : selectedProduct?.price || 0;
+  const selectedProductPrice = parsePrice(selectedProduct?.price);
 
   useScrollEffect(messagesEndRef, [currentChatMessages, isTyping]);
 

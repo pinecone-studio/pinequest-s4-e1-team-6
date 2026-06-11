@@ -1,24 +1,3 @@
-// import { prisma } from "@/lib/prisma";
-// import { auth } from "@clerk/nextjs/server";
-// import { NextResponse } from "next/server";
-
-// export async function POST(req: Request) {
-//   const { userId } = await auth();
-//   const { storeName } = await req.json();
-
-//   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-//   await prisma.user.update({
-//     where: { clerkUserId: userId },
-//     data: { storeName: storeName }
-//   });
-
-//   return NextResponse.json({ success: true });
-// }
-
-
-
-
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
@@ -34,24 +13,28 @@ export async function POST(req: Request) {
     const { name, description } = body;
 
     if (!name) {
-      return NextResponse.json({ error: "Дэлгүүрийн нэр заавал хэрэгтэй" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Дэлгүүрийн нэр заавал хэрэгтэй" },
+        { status: 400 },
+      );
     }
 
-    // 1. Баазаас хэрэглэгчийг олох
     const dbUser = await prisma.user.findUnique({
       where: { clerkUserId: clerkId },
     });
 
     if (!dbUser) {
-      return NextResponse.json({ error: "Хэрэглэгч бүртгэлгүй байна" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Хэрэглэгч бүртгэлгүй байна" },
+        { status: 404 },
+      );
     }
 
-    // 2. Дэлгүүр үүсгэх
     const newStore = await prisma.store.create({
       data: {
-        name: name, // Жишээ нь: "Turuu's store"
+        name: name,
         description: description || null,
-        ownerId: dbUser.id, // User хүснэгтийн ID-тай холбоно
+        ownerId: dbUser.id,
       },
     });
 

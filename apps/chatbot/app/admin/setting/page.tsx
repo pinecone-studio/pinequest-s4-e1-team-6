@@ -1,4 +1,5 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { isAdmin } from "@/lib/isAdmin";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import PageWrapper from "../components/PageWrapper";
 import AdminSettings from "../components/product/AdminSetting";
@@ -10,9 +11,7 @@ export default async function AdminSettingsPage() {
   const { userId } = await auth();
   if (!userId) return redirect("/chat/sign-in");
 
-  const user = await currentUser();
-  const role = (user?.publicMetadata as any)?.role;
-  if (role !== "admin") return redirect("/chat");
+  if (!(await isAdmin())) return redirect("/chat");
 
   return (
     <PageWrapper>
