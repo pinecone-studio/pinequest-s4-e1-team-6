@@ -20,6 +20,7 @@ interface Product {
   storeId?: string;
   brand?: string;
   storeName?: string;
+  [key: string]: unknown;
 }
 
 interface MessageListProps {

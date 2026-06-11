@@ -8,9 +8,9 @@ import { useCart } from "@/app/context/CartContext";
 type ProductItem = {
   id: string;
   name: string;
-  price: string;
+  price: string | number;
   image: string;
-  description: string;
+  description?: string;
   storeId?: string;
   brand?: string;
   storeName?: string;
@@ -21,13 +21,15 @@ type ProductItem = {
 type HorizontalProductStackProps = {
   products?: ProductItem[];
   onSelect?: (product: ProductItem) => void;
-  onBuy?: (name: string, price: string) => void;
+  onBuy?: (name: string, price: string | number, product?: ProductItem) => void;
+  onSave?: (id: string) => void;
 };
 
 export default function HorizontalProductStack({
   products = [],
   onSelect = () => {},
   onBuy,
+  onSave,
 }: HorizontalProductStackProps) {
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -72,8 +74,8 @@ export default function HorizontalProductStack({
               product={product}
               layout="grid"
               onSelect={() => onSelect(product)}
-              onSave={() => {}}
-              onOrder={() => onBuy?.(product.name, product.price)}
+              onSave={() => onSave?.(product.id)}
+              onOrder={() => onBuy?.(product.name, product.price, product)}
               onAddToCart={(p) => addToCart(p)}
               savedIds={savedIds}
             />
