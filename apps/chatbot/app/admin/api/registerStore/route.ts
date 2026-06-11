@@ -1,4 +1,5 @@
 import { index } from "@/lib/api/pinecone";
+import { isAdmin } from "@/lib/isAdmin";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,6 +9,10 @@ export async function POST(req: NextRequest) {
     const storeName = body.storeName;
 
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!(await isAdmin())) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   await index.namespace(storeName).upsert({
     records:[
