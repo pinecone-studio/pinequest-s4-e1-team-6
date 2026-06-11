@@ -1,48 +1,45 @@
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 
 export async function POST() {
   try {
-    const { userId } = await auth();
+    const { userId, sessionClaims } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const clerkUser = await currentUser();
-
-    if (!clerkUser) {
-      return NextResponse.json(
-        { error: "Clerk user not found" },
-        { status: 404 },
-      );
-    }
-
+    const claims = (sessionClaims || {}) as Record<string, unknown>;
     const email =
-      clerkUser.emailAddresses.find(
-        (e: { id: string; emailAddress: string }) =>
-          e.id === clerkUser.primaryEmailAddressId,
-      )?.emailAddress || clerkUser.emailAddresses[0]?.emailAddress;
-
-    if (!email) {
-      return NextResponse.json({ error: "Email not found" }, { status: 400 });
-    }
+      typeof claims.email === "string" && claims.email
+        ? claims.email
+        : `${userId}@clerk.local`;
 
     const name =
-      `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || null;
+      [
+        typeof claims.first_name === "string" ? claims.first_name : "",
+        typeof claims.last_name === "string" ? claims.last_name : "",
+      ]
+        .join(" ")
+        .trim() ||
+      (typeof claims.full_name === "string" ? claims.full_name : null) ||
+      (typeof claims.username === "string" ? claims.username : null);
+
+    const imageUrl =
+      typeof claims.image_url === "string" ? claims.image_url : null;
 
     let dbUser = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUser.id },
+      where: { clerkUserId: userId },
     });
 
     if (dbUser) {
       dbUser = await prisma.user.update({
-        where: { clerkUserId: clerkUser.id },
+        where: { clerkUserId: userId },
         data: {
           email,
           name,
-          imageUrl: clerkUser.imageUrl ?? null,
+          imageUrl,
         },
       });
 
@@ -57,9 +54,9 @@ export async function POST() {
       dbUser = await prisma.user.update({
         where: { email },
         data: {
-          clerkUserId: clerkUser.id,
+          clerkUserId: userId,
           name,
-          imageUrl: clerkUser.imageUrl ?? null,
+          imageUrl,
         },
       });
 
@@ -68,11 +65,11 @@ export async function POST() {
 
     dbUser = await prisma.user.create({
       data: {
-        clerkUserId: clerkUser.id,
+        clerkUserId: userId,
         email,
         password: null,
         name,
-        imageUrl: clerkUser.imageUrl ?? null,
+        imageUrl,
       },
     });
 

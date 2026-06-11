@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { parsePrice } from "@/lib/utils/price";
 
 export interface CartItem {
   id: string;
@@ -34,7 +35,22 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const savedCart = localStorage.getItem("guest_cart");
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        const parsedCart = JSON.parse(savedCart);
+        const normalizedCart = Array.isArray(parsedCart)
+          ? parsedCart.map((item) => ({
+              ...item,
+              price:
+                parsePrice(item.price) ||
+                parsePrice(
+                  item.product?.price ??
+                    item.product?.formatted_price ??
+                    item.product?.formattedPrice ??
+                    item.product?.metadata?.price ??
+                    item.product?.metadata?.formatted_price,
+                ),
+            }))
+          : [];
+        setCartItems(normalizedCart);
       } catch (e) {
         console.error("Cart parse error", e);
       }
@@ -71,16 +87,26 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addToCart = async (product: any, quantity: number = 1) => {
     setCartItems((prev) => {
+      const price = parsePrice(
+        product.price ??
+          product.formatted_price ??
+          product.formattedPrice ??
+          product.metadata?.price ??
+          product.metadata?.formatted_price,
+      );
       const existingItem = prev.find((item) => item.id === product.id);
       if (existingItem) {
         return prev.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? {
+                ...item,
+                price: item.price > 0 ? item.price : price,
+                quantity: item.quantity + quantity,
+              }
             : item,
         );
       }
 
-      const price = Number(product.price) || 0;
       const image =
         product.image ||
         (product.images && product.images[0]) ||

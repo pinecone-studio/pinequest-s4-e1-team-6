@@ -1,19 +1,9 @@
-// import { auth, clerkClient } from "@clerk/nextjs/server";
-
-// export async function isAdmin() {
-//   const { userId } = await auth();
-
-//   if (!userId) return false;
-
-//   const client = await clerkClient();
-//   const user = await client.users.getUser(userId);
-
-//   return user.publicMetadata.role === "admin";
-// }
-
-
-
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { prisma } from "./prisma";
+
+function hasAdminRole(role: unknown) {
+  return typeof role === "string" && role.toLowerCase() === "admin";
+}
 
 export async function isAdmin() {
   try {
@@ -23,11 +13,23 @@ export async function isAdmin() {
     if (!userId) return false;
 
     const client = await clerkClient();
-    const user = await client.users.getUser(userId);
+    const clerkUser = await client.users.getUser(userId);
+    const metadataRoles = [
+      clerkUser.publicMetadata?.role,
+      clerkUser.privateMetadata?.role,
+      clerkUser.unsafeMetadata?.role,
+    ];
 
-    return user.publicMetadata?.role === "admin";
+    if (metadataRoles.some(hasAdminRole)) return true;
+
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkUserId: userId },
+      select: { role: true },
+    });
+
+    return dbUser?.role === "ADMIN";
   } catch (error) {
-    console.warn("Clerk Auth is not ready yet or route is not matched.");
+    console.warn("Admin check failed:", error);
     return false;
   }
 }

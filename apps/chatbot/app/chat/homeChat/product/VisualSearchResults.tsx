@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, X, ChevronRight, Sparkles, Search } from "lucide-react";
+import { parsePrice } from "@/lib/utils/price";
 
 interface Product {
   id: string;
@@ -18,13 +19,6 @@ interface VisualSearchResultsProps {
   sourceImage?: string;
   onProductClick: (product: Product) => void;
   onBuy: (name: string, price: string) => void;
-}
-
-function parsePrice(price: any): number {
-  if (!price) return 0;
-  const numeric = String(price).replace(/[^0-9.]/g, "");
-  const result = parseFloat(numeric);
-  return isNaN(result) ? 0 : result;
 }
 
 export const VisualSearchResults: React.FC<VisualSearchResultsProps> = ({

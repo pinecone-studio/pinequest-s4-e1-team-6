@@ -1,5 +1,6 @@
 import { index } from "@/lib/api/pinecone";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { isAdmin } from "@/lib/isAdmin";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import AdminDashboardContent from "./components/dashboard/AdminDashboardContent";
 import PageWrapper from "./components/PageWrapper";
@@ -11,9 +12,7 @@ export default async function DashboardPage() {
   const { userId } = await auth();
   if (!userId) return redirect("/chat/sign-in");
 
-  const user = await currentUser();
-  const role = (user?.publicMetadata as any)?.role;
-  if (role !== "admin") return redirect("/chat");
+  if (!(await isAdmin())) return redirect("/chat");
 
   const fetchStore = await index.namespace("orgil").fetch({
     ids: [userId],

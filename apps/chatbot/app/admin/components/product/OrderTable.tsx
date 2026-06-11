@@ -15,7 +15,7 @@
 
 //   const filteredOrders = useMemo(() => {
 //     if (!searchTerm) return orders;
-    
+
 //     const s = searchTerm.toLowerCase();
 
 //     return orders.filter((order) => {
@@ -24,15 +24,15 @@
 //       const email = (order.customerEmail || "").toLowerCase();
 //       const id = (order.id || "").toLowerCase();
 
-//       const hasProduct = order.items?.some((item: any) => 
+//       const hasProduct = order.items?.some((item: any) =>
 //         (item.productName || item.name || "").toLowerCase().includes(s)
 //       );
 
 //       return (
-//         name.includes(s) || 
-//         phone.includes(s) || 
-//         email.includes(s) || 
-//         id.includes(s) || 
+//         name.includes(s) ||
+//         phone.includes(s) ||
+//         email.includes(s) ||
+//         id.includes(s) ||
 //         hasProduct
 //       );
 //     });
@@ -79,7 +79,7 @@
 //             {filteredOrders.length > 0 ? (
 //               filteredOrders.map((order) => (
 //                 <React.Fragment key={order.id}>
-//                   <tr 
+//                   <tr
 //                     className="hover:bg-white/[0.04] transition-all cursor-pointer group"
 //                     onClick={() => toggleOrder(order.id)}
 //                   >
@@ -115,18 +115,18 @@
 //                     </td>
 //                     <td className="px-8 py-6">
 //                       <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
-//                         order.status === 'PAID' 
-//                           ? 'bg-green-500/10 text-green-500 border border-green-500/20' 
+//                         order.status === 'PAID'
+//                           ? 'bg-green-500/10 text-green-500 border border-green-500/20'
 //                           : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
 //                       }`}>
 //                         {order.status}
 //                       </span>
 //                     </td>
 //                     <td className="px-8 py-6 text-right">
-//                       <button 
+//                       <button
 //                         onClick={(e) => {
-//                           e.stopPropagation(); 
-//                           setSelectedOrder(order); 
+//                           e.stopPropagation();
+//                           setSelectedOrder(order);
 //                         }}
 //                         className="bg-white/5 hover:bg-[#C5A059] text-white hover:text-black p-3.5 rounded-2xl transition-all active:scale-95"
 //                       >
@@ -143,11 +143,11 @@
 //                             <p className="text-[10px] uppercase font-black text-gray-500 tracking-[0.3em]">Захиалгын агуулга</p>
 //                             <span className="text-[10px] text-gray-400">Нийт {order.items?.length || 0} төрлийн бараа</span>
 //                           </div>
-                          
+
 //                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 //                             {order.items?.map((item: any, idx: number) => {
 //                               const isMatch = searchTerm && (item.productName || item.name || "").toLowerCase().includes(searchTerm.toLowerCase());
-                              
+
 //                               return (
 //                                 <div key={idx} className={`flex justify-between items-center p-5 rounded-3xl border transition-all ${
 //                                   isMatch ? 'bg-[#C5A059]/10 border-[#C5A059]/30' : 'bg-white/5 border-white/5'
@@ -191,19 +191,14 @@
 //       </div>
 
 //       {selectedOrder && (
-//         <OrderDetailModal 
-//           order={selectedOrder} 
-//           onClose={() => setSelectedOrder(null)} 
+//         <OrderDetailModal
+//           order={selectedOrder}
+//           onClose={() => setSelectedOrder(null)}
 //         />
 //       )}
 //     </div>
 //   );
 // }
-
-
-
-
-
 
 // "use client";
 
@@ -527,9 +522,6 @@
 // //   </div>
 // // );
 
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -637,7 +629,6 @@ export default function OrdersTable() {
                 </td>
               </tr>
 
-              {/* Дэлгэрэнгүй хэсэг */}
               {expandedOrderId === order.id && (
                 <tr className="bg-white/[0.02]">
                   <td colSpan={6} className="px-6 py-8 border-b border-white/5">
@@ -662,19 +653,11 @@ export default function OrdersTable() {
                               <div className="flex items-center gap-4">
                                 <div className="relative w-16 h-16 bg-gray-900 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                                   {item.productImage ? (
-                                    // <img
-                                    //   src={item.productImage}
-                                    //   alt={item.productName}
-                                    //   referrerPolicy="no-referrer"
-                                    //   className="w-full h-full object-cover"
-                                    //   loading="lazy"
-                                    // />
                                     <img
                                       src={item.productImage}
                                       alt={item.productName}
                                       className="w-12 h-12 rounded-lg object-cover"
                                       onError={(e) => {
-                                        // Хэрэв зураг алдаа заавал placeholder харуулна
                                         (e.target as HTMLImageElement).src =
                                           "/no-image.png";
                                       }}
@@ -716,7 +699,6 @@ export default function OrdersTable() {
                         )}
                       </div>
 
-                      {/* Хаяг болон Төлбөрийн мэдээлэл */}
                       <div className="mt-4 p-4 bg-[#C5A059]/5 rounded-2xl border border-[#C5A059]/10 grid md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-[9px] uppercase font-bold text-[#C5A059] mb-1">

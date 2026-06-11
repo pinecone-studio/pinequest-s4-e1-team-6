@@ -98,8 +98,15 @@ export default function HorizontalProductStack({
                 onSelect={() => onSelect(product)}
                 onSave={() => {}}
                 // ЭНД ХОЛБООС ХИЙГДЭЖ БАЙНА
-                onOrder={() => {
-                  if (onBuy) onBuy(product.name, product.price);
+                onOrder={(orderedProduct: any) => {
+                  const selectedProduct = orderedProduct || product;
+                  if (onBuy) {
+                    onBuy(
+                      selectedProduct.name,
+                      selectedProduct.price,
+                      selectedProduct,
+                    );
+                  }
                 }}
                 onAddToCart={(p: any) => addToCart(p)}
                 savedIds={savedIds}

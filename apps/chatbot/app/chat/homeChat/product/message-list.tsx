@@ -8,13 +8,14 @@ import { ProductCarousel } from "@/app/chat/products/scrollEffect/ProductCarouse
 import OrderAddress from "../../payment/components/form";
 import QPayPayment from "../../payment/components/QPayPayment ";
 import OrderReceipt from "../../ZahialgaHarah/OrderReceipt";
+import { parsePrice } from "@/lib/utils/price";
 
 interface Product {
   id: string;
   name: string;
-  price: string;
+  price: string | number;
   image: string;
-  description: string;
+  description?: string;
   storeId?: string;
   brand?: string;
   storeName?: string;
@@ -24,7 +25,7 @@ interface MessageListProps {
   messages: any[];
   isTyping: boolean;
   onProductClick: (product: Product) => void;
-  onBuy: (name: string, price: any) => void;
+  onBuy: (name: string, price: any, product?: Product) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   storeName?: string;
 }
@@ -87,30 +88,36 @@ export const MessageList: React.FC<MessageListProps> = ({
   const [activePayment, setActivePayment] = useState<any>(null);
   const [receiptData, setReceiptData] = useState<any>(null);
 
-  const handleOpenOrderForm = (name: string, price: any) => {
+  const handleOpenOrderForm = (name: string, price: any, product?: Product) => {
     const allProducts = messages.flatMap((m) =>
       extractProducts(m.content || ""),
     );
-    const match = allProducts.find((p) => p.name === name);
+    const match = product || allProducts.find((p) => p.name === name);
 
     setAddressFormProduct({
       name: name,
       price: price,
       image: match?.image || "",
       id: match?.id || `id-${Date.now()}`,
+      storeId: match?.storeId || "",
       storeName: storeName || match?.storeName,
     });
   };
 
-  const handleAddressConfirm = () => {
+  const handleAddressConfirm = (addressData: any) => {
     if (!addressFormProduct) return;
     const product = { ...addressFormProduct };
     setAddressFormProduct(null);
 
-    const numericPrice =
-      typeof product.price === "string"
-        ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
-        : product.price;
+    const numericPrice = parsePrice(product.price);
+    const fullAddress = [
+      addressData.city,
+      addressData.district,
+      addressData.address,
+      addressData.street,
+    ]
+      .filter(Boolean)
+      .join(", ");
 
     setTimeout(() => {
       setActivePayment({
@@ -118,20 +125,51 @@ export const MessageList: React.FC<MessageListProps> = ({
         orderId: product.id || `ORD-${Date.now()}`,
         productName: product.name,
         image: product.image,
+        productId: product.id,
+        storeId: product.storeId,
         storeName: storeName || product.storeName || "Манай дэлгүүр",
+        customerPhone: addressData.phone,
+        address: fullAddress,
       });
     }, 400);
   };
 
-  const handlePaymentSuccess = (details: any) => {
+  const handlePaymentSuccess = async (details: any) => {
     const paidInfo = activePayment;
     setActivePayment(null);
+    try {
+      await fetch("/chat/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          totalAmount: paidInfo.amount,
+          customerPhone: paidInfo.customerPhone,
+          address: paidInfo.address,
+          storeId: paidInfo.storeId,
+          storeName: paidInfo.storeName,
+          items: [
+            {
+              productId: paidInfo.productId || paidInfo.orderId,
+              name: paidInfo.productName,
+              image: paidInfo.image,
+              price: paidInfo.amount,
+              quantity: 1,
+              storeId: paidInfo.storeId,
+              storeName: paidInfo.storeName,
+            },
+          ],
+        }),
+      });
+    } catch (error) {
+      console.error("Order save error:", error);
+    }
     setReceiptData({
       productName: paidInfo.productName,
       amount: paidInfo.amount,
       orderId: paidInfo.orderId,
       date: new Date().toLocaleString(),
       image: paidInfo.image,
+      store_id: paidInfo.storeId,
       transactionId: details.transactionId,
     });
   };

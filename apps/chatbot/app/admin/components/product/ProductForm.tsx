@@ -10,6 +10,8 @@ import {
   LayoutGrid,
   Loader2,
   Store,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SuccessToast } from "../ui/SuccessToast";
@@ -22,6 +24,11 @@ interface ProductFormProps {
   editData?: any;
   onCancel?: () => void;
 }
+
+type SizeStockRow = {
+  size: string;
+  stock: string;
+};
 
 export default function ProductForm({
   onSuccess,
@@ -44,12 +51,70 @@ export default function ProductForm({
     color: "",
     size: "",
   });
+  const [sizeStockRows, setSizeStockRows] = useState<SizeStockRow[]>([
+    { size: "", stock: "" },
+  ]);
 
   const [previews, setPreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const parseSizeStock = (value: unknown): SizeStockRow[] => {
+    if (!value) return [{ size: "", stock: "" }];
+
+    try {
+      const parsed = typeof value === "string" ? JSON.parse(value) : value;
+      if (Array.isArray(parsed)) {
+        const rows = parsed
+          .map((item) => ({
+            size: String(item.size || ""),
+            stock: String(item.stock ?? ""),
+          }))
+          .filter((item) => item.size || item.stock);
+        return rows.length > 0 ? rows : [{ size: "", stock: "" }];
+      }
+    } catch {
+      return [{ size: "", stock: "" }];
+    }
+
+    return [{ size: "", stock: "" }];
+  };
+
+  const normalizedSizeRows = sizeStockRows
+    .map((row) => ({
+      size: row.size.trim(),
+      stock: Math.max(0, Number(row.stock) || 0),
+    }))
+    .filter((row) => row.size && row.stock > 0);
+
+  const totalVariantStock = normalizedSizeRows.reduce(
+    (sum, row) => sum + row.stock,
+    0,
+  );
+
+  const updateSizeStockRow = (
+    index: number,
+    field: keyof SizeStockRow,
+    value: string,
+  ) => {
+    setSizeStockRows((prev) =>
+      prev.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, [field]: value } : row,
+      ),
+    );
+  };
+
+  const addSizeStockRow = () => {
+    setSizeStockRows((prev) => [...prev, { size: "", stock: "" }]);
+  };
+
+  const removeSizeStockRow = (index: number) => {
+    setSizeStockRows((prev) =>
+      prev.length === 1 ? [{ size: "", stock: "" }] : prev.filter((_, i) => i !== index),
+    );
   };
 
   const CATEGORY_DATA: Record<string, { brands: string[]; sizes: string[] }> = {
@@ -164,6 +229,7 @@ export default function ProductForm({
         color: meta.color || "",
         size: meta.size || "",
       });
+      setSizeStockRows(parseSizeStock(meta.sizeStock || meta.size_stock));
 
       const currentImg = meta.imageUrl || meta.product_image_url;
       if (currentImg) {
@@ -208,13 +274,24 @@ export default function ProductForm({
         imageUrl = cloudJson.secure_url;
       }
 
+      const uniqueSizes = new Set(normalizedSizeRows.map((row) => row.size));
+      if (uniqueSizes.size !== normalizedSizeRows.length) {
+        return alert("Ижил размер давхардсан байна. Нэг размерийг нэг мөрөөр оруулна уу.");
+      }
+
+      const sizes = normalizedSizeRows.map((row) => row.size);
+      const stockTotal = totalVariantStock || Number(formData.stock || "0");
+
       const payload = {
         ...formData,
         id: initialData?.id,
         imageUrl,
         storeName: storeName,
         price: Number(formData.price),
-        stock: Number(formData.stock || "0"),
+        stock: stockTotal,
+        size: sizes.join(", "),
+        sizes,
+        sizeStock: JSON.stringify(normalizedSizeRows),
       };
 
       const apiUrl = initialData
@@ -246,6 +323,7 @@ export default function ProductForm({
             color: "",
             size: "",
           });
+          setSizeStockRows([{ size: "", stock: "" }]);
           setPreviews([]);
           setImageFiles([]);
         }
@@ -364,6 +442,8 @@ export default function ProductForm({
                               handleInputChange("category", e.target.value);
                               handleInputChange("brand", "");
                               handleInputChange("size", "");
+                              handleInputChange("stock", "");
+                              setSizeStockRows([{ size: "", stock: "" }]);
                             }}
                           >
                             <option value="">Сонгох</option>
@@ -434,62 +514,84 @@ export default function ProductForm({
                         </div>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-2 md:col-span-4">
                         <label className="text-[10px] text-gray-500 font-bold ml-2 uppercase tracking-widest">
-                          Размер
+                          Размер бүрийн үлдэгдэл
                         </label>
-                        <div className="relative group">
-                          <select
-                            disabled={!formData.category}
-                            className="w-full bg-gray-800/80 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800"
-                            value={formData.size}
-                            onChange={(e) =>
-                              handleInputChange("size", e.target.value)
-                            }
-                          >
-                            <option value="">
-                              {formData.category ? "Размер" : "---"}
-                            </option>
-                            {formData.category &&
-                              CATEGORY_DATA[formData.category]?.sizes.map(
-                                (size) => (
-                                  <option key={size} value={size}>
-                                    {size}
-                                  </option>
-                                ),
-                              )}
-                          </select>
-                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                        <div className="space-y-3 rounded-3xl border border-white/10 bg-black/20 p-4">
+                          {sizeStockRows.map((row, index) => (
+                            <div
+                              key={index}
+                              className="grid grid-cols-[1fr_120px_44px] gap-3"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M19 9l-7 7-7-7"
+                              <select
+                                disabled={!formData.category}
+                                className="w-full bg-gray-800/80 border border-white/10 p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800"
+                                value={row.size}
+                                onChange={(e) =>
+                                  updateSizeStockRow(
+                                    index,
+                                    "size",
+                                    e.target.value,
+                                  )
+                                }
+                              >
+                                <option value="">
+                                  {formData.category ? "Размер сонгох" : "---"}
+                                </option>
+                                {formData.category &&
+                                  CATEGORY_DATA[formData.category]?.sizes.map(
+                                    (size) => (
+                                      <option key={size} value={size}>
+                                        {size}
+                                      </option>
+                                    ),
+                                  )}
+                              </select>
+                              <input
+                                type="number"
+                                min="0"
+                                className="w-full bg-gray-800/80 border border-white/10 p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white placeholder:text-gray-600"
+                                placeholder="Ширхэг"
+                                value={row.stock}
+                                onChange={(e) =>
+                                  updateSizeStockRow(
+                                    index,
+                                    "stock",
+                                    e.target.value,
+                                  )
+                                }
                               />
-                            </svg>
+                              <button
+                                type="button"
+                                onClick={() => removeSizeStockRow(index)}
+                                className="h-12 rounded-2xl border border-white/10 bg-white/5 text-gray-400 hover:text-rose-400 hover:border-rose-500/30 transition-colors flex items-center justify-center"
+                                title="Мөр устгах"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                          <div className="flex items-center justify-between gap-4 pt-1">
+                            <button
+                              type="button"
+                              onClick={addSizeStockRow}
+                              disabled={!formData.category}
+                              className="inline-flex items-center gap-2 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-indigo-300 hover:bg-indigo-500/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Размер нэмэх
+                            </button>
+                            <div className="text-right">
+                              <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">
+                                Нийт үлдэгдэл
+                              </p>
+                              <p className="text-lg font-black text-white">
+                                {totalVariantStock.toLocaleString()} ширхэг
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] text-gray-500 font-bold ml-2 uppercase tracking-widest">
-                          Үлдэгдэл
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full bg-gray-800/80 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white placeholder:text-gray-600"
-                          placeholder="0"
-                          value={formData.stock}
-                          onChange={(e) =>
-                            handleInputChange("stock", e.target.value)
-                          }
-                        />
                       </div>
                     </div>
                   </div>

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { createPortal } from "react-dom";
+import { parsePrice } from "@/lib/utils/price";
 
 interface Product {
   id: string;
@@ -14,12 +15,14 @@ interface Product {
   price: string | number;
   image: string;
   description?: string;
+  storeId?: string;
+  storeName?: string;
 }
 
 interface Props {
   product: Product | null;
   onClose: () => void;
-  onBuy: (name: string, price: any) => void;
+  onBuy: (name: string, price: any, product?: Product) => void;
 }
 
 export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
@@ -29,10 +32,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
 
   if (!product) return null;
 
-  const numericPrice =
-    typeof product.price === "string"
-      ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
-      : Number(product.price);
+  const numericPrice = parsePrice(product.price);
 
   const handleAddCart = async () => {
     setIsAdding(true);
@@ -126,7 +126,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
             numericPrice={numericPrice}
             isAdding={isAdding}
             onBuy={(name, price) => {
-              onBuy(name, price);
+              onBuy(name, price, product);
               onClose(); 
             }}
             handleAddCart={handleAddCart}
