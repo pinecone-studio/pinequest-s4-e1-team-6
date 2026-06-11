@@ -1,3 +1,4 @@
+<<<<<<< HEAD:apps/chatbot/proxy.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -23,6 +24,11 @@ export default clerkMiddleware(async (auth, req) => {
 
   return NextResponse.next();
 });
+=======
+import { clerkMiddleware } from "@clerk/nextjs/server";
+
+export default clerkMiddleware(() => {});
+>>>>>>> origin/main:apps/chatbot/middleware.ts
 
 export const config = {
   matcher: [

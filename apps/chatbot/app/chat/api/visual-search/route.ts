@@ -72,9 +72,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { getStoreNamespaces } from "@/lib/search/get-store-namespaces";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
+
+type ProductMetadata = {
+  product_name?: string;
+  name?: string;
+  formatted_price?: string | number;
+  price?: string | number;
+  product_image_url?: string;
+  image_url?: string;
+  image?: string;
+  description?: string;
+  store_id?: string;
+  storeId?: string;
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -122,13 +136,7 @@ export async function POST(req: NextRequest) {
 
     const index = pc.index(indexName);
 
-    const namespaces = [
-      "Turuu's store",
-      "sadadasda",
-      "sephora",
-      "ETRNTY",
-      "Tugss store",
-    ];
+    const namespaces = await getStoreNamespaces();
 
     const queryPromises = namespaces.map((ns) =>
       index.namespace(ns).query({
@@ -145,7 +153,7 @@ export async function POST(req: NextRequest) {
       .slice(0, 6);
 
     const products = allMatches.map((m) => {
-      const meta = (m.metadata || {}) as any;
+      const meta = (m.metadata || {}) as ProductMetadata;
       return {
         id: m.id,
         name: String(meta.product_name || meta.name || "Нэргүй"),
@@ -159,8 +167,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ products, description });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Unknown search error";
     console.error("Vision Search Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

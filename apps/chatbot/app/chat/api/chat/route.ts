@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { index } from "@/lib/api/pinecone";
 import { prisma } from "@/lib/prisma";
+import { getStoreNamespaces } from "@/lib/search/get-store-namespaces";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY,
