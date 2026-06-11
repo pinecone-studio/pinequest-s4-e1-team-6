@@ -132,6 +132,18 @@ export const MessageList: React.FC<MessageListProps> = ({
         storeName: storeName || product.storeName || "Манай дэлгүүр",
         customerPhone: addressData.phone,
         address: fullAddress,
+        items: [
+          {
+            productId: product.id, // Pinecone record id → stock хасахад хэрэглэнэ
+            id: product.id,
+            name: product.name,
+            price: numericPrice,
+            quantity: 1,
+            product_image_url: product.image || "",
+            storeId: product.storeId || "",
+            storeName: product.storeName || storeName || "",
+          },
+        ],
       });
     }, 400);
   };

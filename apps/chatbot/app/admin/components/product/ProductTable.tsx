@@ -36,7 +36,7 @@ export default function ProductTable({
 
       const data = await res.json();
       if (data.success) {
-        setProducts(data.products || []); 
+        setProducts(data.products || []);
       }
     } catch (error) {
       console.error("Дата татахад алдаа гарлаа:", error);
@@ -241,7 +241,7 @@ export default function ProductTable({
                     <td className="px-6 py-4 text-gray-500 font-medium">
                       {brand}
                     </td>
-                    <td className="px-6 py-4">
+                    {/* <td className="px-6 py-4">
                       <div className="space-y-2">
                         <div
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
@@ -258,6 +258,45 @@ export default function ProductTable({
                               <span
                                 key={item.size}
                                 className="rounded-lg bg-gray-100 dark:bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-600 dark:text-gray-300"
+                              >
+                                {item.size}: {item.stock}ш
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </td> */}
+                    <td className="px-6 py-4">
+                      <div className="space-y-2">
+                        <div
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                            stock > 0
+                              ? "bg-emerald-500/10 text-emerald-500"
+                              : "bg-rose-500/20 text-rose-500 border border-rose-500/30"
+                          }`}
+                        >
+                          {stock > 0 ? `${stock} ширхэг` : "⚠️ Дууссан"}
+                        </div>
+
+                        {stock === 0 && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20">
+                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                            <span className="text-[10px] text-rose-400 font-bold">
+                              Нөөц дууссан
+                            </span>
+                          </div>
+                        )}
+
+                        {sizeRows.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 max-w-52">
+                            {sizeRows.map((item: any) => (
+                              <span
+                                key={item.size}
+                                className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
+                                  Number(item.stock) > 0
+                                    ? "bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300"
+                                    : "bg-rose-500/10 text-rose-400 line-through"
+                                }`}
                               >
                                 {item.size}: {item.stock}ш
                               </span>

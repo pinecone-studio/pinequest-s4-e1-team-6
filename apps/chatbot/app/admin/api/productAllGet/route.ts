@@ -36,9 +36,18 @@ export async function GET(req: Request) {
       };
     }) || [];
 
+    products.sort((a, b) => {
+      const aSoldOut = Number(a.stock) <= 0;
+      const bSoldOut = Number(b.stock) <= 0;
+
+      if (aSoldOut !== bSoldOut) return aSoldOut ? 1 : -1;
+      return String(a.name).localeCompare(String(b.name), "mn");
+    });
+
     return NextResponse.json({ success: true, products });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Pinecone GET Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
