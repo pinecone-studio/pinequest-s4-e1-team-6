@@ -11,7 +11,7 @@ import {
   Box,
   Tag,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, type MouseEvent } from "react";
 import { useTheme } from "next-themes";
 
 type ProductCardData = {
@@ -70,23 +70,36 @@ export const ProductCard = ({
   const { resolvedTheme } = useTheme();
   const isLightMode = resolvedTheme === "light";
 
+  const asText = (value: unknown) =>
+    typeof value === "string"
+      ? value.trim()
+      : value == null
+        ? ""
+        : String(value).trim();
+
   const productData = useMemo(() => {
-    const meta = (product.metadata || {}) as ProductCardData["metadata"];
+    const meta = (product.metadata || {}) as NonNullable<
+      ProductCardData["metadata"]
+    >;
  
     return {
-      id: product.id ?? product.product_id ?? product.name,
-      name: meta.name || product.product_name || product.name || "Нэргүй бараа",
-      brand: product.brand || meta.brand || "",
+      id: asText(product.id ?? product.product_id ?? product.name) || undefined,
+      name:
+        asText(meta.name) ||
+        asText(product.product_name) ||
+        asText(product.name) ||
+        "Нэргүй бараа",
+      brand: asText(product.brand) || asText(meta.brand) || "",
       storeId:
-        product.storeId ||
-        product.store_id ||
-        meta.storeId ||
-        meta.store_id ||
+        asText(product.storeId) ||
+        asText(product.store_id) ||
+        asText(meta.storeId) ||
+        asText(meta.store_id) ||
         "",
       storeName:
-        product.storeName?.trim() ||
-        product.store_name?.trim() ||
-        meta.store_name?.trim() ||
+        asText(product.storeName) ||
+        asText(product.store_name) ||
+        asText(meta.store_name) ||
         "Turuu's shop",
       stock: meta.stock ?? product.stock,
       price: meta.price ?? product.price ?? product.formatted_price ?? 0,
@@ -111,7 +124,7 @@ export const ProductCard = ({
     image: imageUrl || product.image,
   };
  
-  const handleShare = async (e: React.MouseEvent) => {
+  const handleShare = async (e: MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
  
@@ -240,7 +253,7 @@ export const ProductCard = ({
             <Heart
               size={18}
               className={
-                savedIds?.includes(productData.id)
+                savedIds?.includes(productData.id ?? "")
                   ? "text-red-400 fill-red-400"
                   : layout === "grid"
                     ? isLightMode
@@ -325,7 +338,7 @@ export const ProductCard = ({
               ))}
           </div>
         </div>
- 
+
         <div className={`mt-5 ${layout === "grid" ? "h-auto" : "h-13"}`}>
           <AnimatePresence mode="wait">
             {(layout === "grid" || isCurrent) && (
@@ -362,7 +375,7 @@ export const ProductCard = ({
                     </span>
                   ) : productData.stock === 0 ? "Дууссан" : "Захиалах"}
                 </button>
- 
+
                 {layout !== "grid" && (
                   <>
                     <button

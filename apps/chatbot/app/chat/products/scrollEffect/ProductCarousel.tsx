@@ -14,12 +14,13 @@ interface Product {
   storeId?: string;
   brand?: string;
   storeName?: string;
+  [key: string]: unknown;
 }
 
 interface ProductCarouselProps {
   products: Product[];
   onSelect: (product: Product) => void;
-  onBuy: (name: string, price: any, product?: Product) => void;
+  onBuy: (name: string, price: any, product?: any) => void;
   history?: any[];
 }
 
