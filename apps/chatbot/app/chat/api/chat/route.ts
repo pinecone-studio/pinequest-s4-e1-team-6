@@ -25,6 +25,14 @@ function normalizeOpenAIRole(
   return "user";
 }
 
+function normalizeSearchText(value: string) {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function includesNormalizedText(source: string, target: string) {
+  return normalizeSearchText(source).includes(normalizeSearchText(target));
+}
+
 export async function POST(req: Request) {
   try {
     const { userId: clerkUserId } = await auth();
@@ -51,6 +59,8 @@ export async function POST(req: Request) {
 
     // --- VECTOR SEARCH ---
     let context = "";
+    let requestedBrand = "";
+    let requestedCategory = "";
     try {
       const embedding = await openai.embeddings.create({
         model: "text-embedding-3-small",
@@ -70,9 +80,71 @@ export async function POST(req: Request) {
       const queryResults = await Promise.all(queryPromises);
       const allMatches = queryResults.flatMap((res) => res.matches || []);
 
-      const topMatches = allMatches
+      let topMatches = allMatches
         .sort((a, b) => (b.score || 0) - (a.score || 0))
         .slice(0, 20);
+
+      const availableBrands = Array.from(
+        new Set(
+          allMatches
+            .map((match) => String(match.metadata?.brand || "").trim())
+            .filter(Boolean),
+        ),
+      );
+
+      const availableCategories = Array.from(
+        new Set(
+          allMatches
+            .map((match) =>
+              String(
+                match.metadata?.category ||
+                  match.metadata?.product_type ||
+                  match.metadata?.main_category ||
+                  "",
+              ).trim(),
+            )
+            .filter(Boolean),
+        ),
+      );
+
+      const matchedBrand = availableBrands.find((brand) =>
+        includesNormalizedText(lastUserMessage, brand),
+      );
+
+      const matchedCategory = availableCategories.find((category) =>
+        includesNormalizedText(lastUserMessage, category),
+      );
+
+      if (matchedBrand || matchedCategory) {
+        requestedBrand = matchedBrand || "";
+        requestedCategory = matchedCategory || "";
+        const filteredMatches = topMatches.filter((match) => {
+          const matchBrand = String(match.metadata?.brand || "").trim();
+          const matchCategory = String(
+            match.metadata?.category ||
+              match.metadata?.product_type ||
+              match.metadata?.main_category ||
+              "",
+          ).trim();
+          const matchName = String(
+            match.metadata?.name || match.metadata?.product_name || "",
+          ).trim();
+
+          const brandOk = matchedBrand
+            ? includesNormalizedText(matchBrand, matchedBrand) ||
+              includesNormalizedText(matchName, matchedBrand)
+            : true;
+          const categoryOk = matchedCategory
+            ? includesNormalizedText(matchCategory, matchedCategory)
+            : true;
+
+          return brandOk && categoryOk;
+        });
+
+        if (filteredMatches.length > 0) {
+          topMatches = filteredMatches;
+        }
+      }
 
       // context = topMatches
       //   .map((m) => {
@@ -104,17 +176,31 @@ export async function POST(req: Request) {
             m.metadata?.store_name || m.metadata?.storeName || "Official Store";
           const storeId = m.metadata?.storeId || m.metadata?.store_id || "";
           const brand = m.metadata?.brand || "";
+          const category =
+            m.metadata?.category ||
+            m.metadata?.product_type ||
+            m.metadata?.main_category ||
+            "";
 
           return `БҮТЭЭГДЭХҮҮН: ${name}
 ҮНЭ: ${price}₮
 ЗУРАГ: ${img}
 ТАЙЛБАР: ${desc}
 БРЕНД: ${brand}
+CATEGORY: ${category}
 ID: ${m.id}
 STORE_NAME: ${storeName}
 STORE_ID: ${storeId}`;
         })
         .join("\n---\n");
+
+      if (requestedBrand || requestedCategory) {
+        context = `ХАИЛТЫН ШҮҮЛТ:
+REQUESTED_BRAND: ${requestedBrand || "NONE"}
+REQUESTED_CATEGORY: ${requestedCategory || "NONE"}
+
+${context}`;
+      }
 
       console.log("Олдсон барааны тоо:", topMatches.length);
     } catch (err) {
@@ -130,6 +216,7 @@ STORE_ID: ${storeId}`;
           
       --- ЧУХАЛ: ХАТУУ ХЯЗГААРЛАЛТ (CRITICAL RULES) ---
       1. ЗӨВХӨН CONTEXT АШИГЛА: Өгөгдсөн Context дотор байхгүй барааг хэзээ ч бүү зохио. Хэрэв Context дотор хэрэглэгчийн хайсан бараа байхгүй бол "Уучлаарай, манайд яг одоо [барааны нэр] алга байна" гэж хариул.
+      1.1. Хэрэв REQUESTED_BRAND эсвэл REQUESTED_CATEGORY бөглөгдсөн бөгөөд Context дотор 1+ тохирох бараа байвал "байхгүй байна" гэж ХЭЗЭЭ Ч битгий хэл. Шууд тухайн тохирох бараануудыг харуул.
       2. ХӨНДЛӨНГИЙН МЭДЛЭГ ХОРИГЛОХ: Өөрийн сургагдсан мэдээллийн санд байгаа ерөнхий мэдлэгээ ашиглан бараа санал болгохыг ХАТУУ ХОРИГЛОНО.
       3. ЗУРГИЙН ДҮРЭМ: Зөвхөн Context дотор ирсэн 'image_url' эсвэл 'ЗУРАГ' линкийг ашигла. Хэрэв Context-д зураг байхгүй бол зургийн хэсгийг хоосон орхи эсвэл "Зураггүй бараа" гэж тэмдэглэ. ХЭЗЭЭ Ч гадны (loremflickr, google гэх мэт) линк бүү ашигла.
       4. TEMPERATURE CHECK: Чи маш бодит (grounded) байх ёстой. Барааны нэр, үнэ, тайлбар бүгд Context-той 100% таарах ёстой.
@@ -140,10 +227,13 @@ STORE_ID: ${storeId}`;
          - Context дотор байгаа хамгийн эрэлттэй эсвэл ойролцоо брэндүүд.
          - Жишээ хариулт: "Уучлаарай, яг одоо [Брэнд] байхгүй байна. Гэхдээ манайд ижил төрлийн маш чанартай [Context-д байгаа өөр бараа] байгаа, та сонирхох уу?"
       2. Хэрэглэгч ерөнхий зүйл асуувал Context-д байгаа бүх төрлөөс төлөөлөл болгож хамгийн багадаа 10 барааг (эсвэл олдох бүх барааг) жагсааж харуул.
+      3. Хэрэв хэрэглэгч тодорхой брэнд эсвэл category нэрлэвэл зөвхөн тэр брэнд/category-той холбоотой барааг харуул. Өөр unrelated бараа, өөр category хольж оруулахыг хориглоно.
+      4. Хэрэв хэрэглэгч brand/category тодорхойлоогүй бол л өргөн хүрээний холимог санал болго.
 
       --- БАРААНЫ ТӨЛӨӨЛӨЛ (PRODUCT DIVERSITY) ---
       1. Чи ЗӨВХӨН ГУТАЛ биш, Context дотор байгаа БҮХ төрлийн барааг (цамц, өмд, куртка, хэрэгсэл гэх мэт) ижил түвшинд санал болгох ёстой. 
       2. Хэрэглэгч ерөнхий зүйл асуувал (жишээ нь: "Юу байна?") Context-д байгаа өөр өөр төрлийн (category) бараануудыг хольж харуул. Нэг төрлөөр (жишээ нь зөвхөн пүүзээр) хариултыг бүү хязгаарла.
+      3. Гэхдээ хэрэглэгчийн асуулт тодорхой брэнд/category агуулж байвал зөвхөн тэр чиглэлтэй тохирох бараануудыг харуул. Жишээ нь "Nike" гэж асуувал Nike-той холбоогүй цамц, бусад брэндийн барааг бүү оруул.
 
       --- БАЙХГҮЙ БАРААГ ОРЛУУЛАХ ---
       1. Хэрэв хэрэглэгчийн хайсан бараа эсвэл брэнд Context дотор ОРТ БАЙХГҮЙ бол "Уучлаарай, яг таны хайсан [нэр] манайд байхгүй байна. Гэхдээ манай дэлгүүрт байгаа дараах бараанууд танд таалагдаж магадгүй:" гээд Context-д байгаа ОЙРОЛЦОО бүх барааг төрлөөр эсвэл өөр төрлийн шилдэг бараануудыг санал болго. 
