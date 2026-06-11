@@ -9,5 +9,5 @@ export async function isAdmin() {
     select: { role: true } // Зөвхөн role талбарыг татаж авна
   });
 
-  return user?.role === "ADMIN"; 
+  return user?.role === "ADMIN" || user?.role === "STORE_OWNER";
 }

@@ -2,7 +2,10 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "./prisma";
 
 function hasAdminRole(role: unknown) {
-  return typeof role === "string" && role.toLowerCase() === "admin";
+  if (typeof role !== "string") return false;
+
+  const normalizedRole = role.toUpperCase();
+  return normalizedRole === "ADMIN" || normalizedRole === "STORE_OWNER";
 }
 
 export async function isAdmin() {
@@ -27,7 +30,7 @@ export async function isAdmin() {
       select: { role: true },
     });
 
-    return dbUser?.role === "ADMIN";
+    return dbUser?.role === "ADMIN" || dbUser?.role === "STORE_OWNER";
   } catch (error) {
     console.warn("Admin check failed:", error);
     return false;

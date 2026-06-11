@@ -1,12 +1,17 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAdmin } from "@/lib/isAdmin";
 
 export async function POST(req: Request) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
       return NextResponse.json({ error: "Nevtreegui baina" }, { status: 401 });
+    }
+
+    if (!(await isAdmin())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await req.json();
@@ -42,7 +47,7 @@ export async function POST(req: Request) {
       where: { id: dbUser.id },
       data: {
         storeName: name,
-        role: "STORE_OWNER",
+        role: dbUser.role === "ADMIN" ? "ADMIN" : "STORE_OWNER",
       },
     });
 
