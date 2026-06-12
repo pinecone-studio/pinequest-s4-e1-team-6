@@ -16,7 +16,7 @@ export default function ProductsPage() {
 
   if (!storeName)
     return (
-      <div className="text-white p-10 italic">
+      <div className="dark:text-white p-10 italic">
         Дэлгүүр бүртгэлгүй байна. Та Dashboard дээр бүртгүүлнэ үү.
       </div>
     );

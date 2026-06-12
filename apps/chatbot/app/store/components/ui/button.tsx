@@ -40,20 +40,105 @@ const buttonVariants = cva(
   },
 );
 
+// Responsive төрлийг тодорхойлох туслах тип (Жишээ нь: { initial: "sm", sm: "lg" })
+type ResponsiveValue<T> =
+  | T
+  | { initial?: T; sm?: T; md?: T; lg?: T; xl?: T; "2xl"?: T };
+
+interface ResponsiveButtonProps extends Omit<
+  React.ComponentProps<"button">,
+  "size" | "variant"
+> {
+  variant?: ResponsiveValue<VariantProps<typeof buttonVariants>["variant"]>;
+  size?: ResponsiveValue<VariantProps<typeof buttonVariants>["size"]>;
+}
+
 function Button({
   className,
   variant = "default",
   size = "default",
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-  }) {
+}: ResponsiveButtonProps) {
+  // Responsive утгуудыг задлан ангилж Tailwind класс руу хөрвүүлэх туслах функц
+  const getResponsiveClasses = () => {
+    const classes: string[] = [];
+
+    // Variant задлах
+    if (typeof variant === "string") {
+      classes.push(buttonVariants({ variant }));
+    } else if (variant && typeof variant === "object") {
+      if (variant.initial)
+        classes.push(buttonVariants({ variant: variant.initial }));
+      if (variant.sm)
+        classes.push(
+          cn(
+            variant.sm &&
+              `sm:${buttonVariants({ variant: variant.sm }).split(" ").join(" sm:")}`,
+          ),
+        );
+      if (variant.md)
+        classes.push(
+          cn(
+            variant.md &&
+              `md:${buttonVariants({ variant: variant.md }).split(" ").join(" md:")}`,
+          ),
+        );
+      if (variant.lg)
+        classes.push(
+          cn(
+            variant.lg &&
+              `lg:${buttonVariants({ variant: variant.lg }).split(" ").join(" lg:")}`,
+          ),
+        );
+    }
+
+    // Size задлах
+    if (typeof size === "string") {
+      classes.push(buttonVariants({ size }));
+    } else if (size && typeof size === "object") {
+      if (size.initial) classes.push(buttonVariants({ size: size.initial }));
+      if (size.sm)
+        classes.push(
+          cn(
+            size.sm &&
+              `sm:${buttonVariants({ size: size.sm }).split(" ").join(" sm:")}`,
+          ),
+        );
+      if (size.md)
+        classes.push(
+          cn(
+            size.md &&
+              `md:${buttonVariants({ size: size.md }).split(" ").join(" md:")}`,
+          ),
+        );
+      if (size.lg)
+        classes.push(
+          cn(
+            size.lg &&
+              `lg:${buttonVariants({ size: size.lg }).split(" ").join(" lg:")}`,
+          ),
+        );
+    }
+
+    return classes;
+  };
+
+  // Төлөвийн өгөгдөл (data-attributes)-д зориулж анхны утгыг оноох
+  const dataVariant =
+    typeof variant === "string" ? variant : variant?.initial || "default";
+  const dataSize = typeof size === "string" ? size : size?.initial || "default";
+
   return (
     <button
       data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      data-variant={dataVariant}
+      data-size={dataSize}
+      className={cn(
+        // Үндсэн суурь классууд (Хэмжээ болон Variant-аас бусад)
+        "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        getResponsiveClasses(),
+        className,
+      )}
       {...props}
     />
   );

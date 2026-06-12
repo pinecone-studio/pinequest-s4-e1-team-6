@@ -62,7 +62,6 @@ export default function AdminDashboardContent({
       if (res.ok && data.success) {
         setStoreName(tempName.trim());
         router.refresh();
-
         fetchProducts();
       } else {
         alert(data.error || "Хадгалахад алдаа гарлаа.");
@@ -104,6 +103,7 @@ export default function AdminDashboardContent({
   useEffect(() => {
     if (storeName) {
       fetchProducts();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchOrders();
     }
   }, [storeName]);
@@ -118,19 +118,19 @@ export default function AdminDashboardContent({
 
   if (!storeName) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-white transition-colors duration-300 px-4">
-        <h1 className="text-3xl italic mb-8 text-center">
-          Дэлгүүрийн нэрээ бүртгүүлнэ үү
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-900 dark:text-white transition-colors duration-300 px-4 sm:px-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl italic mb-6 sm:mb-8 text-center">
+          Дэлгүүрийн нэрээ бүртгүүлнэ үү!
         </h1>
 
-        <div className="bg-gray-900 p-10 rounded-[2.5rem] border border-gray-800 w-full max-w-md shadow-2xl">
-          <div className="space-y-6">
+        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 dark:border-gray-800 w-full max-w-sm sm:max-w-md shadow-2xl">
+          <div className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] text-gray-400 font-bold ml-2 uppercase tracking-widest">
+              <label className="text-[10px] text-slate-500 dark:text-gray-400 font-bold ml-2 uppercase tracking-widest">
                 Дэлгүүрийн нэр
               </label>
               <input
-                className="w-full bg-gray-800 border border-gray-700 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-white placeholder:text-gray-500"
+                className="w-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 p-3 sm:p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-white placeholder:text-gray-500 text-sm sm:text-base"
                 value={tempName}
                 onChange={(e) => setTempName(e.target.value)}
                 placeholder="Жишээ: High-Tech Store"
@@ -140,7 +140,7 @@ export default function AdminDashboardContent({
             <button
               onClick={handleSetupStore}
               disabled={isSettingUp}
-              className="w-full bg-indigo-600 py-4 rounded-2xl font-bold text-white hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2"
+              className="w-full bg-indigo-600 py-3 sm:py-4 rounded-2xl font-bold text-white text-sm sm:text-base hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2"
             >
               {isSettingUp ? (
                 <>
@@ -158,36 +158,45 @@ export default function AdminDashboardContent({
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 sm:space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-4xl font-black italic text-white dark:text-black">
-            "{storeName}"
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black italic text-slate-900 dark:text-white">
+            {storeName}
           </h1>
         </div>
-        <ProductForm
-          key={storeName}
-          storeName={storeName}
-          onSuccess={fetchProducts}
-        />
+        <div className="w-full sm:w-auto">
+          <ProductForm
+            key={storeName}
+            storeName={storeName}
+            onSuccess={fetchProducts}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-8 rounded-3xl bg-indigo-600 text-white shadow-xl shadow-indigo-500/10">
-          <p className="opacity-70 text-sm font-bold uppercase tracking-wider">
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-6">
+        <div className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-indigo-600 text-white shadow-xl shadow-indigo-500/10">
+          <p className="opacity-70 text-xs sm:text-sm font-bold uppercase tracking-wider">
             Нийт бараа
           </p>
-          <h2 className="text-5xl font-black mt-2">{products.length}</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mt-1 sm:mt-2">
+            {products.length}
+          </h2>
         </div>
-        <div className="p-8 rounded-3xl bg-indigo-600 border border-white/10 text-white">
-          <p className="opacity-70 text-sm font-bold uppercase tracking-wider">
+        <div className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-indigo-600 border border-white/10 text-white">
+          <p className="opacity-70 text-xs sm:text-sm font-bold uppercase tracking-wider">
             Захиалга
           </p>
-          <h2 className="text-5xl font-black mt-2">{orders.length}</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mt-1 sm:mt-2">
+            {orders.length}
+          </h2>
         </div>
       </div>
 
-      <div className="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-6 border border-white/10">
+      {/* Revenue chart */}
+      <div className="bg-slate-100 dark:bg-white/5 backdrop-blur-md rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 border border-slate-200 dark:border-white/10">
         <RevenueChart orders={orders} />
       </div>
     </div>
