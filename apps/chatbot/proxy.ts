@@ -1,7 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+const isAdminRoute = createRouteMatcher(["/store(.*)"]);
+const isStoreRoute = createRouteMatcher(["/store(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
@@ -13,11 +14,11 @@ export default clerkMiddleware(async (auth, req) => {
       pathname === "/chat" ||
       pathname.startsWith("/chat/")
     ) {
-      return NextResponse.redirect(new URL("/admin", req.url));
+      return NextResponse.redirect(new URL("/store", req.url));
     }
   }
 
-  if (isAdminRoute(req)) {
+  if (isAdminRoute(req) || isStoreRoute(req)) {
     await auth.protect();
   }
 

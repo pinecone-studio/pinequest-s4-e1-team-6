@@ -1,4 +1,4 @@
-import { FavoriteDrawer } from "../store/components/FavoriteDrawer";
+import { FavoriteDrawer } from "./favorites/FavoriteDrawer";
 
 export default function UserLayout({
   children,
