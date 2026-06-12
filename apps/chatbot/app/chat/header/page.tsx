@@ -73,12 +73,11 @@ export default function Header({
         </div>
       </header>
 
-      {/* 🎯 Баруун талын Sidebar (Header-ийн гадна fixed байрлалтай тул хуудасны стилийг эвдэхгүй орой дээр нь гарна) */}
       {isStoresOpen && (
         <div
           style={{
             position: "fixed",
-            top: "60px", // Header-ийн өндөртэй тааруулж доороос нь эхлүүлнэ
+            top: "60px", 
             right: 0,
             width: "340px",
             height: "calc(100vh - 60px)",
@@ -92,7 +91,6 @@ export default function Header({
             animation: "slideIn 0.2s ease-out",
           }}
         >
-          {/* Чиний хавтасны бүтцээр шууд импортлогдсон дэлгүүрийн хуудас */}
           <StoresPage />
         </div>
       )}

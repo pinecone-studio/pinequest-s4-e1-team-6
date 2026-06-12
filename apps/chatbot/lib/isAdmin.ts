@@ -8,6 +8,10 @@ function hasAdminRole(role: unknown) {
   return normalizedRole === "ADMIN" || normalizedRole === "STORE_OWNER";
 }
 
+function readRole(meta: unknown) {
+  return (meta as Record<string, unknown> | null | undefined)?.role;
+}
+
 export async function isAdmin() {
   try {
     const session = await auth();
@@ -18,9 +22,9 @@ export async function isAdmin() {
     const client = await clerkClient();
     const clerkUser = await client.users.getUser(userId);
     const metadataRoles = [
-      clerkUser.publicMetadata?.role,
-      clerkUser.privateMetadata?.role,
-      clerkUser.unsafeMetadata?.role,
+      readRole(clerkUser.publicMetadata),
+      readRole(clerkUser.privateMetadata),
+      readRole(clerkUser.unsafeMetadata),
     ];
 
     if (metadataRoles.some(hasAdminRole)) return true;

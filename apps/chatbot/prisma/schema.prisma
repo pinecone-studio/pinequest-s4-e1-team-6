@@ -20,6 +20,12 @@ enum ProductStatus {
   HIDDEN
 }
 
+enum StoreStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum OrderStatus {
   PENDING
   PAID
@@ -104,7 +110,7 @@ model Store {
   description String?
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
+  status StoreStatus @default(PENDING)
   products  Product[]
   orders    Order[]
 
