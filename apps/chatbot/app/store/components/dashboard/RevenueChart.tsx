@@ -1,6 +1,14 @@
 "use client";
 import React from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, ComposedChart } from 'recharts';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function RevenueChart({ orders }: { orders: any[] }) {
   const chartData = React.useMemo(() => {
@@ -8,16 +16,16 @@ export default function RevenueChart({ orders }: { orders: any[] }) {
       const d = new Date();
       d.setDate(d.getDate() - (29 - i));
       return {
-        date: d.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }),
-        fullDate: d.toISOString().split('T')[0],
+        date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        fullDate: d.toISOString().split("T")[0],
         revenue: 0,
-        orders: 0
+        orders: 0,
       };
     });
 
     orders.forEach((o) => {
-      const orderDate = new Date(o.createdAt).toISOString().split('T')[0];
-      const dayData = last30Days.find(d => d.fullDate === orderDate);
+      const orderDate = new Date(o.createdAt).toISOString().split("T")[0];
+      const dayData = last30Days.find((d) => d.fullDate === orderDate);
       if (dayData) {
         dayData.revenue += Number(o.totalAmount || 0);
         dayData.orders += 1;
@@ -29,39 +37,62 @@ export default function RevenueChart({ orders }: { orders: any[] }) {
 
   const totalRevenue = chartData.reduce((sum, d) => sum + d.revenue, 0);
   const totalOrders = chartData.reduce((sum, d) => sum + d.orders, 0);
-  const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(0) : 0;
+  const avgOrderValue =
+    totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(0) : 0;
 
   return (
-    <div className="w-full mt-8 animate-in fade-in duration-1000">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
-          <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">30 хоногийн орлого</p>
-          <p className="text-xl font-black text-white mt-1">{totalRevenue.toLocaleString()}₮</p>
+    <div className="w-full mt-4 sm:mt-8 animate-in fade-in duration-1000">
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="bg-slate-100 dark:bg-white/5 p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-white/5">
+          <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-gray-500 font-black uppercase tracking-widest leading-tight">
+            30 хоногийн орлого
+          </p>
+          <p className="text-base sm:text-xl font-black text-slate-900 dark:text-white mt-1 truncate">
+            {totalRevenue.toLocaleString()}₮
+          </p>
         </div>
-        <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
-          <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Нийт захиалга</p>
-          <p className="text-xl font-black text-white mt-1">{totalOrders} ш</p>
+        <div className="bg-slate-100 dark:bg-white/5 p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-white/5">
+          <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-gray-500 font-black uppercase tracking-widest leading-tight">
+            Нийт захиалга
+          </p>
+          <p className="text-base sm:text-xl font-black text-slate-900 dark:text-white mt-1">
+            {totalOrders} ш
+          </p>
         </div>
-        <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
-          <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Дундаж дүн (AOV)</p>
-          <p className="text-xl font-black text-[#C5A059] mt-1">{Number(avgOrderValue).toLocaleString()}₮</p>
+        <div className="bg-slate-100 dark:bg-white/5 p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-white/5">
+          <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-gray-500 font-black uppercase tracking-widest leading-tight">
+            Дундаж дүн (AOV)
+          </p>
+          <p className="text-base sm:text-xl font-black text-[#C5A059] mt-1 truncate">
+            {Number(avgOrderValue).toLocaleString()}₮
+          </p>
         </div>
-        <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
-          <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Идэвхтэй мөчлөг</p>
-          <p className="text-xl font-black text-emerald-500 mt-1">30 Days</p>
+        <div className="bg-slate-100 dark:bg-white/5 p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-white/5">
+          <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-gray-500 font-black uppercase tracking-widest leading-tight">
+            Идэвхтэй мөчлөг
+          </p>
+          <p className="text-base sm:text-xl font-black text-emerald-500 mt-1">
+            30 Days
+          </p>
         </div>
       </div>
 
-      <div className="h-100 w-full bg-black/20 p-6 rounded-[2.5rem] border border-white/5">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-white font-black uppercase text-xs tracking-[0.3em]">Борлуулалтын дэлгэрэнгүй график</h3>
-          <div className="flex gap-4">
-             <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                <div className="w-2 h-2 rounded-full bg-[#C5A059]" /> Орлого
-             </div>
-             <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                <div className="w-2 h-2 rounded-full bg-white/20" /> Захиалгын тоо
-             </div>
+      {/* Chart */}
+      <div className="h-64 sm:h-80 md:h-100 w-full bg-slate-100 dark:bg-black/20 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] border border-slate-200 dark:border-white/5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 mb-4 sm:mb-6">
+          <h3 className="text-slate-900 dark:text-white font-black uppercase text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em]">
+            Борлуулалтын дэлгэрэнгүй график
+          </h3>
+          <div className="flex gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] text-slate-500 dark:text-gray-400">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#C5A059]" />
+              Орлого
+            </div>
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] text-slate-500 dark:text-gray-400">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white/20" />
+              Захиалгын тоо
+            </div>
           </div>
         </div>
 
@@ -69,52 +100,66 @@ export default function RevenueChart({ orders }: { orders: any[] }) {
           <AreaChart data={chartData}>
             <defs>
               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#C5A059" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#C5A059" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#C5A059" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#C5A059" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff05" />
-            <XAxis 
-              dataKey="date" 
-              stroke="#555" 
-              fontSize={10} 
-              tickLine={false} 
-              axisLine={false} 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="#ffffff05"
+            />
+            <XAxis
+              dataKey="date"
+              stroke="#555"
+              fontSize={10}
+              tickLine={false}
+              axisLine={false}
               interval="preserveStartEnd"
-              minTickGap={20} 
+              minTickGap={20}
             />
-            <YAxis 
-              stroke="#555" 
-              fontSize={10} 
-              tickLine={false} 
-              axisLine={false} 
-              tickFormatter={(val) => `${(val/1000).toFixed(0)}k`} 
+            <YAxis
+              stroke="#555"
+              fontSize={10}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#0D0D0D', 
-                border: '1px solid #ffffff10', 
-                borderRadius: '20px', 
-                color: '#fff',
-                padding: '15px'
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#0D0D0D",
+                border: "1px solid #ffffff10",
+                borderRadius: "20px",
+                color: "#fff",
+                padding: "15px",
               }}
-              cursor={{ stroke: '#C5A059', strokeWidth: 1, strokeDasharray: '5 5' }}
+              cursor={{
+                stroke: "#C5A059",
+                strokeWidth: 1,
+                strokeDasharray: "5 5",
+              }}
               formatter={(value: any, name?: any) => {
-                if (name === "revenue") return [`${Number(value).toLocaleString()}₮`, "Нийт Орлого"];
+                if (name === "revenue")
+                  return [`${Number(value).toLocaleString()}₮`, "Нийт Орлого"];
                 if (name === "orders") return [`${value} ш`, "Захиалга"];
                 return [value, name];
               }}
             />
-            <Area 
-              type="monotone" 
-              dataKey="revenue" 
-              stroke="#C5A059" 
-              strokeWidth={4} 
-              fillOpacity={1} 
-              fill="url(#colorRevenue)" 
+            <Area
+              type="monotone"
+              dataKey="revenue"
+              stroke="#C5A059"
+              strokeWidth={4}
+              fillOpacity={1}
+              fill="url(#colorRevenue)"
               animationDuration={1500}
             />
-            <Area type="monotone" dataKey="orders" stroke="transparent" fill="transparent" />
+            <Area
+              type="monotone"
+              dataKey="orders"
+              stroke="transparent"
+              fill="transparent"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>

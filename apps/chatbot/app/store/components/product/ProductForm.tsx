@@ -121,22 +121,7 @@ export default function ProductForm({
 
   const CATEGORY_DATA: Record<string, { brands: string[]; sizes: string[] }> = {
     Гутал: {
-      brands: [
-        "Timberland",
-        "Nike",
-        "Adidas",
-        // "Puma",
-        // "Jordan",
-        // "New Balance",
-        // "Vans",
-        // "Reebok",
-        // "Yeezy",
-        // "Nike Sportswear",
-        "Converse",
-        // "ASICS",
-        // "Under Armour",
-        // "Balenciaga",
-      ],
+      brands: ["Timberland", "Nike", "Adidas", "Converse"],
       sizes: ["38", "39", "40", "41", "42", "43", "44", "45"],
     },
 
@@ -368,14 +353,15 @@ export default function ProductForm({
       )}
 
       {open && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[2.5rem] bg-gray-950 text-white border border-white/5 flex flex-col shadow-2xl">
-            <header className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/2">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/20">
-                  <PackagePlus className="w-6 h-6 text-indigo-400" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-2 sm:p-4">
+          {/* rounded-[1.5rem] sm:rounded-[2.5rem] -> Гар утас дээр модалын бөөрөнхийг арай багасгасан */}
+          <div className="relative w-full max-w-4xl max-h-[96vh] sm:max-h-[92vh] overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] bg-gray-950 text-white border border-white/5 flex flex-col shadow-2xl">
+            <header className="px-5 py-4 sm:px-8 sm:py-6 border-b border-white/5 flex items-center justify-between bg-white/2">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-500/10 rounded-xl sm:rounded-2xl flex items-center justify-center border border-indigo-500/20">
+                  <PackagePlus className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" />
                 </div>
-                <h2 className="text-xl font-bold italic tracking-tight text-indigo-50">
+                <h2 className="text-lg sm:text-xl font-bold italic tracking-tight text-indigo-50">
                   {initialData ? "Бараа засах" : "Шинэ бараа бүртгэх"}
                 </h2>
               </div>
@@ -386,18 +372,21 @@ export default function ProductForm({
                 }}
                 className="p-2 hover:bg-white/5 rounded-xl transition-colors"
               >
-                <X />
+                <X className="w-5 h-5" />
               </button>
             </header>
 
-            <main className="flex-1 overflow-y-auto p-8 space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-                <div className="lg:col-span-3 space-y-8">
+            {/* p-4 sm:p-6 md:p-8 -> Доторх зайг жижиг дэлгэцэнд тохируулан багасгасан */}
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
+              {/* lg:grid-cols-5 гадна талын бүтэц утас дээр 1 багана болно */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10">
+                <div className="lg:col-span-3 space-y-6 sm:space-y-8">
                   <Section
                     title="Үндсэн мэдээлэл"
                     icon={<Info className="w-4 h-4" />}
                   >
-                    <div className="grid grid-cols-2 gap-5">
+                    {/* grid-cols-1 sm:grid-cols-2 -> Нэр ба Үнэ хэсэг утас дээр доошоо цуврах */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                       <FormInput
                         label="Барааны нэр"
                         value={formData.name}
@@ -417,7 +406,7 @@ export default function ProductForm({
                       <textarea
                         placeholder="Барааны дэлгэрэнгүй тайлбар..."
                         value={formData.description}
-                        className="w-full min-h-32 p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:ring-1 focus:ring-indigo-500 transition-all text-sm"
+                        className="w-full min-h-24 sm:min-h-32 p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:ring-1 focus:ring-indigo-500 transition-all text-sm"
                         onChange={(e) =>
                           handleInputChange("description", e.target.value)
                         }
@@ -425,7 +414,7 @@ export default function ProductForm({
                     </div>
                   </Section>
 
-                  <div className="space-y-6 bg-gray-900/50 p-6 rounded-[2rem] border border-white/5">
+                  <div className="space-y-4 sm:space-y-6 bg-gray-900/50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
                       <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-400/80">
@@ -433,14 +422,15 @@ export default function ProductForm({
                       </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* grid-cols-1 sm:grid-cols-2 эсвэл md:grid-cols-4 болгож уян хатан болгов */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-[10px] text-gray-500 font-bold ml-2 uppercase tracking-widest">
                           Категори
                         </label>
                         <div className="relative group">
                           <select
-                            className="w-full bg-gray-800/80 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer hover:bg-gray-800"
+                            className="w-full bg-gray-800/80 border border-white/10 p-3.5 sm:p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer hover:bg-gray-800 text-sm"
                             value={formData.category}
                             onChange={(e) => {
                               handleInputChange("category", e.target.value);
@@ -482,7 +472,7 @@ export default function ProductForm({
                         <div className="relative group">
                           <select
                             disabled={!formData.category}
-                            className="w-full bg-gray-800/80 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800"
+                            className="w-full bg-gray-800/80 border border-white/10 p-3.5 sm:p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 text-sm"
                             value={formData.brand}
                             onChange={(e) =>
                               handleInputChange("brand", e.target.value)
@@ -518,19 +508,21 @@ export default function ProductForm({
                         </div>
                       </div>
 
-                      <div className="space-y-2 md:col-span-4">
+                      {/* Размер бүрийн үлдэгдэл - утас дээр шахцалдахгүй цуварна */}
+                      <div className="space-y-2 col-span-1 sm:col-span-2">
                         <label className="text-[10px] text-gray-500 font-bold ml-2 uppercase tracking-widest">
                           Размер бүрийн үлдэгдэл
                         </label>
-                        <div className="space-y-3 rounded-3xl border border-white/10 bg-black/20 p-4">
+                        <div className="space-y-3 rounded-2xl sm:rounded-3xl border border-white/10 bg-black/20 p-3 sm:p-4">
                           {sizeStockRows.map((row, index) => (
+                            /* grid-cols-1 sm:grid-cols-[1fr_120px_44px] -> утас дээр доошоо цувж харагдана */
                             <div
                               key={index}
-                              className="grid grid-cols-[1fr_120px_44px] gap-3"
+                              className="grid grid-cols-1 sm:grid-cols-[1fr_120px_44px] gap-2 sm:gap-3 border-b border-white/5 sm:border-none pb-3 sm:pb-0"
                             >
                               <select
                                 disabled={!formData.category}
-                                className="w-full bg-gray-800/80 border border-white/10 p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800"
+                                className="w-full bg-gray-800/80 border border-white/10 p-3 sm:p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 text-sm"
                                 value={row.size}
                                 onChange={(e) =>
                                   updateSizeStockRow(
@@ -555,7 +547,7 @@ export default function ProductForm({
                               <input
                                 type="number"
                                 min="0"
-                                className="w-full bg-gray-800/80 border border-white/10 p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white placeholder:text-gray-600"
+                                className="w-full bg-gray-800/80 border border-white/10 p-3 sm:p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white placeholder:text-gray-600 text-sm"
                                 placeholder="Ширхэг"
                                 value={row.stock}
                                 onChange={(e) =>
@@ -569,28 +561,32 @@ export default function ProductForm({
                               <button
                                 type="button"
                                 onClick={() => removeSizeStockRow(index)}
-                                className="h-12 rounded-2xl border border-white/10 bg-white/5 text-gray-400 hover:text-rose-400 hover:border-rose-500/30 transition-colors flex items-center justify-center"
+                                className="h-11 sm:h-12 w-full sm:w-auto rounded-2xl border border-white/10 bg-white/5 text-gray-400 hover:text-rose-400 hover:border-rose-500/30 transition-colors flex items-center justify-center"
                                 title="Мөр устгах"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4 mr-2 sm:mr-0" />
+                                <span className="sm:hidden text-xs font-bold uppercase tracking-widest">
+                                  Устгах
+                                </span>
                               </button>
                             </div>
                           ))}
-                          <div className="flex items-center justify-between gap-4 pt-1">
+                          {/* flex-col sm:flex-row -> Товч болон нийт үлдэгдэл утас дээр доошоо цуварна */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                             <button
                               type="button"
                               onClick={addSizeStockRow}
                               disabled={!formData.category}
-                              className="inline-flex items-center gap-2 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-indigo-300 hover:bg-indigo-500/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-indigo-300 hover:bg-indigo-500/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors w-full sm:w-auto"
                             >
                               <Plus className="w-4 h-4" />
                               Размер нэмэх
                             </button>
-                            <div className="text-right">
+                            <div className="text-left sm:text-right border-t border-white/5 sm:border-none pt-2 sm:pt-0">
                               <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">
                                 Нийт үлдэгдэл
                               </p>
-                              <p className="text-lg font-black text-white">
+                              <p className="text-base sm:text-lg font-black text-white">
                                 {totalVariantStock.toLocaleString()} ширхэг
                               </p>
                             </div>
@@ -601,12 +597,13 @@ export default function ProductForm({
                   </div>
                 </div>
 
+                {/* Медиа хэсэг - утас дээр доороо орно */}
                 <div className="lg:col-span-2">
                   <Section
                     title="Медиа"
                     icon={<ImageIcon className="w-4 h-4" />}
                   >
-                    <div className="relative h-72 border-2 border-dashed border-white/10 rounded-[2rem] flex flex-col items-center justify-center overflow-hidden bg-white/2 hover:bg-white/5 transition-all group">
+                    <div className="relative h-48 sm:h-72 border-2 border-dashed border-white/10 rounded-[1.5rem] sm:rounded-[2.5rem] flex flex-col items-center justify-center overflow-hidden bg-white/2 hover:bg-white/5 transition-all group">
                       {previews.length > 0 ? (
                         <img
                           src={previews[0]}
@@ -632,28 +629,28 @@ export default function ProductForm({
               </div>
             </main>
 
-            <footer className="px-8 py-6 border-t border-white/5 flex gap-4 bg-white/2">
+            <footer className="px-5 py-4 sm:px-8 sm:py-6 border-t border-white/5 flex gap-3 sm:gap-4 bg-white/2">
               <Button
                 onClick={() => {
                   setOpen(false);
                   if (onClose) onClose();
                 }}
                 variant="ghost"
-                className="flex-1 py-6 rounded-2xl text-gray-400"
+                className="flex-1 py-5 sm:py-6 rounded-2xl text-gray-400 text-sm"
               >
                 Болих
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="flex-[2] py-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-lg shadow-indigo-600/20"
+                className="flex-[2] py-5 sm:py-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-lg shadow-indigo-600/20 text-sm"
               >
                 {isSubmitting ? (
                   <Loader2 className="animate-spin" />
                 ) : initialData ? (
                   "Өөрчлөлтийг хадгалах"
                 ) : (
-                  "Барааг системд бүртгэх"
+                  "Барааг бүртгэх"
                 )}
               </Button>
             </footer>
@@ -666,14 +663,14 @@ export default function ProductForm({
 
 function Section({ title, icon, children }: any) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center gap-2 text-gray-500 font-bold text-[10px] uppercase tracking-[0.2em]">
         <div className="p-1.5 bg-indigo-500/10 rounded-lg text-indigo-400">
           {icon}
         </div>
         {title}
       </div>
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-3 sm:space-y-4">{children}</div>
     </div>
   );
 }
@@ -689,7 +686,7 @@ function FormInput({ label, value, onChange, type = "text", ...props }: any) {
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-5 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-sm text-white outline-none focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-700"
+        className="w-full px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl bg-white/5 border border-white/10 text-sm text-white outline-none focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-700"
       />
     </div>
   );

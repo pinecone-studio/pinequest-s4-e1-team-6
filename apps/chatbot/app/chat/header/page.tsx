@@ -73,7 +73,7 @@ export default function Header({
         </div>
       </header>
 
-      {isStoresOpen && (
+      {/* {isStoresOpen && (
         <div
           style={{
             position: "fixed",
@@ -93,7 +93,7 @@ export default function Header({
         >
           <StoresPage />
         </div>
-      )}
+      )} */}
     </>
   );
 }

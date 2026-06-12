@@ -1,7 +1,9 @@
 export default function Header() {
   return (
-    <div className="flex justify-between mb-6 ">
-      <h1 className="text-2xl font-bold text-white dark:text-black">Admin Panel</h1>
+    <div className="flex justify-between mb-4 sm:mb-6">
+      <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+        Admin Panel
+      </h1>
     </div>
   );
 }

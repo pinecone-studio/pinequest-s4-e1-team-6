@@ -109,18 +109,7 @@ export default function ProductTable({
     return (
       <div className="flex flex-col items-center justify-center p-20 space-y-4">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-        <p className="text-gray-400 text-sm animate-pulse font-medium">
-          Бараануудыг ачаалж байна...
-        </p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-20 space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-        <p className="text-gray-400 text-sm animate-pulse font-medium">
+        <p className="text-slate-500 dark:text-gray-400 text-sm animate-pulse font-medium">
           Бараануудыг ачаалж байна...
         </p>
       </div>
@@ -128,7 +117,7 @@ export default function ProductTable({
   }
 
   return (
-    <div className="relative w-full bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
+    <div className="relative w-full bg-white dark:bg-gray-900 rounded-[1.5rem] sm:rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
       {editingProduct && (
         <ProductForm
           storeName={storeName}
@@ -143,20 +132,20 @@ export default function ProductTable({
 
       {deletingId && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-200 flex items-center justify-center p-4">
-          <div className="bg-gray-900 border border-white/10 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-white/10 w-full max-w-sm rounded-[2.5rem] p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Trash2 className="w-8 h-8 text-red-500" />
             </div>
-            <h3 className="text-xl font-bold text-white text-center mb-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">
               Устгахдаа итгэлтэй байна уу?
             </h3>
-            <p className="text-gray-400 text-center text-xs mb-6 leading-relaxed">
+            <p className="text-slate-500 dark:text-gray-400 text-center text-xs mb-6 leading-relaxed">
               Сонгосон барааг системээс бүрмөсөн устгах болно.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeletingId(null)}
-                className="flex-1 py-3.5 rounded-xl font-bold text-gray-400 hover:bg-white/5 transition-all text-sm"
+                className="flex-1 py-3.5 rounded-xl font-bold text-slate-500 dark:text-gray-400 hover:bg-white/5 transition-all text-sm"
               >
                 Болих
               </button>
@@ -176,10 +165,11 @@ export default function ProductTable({
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
-          <thead>
-            <tr className="bg-gray-50/50 dark:bg-white/2 text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-white/5 uppercase text-[10px] font-bold tracking-widest">
+      {/* overflow-x-auto-г утас дээр блок бүтэц рүү шилжүүлэх тул хасаж, уян хатан болгов */}
+      <div className="w-full">
+        <table className="w-full text-sm text-left block md:table">
+          <thead className="hidden md:table-header-group">
+            <tr className="bg-gray-50/50 dark:bg-white/2 text-slate-500 dark:text-gray-400 border-b border-gray-100 dark:border-white/5 uppercase text-[10px] font-bold tracking-widest">
               <th className="px-6 py-5">Зураг</th>
               <th className="px-6 py-5">Барааны мэдээлэл</th>
               <th className="px-6 py-5">Үнэ</th>
@@ -188,10 +178,13 @@ export default function ProductTable({
               <th className="px-6 py-5 text-right">Үйлдэл</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+          <tbody className="divide-y divide-gray-50 dark:divide-white/5 block md:table-row-group p-4 md:p-0 space-y-4 md:space-y-0">
             {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="p-20 text-center text-gray-400">
+              <tr className="block md:table-row">
+                <td
+                  colSpan={6}
+                  className="p-10 sm:p-20 text-center text-slate-500 dark:text-gray-400 block md:table-cell"
+                >
                   <PackageOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
                   <p className="text-sm font-medium">
                     Одоогоор бараа бүртгэгдээгүй байна.
@@ -210,119 +203,124 @@ export default function ProductTable({
                 return (
                   <tr
                     key={p.id}
-                    className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors group"
+                    className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors group block md:table-row border border-gray-100 dark:border-white/5 md:border-none rounded-2xl p-4 md:p-0 bg-slate-50/30 md:bg-transparent"
                   >
-                    <td className="px-6 py-4">
-                      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-white/5 shadow-inner">
-                        <img
-                          src={getProductImage(p)}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          alt={name}
-                          onError={(e: any) =>
-                            (e.target.src =
-                              "https://placehold.co/400x400?text=Error")
-                          }
-                        />
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="font-bold text-gray-900 dark:text-gray-100 text-sm">
-                        {name}
-                      </p>
-                      <p className="text-[10px] text-gray-500 uppercase mt-0.5">
-                        {meta.category || "Ерөнхий"}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-indigo-600 dark:text-indigo-400 font-black font-mono">
-                        {new Intl.NumberFormat().format(price)}₮
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-500 font-medium">
-                      {brand}
-                    </td>
-                    {/* <td className="px-6 py-4">
-                      <div className="space-y-2">
-                        <div
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                            stock > 0
-                              ? "bg-emerald-500/10 text-emerald-500"
-                              : "bg-rose-500/10 text-rose-500"
-                          }`}
-                        >
-                          {stock > 0 ? `${stock} ширхэг` : "Дууссан"}
+                    {/* Гар утас дээр Card хэлбэрээр зэрэгцүүлэх grid бүтэц */}
+                    <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] md:contents gap-4 md:gap-0">
+                      {/* Зураг */}
+                      <td className="md:px-6 md:py-4 flex md:table-cell justify-center sm:justify-start">
+                        <div className="w-20 h-20 sm:w-14 sm:h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-white/5 shadow-inner">
+                          <img
+                            src={getProductImage(p)}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            alt={name}
+                            onError={(e: any) =>
+                              (e.target.src =
+                                "https://placehold.co/400x400?text=Error")
+                            }
+                          />
                         </div>
-                        {sizeRows.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 max-w-52">
-                            {sizeRows.map((item: any) => (
-                              <span
-                                key={item.size}
-                                className="rounded-lg bg-gray-100 dark:bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-600 dark:text-gray-300"
-                              >
-                                {item.size}: {item.stock}ш
+                      </td>
+
+                      {/* Барааны мэдээлэл, үнэ, брэнд, үлдэгдлийг утас дээр нэг дор харуулах блок */}
+                      <div className="space-y-3 sm:space-y-2 md:contents">
+                        {/* Нэр ба Категори */}
+                        <td className="md:px-6 md:py-4 block md:table-cell">
+                          <p className="font-bold text-gray-900 dark:text-gray-100 text-base md:text-sm">
+                            {name}
+                          </p>
+                          <p className="text-[10px] text-slate-500 dark:text-gray-500 uppercase mt-0.5">
+                            {meta.category || "Ерөнхий"}
+                          </p>
+                        </td>
+
+                        {/* Үнэ */}
+                        <td className="md:px-6 md:py-4 flex items-center md:table-cell">
+                          <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
+                            Үнэ:
+                          </span>
+                          <span className="text-indigo-600 dark:text-indigo-400 font-black font-mono text-sm md:text-base">
+                            {new Intl.NumberFormat().format(price)}₮
+                          </span>
+                        </td>
+
+                        {/* Брэнд */}
+                        <td className="md:px-6 md:py-4 flex items-center md:table-cell text-slate-500 dark:text-gray-500 font-medium text-xs md:text-sm">
+                          <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
+                            Брэнд:
+                          </span>
+                          {brand}
+                        </td>
+
+                        {/* Үлдэгдэл ба Размерууд */}
+                        <td className="md:px-6 md:py-4 block md:table-cell">
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
+                                Үлдэгдэл:
                               </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </td> */}
-                    <td className="px-6 py-4">
-                      <div className="space-y-2">
-                        <div
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                            stock > 0
-                              ? "bg-emerald-500/10 text-emerald-500"
-                              : "bg-rose-500/20 text-rose-500 border border-rose-500/30"
-                          }`}
-                        >
-                          {stock > 0 ? `${stock} ширхэг` : "⚠️ Дууссан"}
-                        </div>
-
-                        {stock === 0 && (
-                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                            <span className="text-[10px] text-rose-400 font-bold">
-                              Нөөц дууссан
-                            </span>
-                          </div>
-                        )}
-
-                        {sizeRows.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 max-w-52">
-                            {sizeRows.map((item: any) => (
-                              <span
-                                key={item.size}
-                                className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
-                                  Number(item.stock) > 0
-                                    ? "bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300"
-                                    : "bg-rose-500/10 text-rose-400 line-through"
+                              <div
+                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                                  stock > 0
+                                    ? "bg-emerald-500/10 text-emerald-500"
+                                    : "bg-rose-500/20 text-rose-500 border border-rose-500/30"
                                 }`}
                               >
-                                {item.size}: {item.stock}ш
-                              </span>
-                            ))}
+                                {stock > 0 ? `${stock} ширхэг` : "⚠️ Дууссан"}
+                              </div>
+                            </div>
+
+                            {stock === 0 && (
+                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 max-w-max">
+                                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                                <span className="text-[10px] text-rose-400 font-bold">
+                                  Нөөц дууссан
+                                </span>
+                              </div>
+                            )}
+
+                            {sizeRows.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 max-w-full md:max-w-52">
+                                {sizeRows.map((item: any) => (
+                                  <span
+                                    key={item.size}
+                                    className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
+                                      Number(item.stock) > 0
+                                        ? "bg-gray-100 dark:bg-white/5 text-slate-400 dark:text-gray-500 dark:text-gray-300"
+                                        : "bg-rose-500/10 text-rose-400 line-through"
+                                    }`}
+                                  >
+                                    {item.size}: {item.stock}ш
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </td>
+
+                        {/* Үйлдэл (Засах, Устгах товчлуурууд) */}
+                        <td className="md:px-6 md:py-4 block md:table-cell border-t border-gray-100 dark:border-white/5 md:border-none pt-2 md:pt-0">
+                          <div className="flex items-center justify-end gap-2 md:gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all transform md:translate-x-2 group-hover:translate-x-0">
+                            <button
+                              onClick={() => setEditingProduct(p)}
+                              className="p-2 sm:p-2.5 hover:bg-indigo-500/10 text-indigo-400 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
+                              title="Засах"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                              <span className="md:hidden">Засах</span>
+                            </button>
+                            <button
+                              onClick={() => setDeletingId(p.id)}
+                              className="p-2 sm:p-2.5 hover:bg-rose-500/10 text-rose-400 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
+                              title="Устгах"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              <span className="md:hidden">Устгах</span>
+                            </button>
+                          </div>
+                        </td>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                        <button
-                          onClick={() => setEditingProduct(p)}
-                          className="p-2.5 hover:bg-indigo-500/10 text-indigo-400 rounded-xl transition-colors"
-                          title="Засах"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeletingId(p.id)}
-                          className="p-2.5 hover:bg-rose-500/10 text-rose-400 rounded-xl transition-colors"
-                          title="Устгах"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+                    </div>
                   </tr>
                 );
               })
