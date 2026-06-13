@@ -50,6 +50,7 @@ export default function ProductForm({
     stock: "",
     color: "",
     size: "",
+    color: "",
   });
   const [sizeStockRows, setSizeStockRows] = useState<SizeStockRow[]>([
     { size: "", stock: "" },
