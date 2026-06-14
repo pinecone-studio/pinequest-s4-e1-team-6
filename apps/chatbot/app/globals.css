@@ -4,18 +4,23 @@
 
 :root {
   --background: #ffffff;
+
   --foreground: #171717;
 }
 
 .dark {
   --background: #0b1020;
+
   --foreground: #ededed;
 }
 
 @theme inline {
   --color-background: var(--background);
+
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
+
   --font-mono: var(--font-geist-mono);
 }
 
@@ -26,6 +31,13 @@ body {
 
 body {
   background: var(--background);
+
   color: var(--foreground);
+
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .dark header {
+    background: rgba(15, 10, 40, 0.35) !important;
+  }
 }

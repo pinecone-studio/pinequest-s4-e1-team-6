@@ -2,8 +2,7 @@
 
 import { FaShoppingCart } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
-import { MenuToggle } from "./components";
-import { Bot, Sparkles, Store } from "lucide-react"; // Дэлгүүрийн икон нэмэв
+import { Store } from "lucide-react";
 import StoresPage from "./components/StoresPage";
 import { useState } from "react";
 
@@ -19,23 +18,24 @@ export default function Header({
     <>
       <header
         className="sticky top-0 z-50
-        flex items-center md:justify-between justify-end gap-7
-        px-4 py-3
-        bg-white/90 text-slate-900 dark:bg-slate-950/80 dark:text-slate-100
-        backdrop-blur-xl
-        border-b border-black/5 dark:border-white/10
-        shadow-sm
-        transition-all duration-300"
+          flex items-center md:justify-between justify-end gap-7
+          px-5 py-3 mx-2 mt-2
+          rounded-[20px]
+          bg-white/20 dark:bg-white/[0.08]
+          backdrop-blur-2xl
+          border border-white/45 dark:border-white/20
+          shadow-[0_2px_0_rgba(255,255,255,0.6)_inset,0_8px_32px_rgba(31,38,135,0.10)]
+          dark:shadow-[0_2px_0_rgba(255,255,255,0.12)_inset,0_8px_32px_rgba(0,0,0,0.3)]
+          transition-all duration-300
+          text-slate-900 dark:text-slate-100"
       >
+        {/* Logo */}
         <div className="flex items-center select-none font-sans group cursor-pointer">
-          {/* Chat хэсэг */}
           <span className="text-xl md:text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
             Chat
           </span>
-
-          {/* Mart хэсэг */}
           <div className="ml-1.5 p-[1.5px] rounded-lg bg-gradient-to-r from-[#9f8cff] via-[#7c5cff] to-[#56a8ff] transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(124,92,255,0.35)]">
-            <div className="px-2 py-0.5 rounded-[6px] bg-white dark:bg-neutral-950">
+            <div className="px-2 py-0.5 rounded-[6px] bg-white/85 dark:bg-neutral-950/85 backdrop-blur-sm">
               <span className="text-sm md:text-base font-extrabold tracking-wide uppercase text-neutral-900 dark:text-neutral-100">
                 Mart
               </span>
@@ -43,25 +43,32 @@ export default function Header({
           </div>
         </div>
 
-        {/* Баруун талын товчлуурууд байрлах хэсэг */}
+        {/* Баруун товчлуурууд */}
         <div className="flex items-center gap-2">
+          {/* Дэлгүүр товч */}
           <button
             onClick={() => setIsStoresOpen(!isStoresOpen)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all border
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all
+              backdrop-blur-md border
+              shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]
+              hover:-translate-y-px active:scale-95
               ${
                 isStoresOpen
                   ? "bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20"
-                  : "bg-[#7c5cff]/10 border-[#7c5cff]/20 text-[#7c5cff] dark:text-[#9b8cff] hover:bg-[#7c5cff]/20"
+                  : "bg-white/30 border-white/60 text-[#7c5cff] dark:text-[#9b8cff] hover:bg-white/50 dark:border-white/20 dark:bg-white/10"
               }`}
           >
             <Store className="w-4 h-4" />
-            {isStoresOpen ? "" : ""}
           </button>
 
-          {/* 🛒 Сагсны товчлуур */}
+          {/* Сагсны товч */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative rounded-full p-3 transition-all hover:bg-black/5 dark:hover:bg-white/10"
+            className="relative rounded-full p-3 transition-all
+              bg-white/28 backdrop-blur-md
+              border border-white/60 dark:border-white/20
+              shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]
+              hover:bg-white/50 hover:-translate-y-px active:scale-95"
           >
             <FaShoppingCart className="text-xl text-[#7c5cff] dark:text-[#9b8cff]" />
             {cartCount > 0 && (
@@ -72,22 +79,25 @@ export default function Header({
           </button>
         </div>
       </header>
+
+      {/* Stores panel */}
       {isStoresOpen && (
         <div
           style={{
             position: "fixed",
-
             top: "60px",
             right: 0,
             width: "340px",
             height: "calc(100vh - 60px)",
-            borderLeft: "1px solid rgba(255,255,255,0.1)",
-            background: "#0f1535",
+            background: "rgba(255,255,255,0.18)",
+            backdropFilter: "blur(28px) saturate(180%)",
+            WebkitBackdropFilter: "blur(28px) saturate(180%)",
+            borderLeft: "1px solid rgba(255,255,255,0.45)",
+            boxShadow: "-4px 0 40px rgba(31,38,135,0.12), inset 1px 0 0 rgba(255,255,255,0.6)",
             display: "flex",
             flexDirection: "column",
             overflowY: "auto",
             zIndex: 99999,
-            boxShadow: "-4px 0 24px rgba(0,0,0,0.3)",
             animation: "slideIn 0.2s ease-out",
           }}
         >
