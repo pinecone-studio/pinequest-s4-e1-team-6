@@ -4,6 +4,48 @@ import { auth } from "@clerk/nextjs/server";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { NextRequest, NextResponse } from "next/server";
 
+function parseSizeStockText(value: unknown) {
+  if (!value) return "";
+
+  try {
+    const parsed = typeof value === "string" ? JSON.parse(value) : value;
+    if (!Array.isArray(parsed)) return "";
+
+    return parsed
+      .map((item) => `${item?.size || ""} размер ${item?.stock || ""} ширхэг`)
+      .join(", ");
+  } catch {
+    return String(value);
+  }
+}
+
+function buildProductSearchText(product: {
+  name?: unknown;
+  description?: unknown;
+  category?: unknown;
+  brand?: unknown;
+  color?: unknown;
+  size?: unknown;
+  sizes?: unknown;
+  sizeStock?: unknown;
+  price?: unknown;
+  stock?: unknown;
+}) {
+  const sizes = Array.isArray(product.sizes) ? product.sizes.join(", ") : "";
+
+  return [
+    `Бүтээгдэхүүн: ${product.name || ""}`,
+    `Тайлбар: ${product.description || ""}`,
+    `Ангилал: ${product.category || ""}`,
+    `Брэнд: ${product.brand || ""}`,
+    `Өнгө: ${product.color || ""}`,
+    `Размер: ${product.size || ""} ${sizes}`,
+    `Размерын үлдэгдэл: ${parseSizeStockText(product.sizeStock)}`,
+    `Үнэ: ${product.price || ""}`,
+    `Нийт үлдэгдэл: ${product.stock || ""}`,
+  ].join(". ");
+}
+
 // export async function POST(req: NextRequest) {
 //   try {
 //     const { userId } = await auth();
@@ -84,6 +126,7 @@ export async function POST(req: NextRequest) {
       size,
       sizes,
       sizeStock,
+      color,
       storeName,
     } = body;
 
@@ -115,7 +158,18 @@ export async function POST(req: NextRequest) {
     });
 
     const vector = await embeddings.embedQuery(
-      `Бүтээгдэхүүн: ${name}. Тайлбар: ${description}`,
+      buildProductSearchText({
+        name,
+        description,
+        category,
+        brand,
+        color,
+        size,
+        sizes,
+        sizeStock,
+        price,
+        stock,
+      }),
     );
     const generatedId = `prod_${Date.now()}`;
 
@@ -143,16 +197,17 @@ export async function POST(req: NextRequest) {
             sizes: Array.isArray(sizes) ? sizes.map(String) : [],
             sizeStock: sizeStock || "",
             size_stock: sizeStock || "",
-             color: body.color || "",      
-  colors: Array.isArray(body.colors) ? body.colors : [], 
-  colorSizeStock: body.colorSizeStock || "",
+            color: color || "",
+            colors: Array.isArray(body.colors) ? body.colors : [],
+            colorSizeStock: body.colorSizeStock || "",
           },
         },
       ],
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

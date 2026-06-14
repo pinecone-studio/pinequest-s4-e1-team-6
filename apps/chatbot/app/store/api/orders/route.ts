@@ -350,11 +350,26 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+type IncomingOrderItem = {
+  productId?: unknown;
+  id?: unknown;
+  name?: unknown;
+  product_image_url?: unknown;
+  imageUrl?: unknown;
+  image?: unknown;
+  quantity?: unknown;
+  price?: unknown;
+};
+
+export async function GET(req: Request) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { searchParams } = new URL(req.url);
+    const requestedStoreId = searchParams.get("storeId");
+    const requestedStoreName = searchParams.get("storeName");
 
     const adminUser = await prisma.user.findUnique({
       where: { clerkUserId: clerkId },
@@ -365,10 +380,18 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const storeIds = adminUser.stores.map((s) => s.id);
+    const selectedStore =
+      adminUser.stores.find((store) => store.id === requestedStoreId) ||
+      adminUser.stores.find((store) => store.name === requestedStoreName) ||
+      adminUser.stores.find((store) => store.name === adminUser.storeName) ||
+      adminUser.stores[0];
+
+    if (!selectedStore) {
+      return NextResponse.json([]);
+    }
 
     const orders = await prisma.order.findMany({
-      where: { storeId: { in: storeIds } },
+      where: { storeId: selectedStore.id },
       include: {
         items: true, // productName, productImage энд байна
         store: { select: { name: true } },
@@ -377,9 +400,10 @@ export async function GET() {
     });
 
     return NextResponse.json(orders);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET_ORDERS_ERROR:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -391,7 +415,14 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { items, totalAmount, customerPhone, address, storeId, storeName } =
-      body;
+      body as {
+        items?: IncomingOrderItem[];
+        totalAmount?: unknown;
+        customerPhone?: string;
+        address?: string;
+        storeId?: string;
+        storeName?: string;
+      };
 
     if (!items || items.length === 0) {
       return NextResponse.json(
@@ -415,14 +446,13 @@ export async function POST(req: Request) {
     }
 
     // admin/api/orders/route.ts — POST дотор
-    const store =
-      (await prisma.store.findFirst({
-        where: {
-          OR: [{ id: storeId || "" }, { name: storeName || "" }].filter(
-            (w) => Object.values(w)[0] !== "",
-          ),
-        },
-      })) ?? (await prisma.store.findFirst()); // ✅ Хэрэв олдохгүй бол анхны дэлгүүрийг авна
+    const store = await prisma.store.findFirst({
+      where: {
+        OR: [{ id: storeId || "" }, { name: storeName || "" }].filter(
+          (w) => Object.values(w)[0] !== "",
+        ),
+      },
+    });
     if (!store) {
       return NextResponse.json(
         {
@@ -439,17 +469,18 @@ export async function POST(req: Request) {
         productId: String(items[0].productId || items[0].id || "unknown"),
         quantity: Number(items[0].quantity) || 1,
         price: Number(items[0].price) || 0,
-        totalAmount: parseFloat(totalAmount),
+        totalAmount: Number(totalAmount) || 0,
         status: "PENDING",
         customerPhone: customerPhone || "99990000",
         address: address || "Default Address",
         items: {
-          create: items.map((item: any) => ({
+          create: items.map((item) => ({
             productId: String(item.productId || item.id || "unknown"),
-            productName: item.name || "Unknown Product",
+            productName: String(item.name || "Unknown Product"),
             // Pinecone-оос ирэх боломжтой бүх field нэрийг дэмжинэ
-            productImage:
+            productImage: String(
               item.product_image_url || item.imageUrl || item.image || "",
+            ),
             quantity: Number(item.quantity) || 1,
             price: Number(item.price) || 0,
           })),
@@ -459,7 +490,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(newOrder, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("ORDER_CREATE_ERROR:", error);
     return NextResponse.json(
       { error: "Захиалга үүсгэхэд алдаа гарлаа", details: String(error) },

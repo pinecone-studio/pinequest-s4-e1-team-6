@@ -34,6 +34,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const stores = await prisma.store.findMany({
+      where: { status: "APPROVED" },
       select: {
         id: true,
         name: true,

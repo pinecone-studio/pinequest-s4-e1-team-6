@@ -9,8 +9,27 @@ import {
   ShoppingBag,
 } from "lucide-react";
 
-export default function OrdersTable() {
-  const [orders, setOrders] = useState<any[]>([]);
+type OrderItem = {
+  id: string;
+  productImage?: string | null;
+  productName?: string | null;
+  quantity: number;
+  price: number;
+};
+
+type StoreOrder = {
+  id: string;
+  customerPhone?: string | null;
+  address?: string | null;
+  createdAt?: string | Date | null;
+  totalAmount: number;
+  status: string;
+  items?: OrderItem[];
+  store?: { name?: string | null } | null;
+};
+
+export default function OrdersTable({ storeName }: { storeName?: string }) {
+  const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
@@ -20,10 +39,15 @@ export default function OrdersTable() {
     else setLoading(true);
 
     try {
-      const res = await fetch("/store/api/orders", { cache: "no-store" });
+      const query = storeName
+        ? `?storeName=${encodeURIComponent(storeName)}`
+        : "";
+      const res = await fetch(`/store/api/orders${query}`, {
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error("Алдаа гарлаа");
       const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      setOrders(Array.isArray(data) ? (data as StoreOrder[]) : []);
     } catch (error) {
       console.error(error);
       setOrders([]);
@@ -31,10 +55,11 @@ export default function OrdersTable() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [storeName]);
 
   useEffect(() => {
-    fetchData();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchData();
   }, [fetchData]);
 
   const toggleOrder = (id: string) => {
@@ -248,7 +273,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function OrderDetail({ order }: { order: any }) {
+function OrderDetail({ order }: { order: StoreOrder }) {
   return (
     <div className="flex flex-col gap-3">
       <h4 className="text-[#C5A059] font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
@@ -263,7 +288,7 @@ function OrderDetail({ order }: { order: any }) {
       </div>
 
       {order.items && order.items.length > 0 ? (
-        order.items.map((item: any) => (
+        order.items.map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between bg-slate-100 dark:bg-white/5 p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-white/10 hover:border-[#C5A059]/30 transition-all gap-3"

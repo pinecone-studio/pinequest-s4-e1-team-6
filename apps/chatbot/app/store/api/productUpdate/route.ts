@@ -1,10 +1,52 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 const index = pc.index(process.env.PINECONE_NAME!);
+
+function parseSizeStockText(value: unknown) {
+  if (!value) return "";
+
+  try {
+    const parsed = typeof value === "string" ? JSON.parse(value) : value;
+    if (!Array.isArray(parsed)) return "";
+
+    return parsed
+      .map((item) => `${item?.size || ""} размер ${item?.stock || ""} ширхэг`)
+      .join(", ");
+  } catch {
+    return String(value);
+  }
+}
+
+function buildProductSearchText(product: {
+  name?: unknown;
+  description?: unknown;
+  category?: unknown;
+  brand?: unknown;
+  color?: unknown;
+  size?: unknown;
+  sizes?: unknown;
+  sizeStock?: unknown;
+  price?: unknown;
+  stock?: unknown;
+}) {
+  const sizes = Array.isArray(product.sizes) ? product.sizes.join(", ") : "";
+
+  return [
+    `Бүтээгдэхүүн: ${product.name || ""}`,
+    `Тайлбар: ${product.description || ""}`,
+    `Ангилал: ${product.category || ""}`,
+    `Брэнд: ${product.brand || ""}`,
+    `Өнгө: ${product.color || ""}`,
+    `Размер: ${product.size || ""} ${sizes}`,
+    `Размерын үлдэгдэл: ${parseSizeStockText(product.sizeStock)}`,
+    `Үнэ: ${product.price || ""}`,
+    `Нийт үлдэгдэл: ${product.stock || ""}`,
+  ].join(". ");
+}
 
 export async function PATCH(req: Request) {
   try {
@@ -26,6 +68,7 @@ export async function PATCH(req: Request) {
       size,
       sizes,
       sizeStock,
+      color,
     } = body;
 
     if (!id || !storeName) {
@@ -35,8 +78,28 @@ export async function PATCH(req: Request) {
       );
     }
 
+    const embeddings = new OpenAIEmbeddings({
+      openAIApiKey: process.env.OPENAI_KEY,
+      modelName: "text-embedding-3-small",
+    });
+    const vector = await embeddings.embedQuery(
+      buildProductSearchText({
+        name,
+        description,
+        category,
+        brand,
+        color,
+        size,
+        sizes,
+        sizeStock,
+        price,
+        stock,
+      }),
+    );
+
     await index.namespace(storeName).update({
       id: id,
+      values: vector,
       metadata: {
         name: name || "",
         price: Number(price) || 0,
@@ -50,6 +113,7 @@ export async function PATCH(req: Request) {
         sizes: Array.isArray(sizes) ? sizes.map(String) : [],
         sizeStock: sizeStock || "",
         size_stock: sizeStock || "",
+        color: color || "",
       },
     });
 
@@ -57,12 +121,13 @@ export async function PATCH(req: Request) {
       success: true,
       message: "Pinecone дээр амжилттай шинэчлэгдлээ",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("PINECONE_UPDATE_ERROR:", error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
-        error: "Pinecone дээр барааг засахад алдаа гарлаа: " + error.message,
+        error: "Pinecone дээр барааг засахад алдаа гарлаа: " + message,
       },
       { status: 500 },
     );

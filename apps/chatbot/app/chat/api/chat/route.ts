@@ -3,7 +3,6 @@ import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { index } from "@/lib/api/pinecone";
 import { prisma } from "@/lib/prisma";
-import { getStoreNamespaces } from "@/lib/search/get-store-namespaces";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY,
@@ -87,14 +86,23 @@ function extractSearchTerms(message: string) {
 
 function metadataText(metadata: Record<string, unknown> | undefined) {
   if (!metadata) return "";
+  const sizes = Array.isArray(metadata.sizes) ? metadata.sizes.join(" ") : "";
+  const colors = Array.isArray(metadata.colors) ? metadata.colors.join(" ") : "";
   return normalizeSearchText(
     [
       metadata.name,
       metadata.product_name,
       metadata.name_search,
+      metadata.description,
       metadata.brand,
       metadata.brand_search,
       metadata.category,
+      metadata.color,
+      colors,
+      metadata.size,
+      sizes,
+      metadata.sizeStock,
+      metadata.size_stock,
     ].join(" "),
   );
 }
@@ -260,6 +268,9 @@ export async function POST(req: Request) {
             m.metadata?.store_name || m.metadata?.storeName || "Official Store";
           const storeId = m.metadata?.storeId || m.metadata?.store_id || "";
           const brand = m.metadata?.brand || "";
+          const size = m.metadata?.size || "";
+          const color = m.metadata?.color || "";
+          const sizeStock = m.metadata?.sizeStock || m.metadata?.size_stock || "";
           const keywordMatch = hasKeywordMatch(
             m.metadata as Record<string, unknown> | undefined,
             searchTerms,
@@ -270,6 +281,9 @@ export async function POST(req: Request) {
 ЗУРАГ: ${img}
 ТАЙЛБАР: ${desc}
 БРЕНД: ${brand}
+ӨНГӨ: ${color}
+РАЗМЕР: ${size}
+РАЗМЕРЫН_ҮЛДЭГДЭЛ: ${sizeStock}
 KEYWORD_MATCH: ${keywordMatch ? "YES" : "NO"}
 ID: ${m.id}
 STORE_NAME: ${storeName}
@@ -399,4 +413,3 @@ ${context}`,
     );
   }
 }
-

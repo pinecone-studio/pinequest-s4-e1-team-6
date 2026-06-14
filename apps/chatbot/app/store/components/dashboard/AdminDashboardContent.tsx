@@ -7,23 +7,31 @@ import { useAppStore } from "../../store/useStore";
 
 export default function AdminDashboardContent({
   initialStoreName,
-  userId,
+  existingStores = [],
 }: {
   initialStoreName: string | null;
-  userId: string;
+  existingStores?: { id: string; name: string; description: string | null }[];
 }) {
   const router = useRouter();
   const { storeName, setStoreName, isLoading, setIsLoading } = useAppStore();
 
   const [tempName, setTempName] = useState("");
   const [isSettingUp, setIsSettingUp] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [existingStoreNotice, setExistingStoreNotice] = useState<string | null>(
+    existingStores.length > 0
+      ? `Танд өмнө үүсгэсэн "${existingStores[0].name}" дэлгүүр байна.`
+      : null,
+  );
+  const [products, setProducts] = useState<unknown[]>([]);
+  const [orders, setOrders] = useState<{ totalAmount?: number }[]>([]);
 
   useEffect(() => {
     const checkStore = async () => {
       if (initialStoreName) {
         setStoreName(initialStoreName);
+        setIsLoading(false);
+      } else if (existingStores.length > 0) {
+        setStoreName(existingStores[0].name);
         setIsLoading(false);
       } else {
         try {
@@ -41,7 +49,7 @@ export default function AdminDashboardContent({
     };
 
     checkStore();
-  }, [initialStoreName, setStoreName, setIsLoading]);
+  }, [initialStoreName, existingStores, setStoreName, setIsLoading]);
 
   const handleSetupStore = async () => {
     if (!tempName.trim()) return;
@@ -60,9 +68,15 @@ export default function AdminDashboardContent({
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setStoreName(tempName.trim());
+        setStoreName(data.storeName || tempName.trim());
         router.refresh();
         fetchProducts();
+      } else if (res.status === 409 && data.existingStore?.name) {
+        setExistingStoreNotice(
+          `Танд аль хэдийн "${data.existingStore.name}" дэлгүүр байна. Тэр дэлгүүрээрээ үргэлжлүүлэн орлоо.`,
+        );
+        setStoreName(data.existingStore.name);
+        router.refresh();
       } else {
         alert(data.error || "Хадгалахад алдаа гарлаа.");
       }
@@ -82,7 +96,7 @@ export default function AdminDashboardContent({
       );
       const data = await res.json();
       if (data.success) {
-        setProducts(data.products);
+        setProducts(Array.isArray(data.products) ? data.products : []);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -90,10 +104,18 @@ export default function AdminDashboardContent({
   };
 
   const fetchOrders = async () => {
+    if (!storeName) return;
     try {
-      const res = await fetch("/store/api/orders", { cache: "no-store" });
+      const res = await fetch(
+        `/store/api/orders?storeName=${encodeURIComponent(storeName)}`,
+        { cache: "no-store" },
+      );
       const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      setOrders(
+        Array.isArray(data)
+          ? (data as { totalAmount?: number }[])
+          : [],
+      );
     } catch (error) {
       console.error("Error fetching orders:", error);
       setOrders([]);
@@ -125,9 +147,34 @@ export default function AdminDashboardContent({
 
         <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 dark:border-gray-800 w-full max-w-sm sm:max-w-md shadow-2xl">
           <div className="space-y-4 sm:space-y-6">
+            {existingStoreNotice && (
+              <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">
+                {existingStoreNotice}
+              </div>
+            )}
+
+            {existingStores.length > 0 && (
+              <div className="space-y-2">
+                <label className="text-[10px] text-slate-500 dark:text-gray-400 font-bold ml-2 uppercase tracking-widest">
+                  Өмнөх дэлгүүр
+                </label>
+                <div className="space-y-2">
+                  {existingStores.map((store) => (
+                    <button
+                      key={store.id}
+                      onClick={() => setStoreName(store.name)}
+                      className="w-full rounded-2xl border border-slate-200 dark:border-gray-700 bg-slate-100 dark:bg-gray-800 p-3 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-indigo-500 transition"
+                    >
+                      {store.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-[10px] text-slate-500 dark:text-gray-400 font-bold ml-2 uppercase tracking-widest">
-                Дэлгүүрийн нэр
+                Шинэ дэлгүүрийн нэр
               </label>
               <input
                 className="w-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 p-3 sm:p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-white placeholder:text-gray-500 text-sm sm:text-base"
