@@ -43,7 +43,7 @@ export default function Sidebar({
       });
       if (res.ok) {
         setHistory((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, isPinned: !c.isPinned } : c)),
+          prev.map((c) => (c.id === id ? { ...c, isPinned: !c.isPinned } : c))
         );
       }
     } catch (err) {
@@ -60,7 +60,7 @@ export default function Sidebar({
       });
       if (res.ok) {
         setHistory((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, title } : c)),
+          prev.map((c) => (c.id === id ? { ...c, title } : c))
         );
       }
     } catch (err) {
@@ -87,25 +87,28 @@ export default function Sidebar({
 
   return (
     <>
-      {/* 1. MOBILE OVERLAY: Dims the background and closes sidebar on click */}
+      {/* Mobile overlay */}
       {!isCollapsed && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] md:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[45] md:hidden"
           onClick={toggleSidebar}
         />
       )}
 
       <aside
         className={`
-          /* 2. CORE POSITIONING */
           fixed inset-y-0 left-0 z-[50] flex flex-col h-screen
           transition-all duration-300 ease-in-out
-          bg-white/95 dark:bg-[#0D0D0D]/95 backdrop-blur-xl border-r border-black/5 dark:border-white/5
-          
-          /* 3. DESKTOP ADAPTATION */
+
+          /* Liquid glass */
+          bg-white/20 dark:bg-white/[0.06]
+          backdrop-blur-2xl
+          border-r border-white/45 dark:border-white/15
+          shadow-[1px_0_0_rgba(255,255,255,0.6)_inset,4px_0_32px_rgba(31,38,135,0.08)]
+          dark:shadow-[1px_0_0_rgba(255,255,255,0.1)_inset,4px_0_32px_rgba(0,0,0,0.3)]
+
           md:relative md:translate-x-0
-          
-          /* 4. WIDTH & SLIDE LOGIC */
+
           ${
             isCollapsed
               ? "-translate-x-full w-0 md:translate-x-0 md:w-16"
@@ -113,6 +116,7 @@ export default function Sidebar({
           }
         `}
       >
+        {/* Top bar */}
         <div className="p-3">
           <div className="flex items-center justify-between px-2 py-2">
             {!isCollapsed && (
@@ -121,7 +125,15 @@ export default function Sidebar({
                   e.stopPropagation();
                   onNewChat();
                 }}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 text-sm text-slate-600 dark:text-slate-300"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl
+                  bg-white/30 dark:bg-white/10
+                  border border-white/60 dark:border-white/15
+                  backdrop-blur-md
+                  shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]
+                  hover:bg-white/50 dark:hover:bg-white/20
+                  hover:-translate-y-px active:scale-95
+                  transition-all duration-200
+                  text-sm text-slate-700 dark:text-slate-300"
               >
                 <SquarePen size={18} />
                 <span>New chat</span>
@@ -136,7 +148,15 @@ export default function Sidebar({
                   e.stopPropagation();
                   toggleSidebar();
                 }}
-                className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 active:scale-95"
+                className="p-2 rounded-xl
+                  bg-white/30 dark:bg-white/10
+                  border border-white/60 dark:border-white/15
+                  backdrop-blur-md
+                  shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]
+                  hover:bg-white/50 dark:hover:bg-white/20
+                  hover:-translate-y-px active:scale-95
+                  transition-all duration-200
+                  text-slate-700 dark:text-slate-300"
               >
                 <PanelLeft size={18} />
               </button>
@@ -150,13 +170,13 @@ export default function Sidebar({
           </div>
         </div>
 
+        {/* Chat history */}
         <div className="flex-1 overflow-hidden">
           <ChatHistory
             collapsed={isCollapsed}
             history={history}
             onSelectChat={(id) => {
               onSelectChat(id);
-
               if (window.innerWidth < 768) toggleSidebar();
             }}
             onPinChat={handlePin}
@@ -168,18 +188,14 @@ export default function Sidebar({
           />
         </div>
 
-        {isCollapsed && (
-          <div className="mt-auto w-full px-2 pb-3 bg-inherit max-sm:hidden ">
-            <div className="h-px bg-black/5 dark:bg-white/5 my-2 mx-2 max-sm:hidden" />
-            <DarkMode collapsed={isCollapsed} />
-            <ClerkAuth collapsed={isCollapsed} />
-          </div>
-        )}
-        {!isCollapsed && ( <div className="mt-auto w-full px-2 pb-3 bg-inherit ">
-          <div className="h-px bg-black/5 dark:bg-white/5 my-2 mx-2 max-sm:hidden" />
+        {/* Footer */}
+        <div
+          className={`mt-auto w-full px-2 pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}
+        >
+          <div className="h-px bg-white/40 dark:bg-white/10 my-2 mx-2 max-sm:hidden" />
           <DarkMode collapsed={isCollapsed} />
           <ClerkAuth collapsed={isCollapsed} />
-        </div>)}
+        </div>
       </aside>
     </>
   );
