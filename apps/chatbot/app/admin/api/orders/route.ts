@@ -80,14 +80,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     // ✅ Дэлгүүр хайна
-    const store =
-      (await prisma.store.findFirst({
-        where: {
-          OR: [{ id: storeId || "" }, { name: storeName || "" }].filter(
-            (w) => Object.values(w)[0] !== "",
-          ),
-        },
-      })) ?? (await prisma.store.findFirst());
+    const store = await prisma.store.findFirst({
+      where: {
+        OR: [{ id: storeId || "" }, { name: storeName || "" }].filter(
+          (w) => Object.values(w)[0] !== "",
+        ),
+      },
+    });
 
     if (!store)
       return NextResponse.json(

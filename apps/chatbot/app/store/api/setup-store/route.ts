@@ -35,6 +35,22 @@ export async function POST(req: Request) {
       );
     }
 
+    const existingStore = await prisma.store.findFirst({
+      where: { ownerId: dbUser.id },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (existingStore) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Танд аль хэдийн "${existingStore.name}" дэлгүүр байна.`,
+          existingStore,
+        },
+        { status: 409 },
+      );
+    }
+
     const newStore = await prisma.store.create({
       data: {
         name: name,
@@ -44,8 +60,9 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, store: newStore });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("STORE_CREATE_ERROR:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

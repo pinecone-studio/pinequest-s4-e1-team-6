@@ -31,10 +31,21 @@ export default function AdminStoresPage() {
     setStores(data.stores ?? []);
   };
   useEffect(() => {
-    load();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
   }, []);
 
-  const act = async (storeId: string, action: "approve" | "reject") => {
+  const act = async (
+    storeId: string,
+    action: "approve" | "reject" | "delete",
+  ) => {
+    if (
+      action === "delete" &&
+      !window.confirm("Энэ татгалзсан дэлгүүрийг бүр мөсөн устгах уу?")
+    ) {
+      return;
+    }
+
     await fetch("/admin/api/stores", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -100,22 +111,32 @@ export default function AdminStoresPage() {
                   </p>
                 )}
               </div>
-              {s.status === "PENDING" && (
-                <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 gap-2">
+                {s.status === "PENDING" && (
+                  <>
+                    <button
+                      onClick={() => act(s.id, "approve")}
+                      className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500 transition-all"
+                    >
+                      Батлах
+                    </button>
+                    <button
+                      onClick={() => act(s.id, "reject")}
+                      className="rounded-xl bg-red-600/80 px-4 py-2 text-sm font-semibold hover:bg-red-600 transition-all"
+                    >
+                      Татгалзах
+                    </button>
+                  </>
+                )}
+                {s.status === "REJECTED" && (
                   <button
-                    onClick={() => act(s.id, "approve")}
-                    className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500 transition-all"
-                  >
-                    Батлах
-                  </button>
-                  <button
-                    onClick={() => act(s.id, "reject")}
+                    onClick={() => act(s.id, "delete")}
                     className="rounded-xl bg-red-600/80 px-4 py-2 text-sm font-semibold hover:bg-red-600 transition-all"
                   >
-                    Татгалзах
+                    Устгах
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         ))}

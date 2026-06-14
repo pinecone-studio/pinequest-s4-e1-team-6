@@ -28,6 +28,8 @@ export async function GET(req: Request) {
         image: meta.product_image_url || meta.imageUrl || "/placeholder.png", 
         category: meta.category || "Бусад",
         brand: meta.brand || "",
+        color: meta.color || "",
+        colors: meta.colors || [],
         stock: meta.stock || 0,
         size: meta.size || "",
         sizes: meta.sizes || [],

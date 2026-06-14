@@ -1,8 +1,23 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Loader2, PackageOpen, Trash2, Edit3, ImageOff } from "lucide-react";
+import type { SyntheticEvent } from "react";
+import { Loader2, PackageOpen, Trash2, Edit3 } from "lucide-react";
 import ProductForm from "./ProductForm";
+
+type SizeStockItem = {
+  size: string;
+  stock: string | number;
+};
+
+type ProductRecord = {
+  id?: string;
+  metadata?: Record<string, unknown>;
+  name?: unknown;
+  price?: unknown;
+  brand?: unknown;
+  stock?: unknown;
+};
 
 export default function ProductTable({
   search = "",
@@ -11,9 +26,11 @@ export default function ProductTable({
   search?: string;
   storeName: string;
 }) {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ProductRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductRecord | null>(
+    null,
+  );
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -36,7 +53,7 @@ export default function ProductTable({
 
       const data = await res.json();
       if (data.success) {
-        setProducts(data.products || []);
+        setProducts((data.products || []) as ProductRecord[]);
       }
     } catch (error) {
       console.error("Дата татахад алдаа гарлаа:", error);
@@ -46,7 +63,8 @@ export default function ProductTable({
   }, [storeName]);
 
   useEffect(() => {
-    fetchData();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchData();
   }, [fetchData]);
 
   const confirmDelete = async () => {
@@ -73,7 +91,7 @@ export default function ProductTable({
     }
   };
 
-  const getProductImage = (p: any): string => {
+  const getProductImage = (p: ProductRecord): string => {
     const meta = p.metadata || p;
 
     return (
@@ -84,7 +102,7 @@ export default function ProductTable({
     );
   };
 
-  const getSizeStockRows = (p: any) => {
+  const getSizeStockRows = (p: ProductRecord): SizeStockItem[] => {
     const meta = p.metadata || p;
     const raw = meta.sizeStock || meta.size_stock;
     if (!raw) return [];
@@ -92,17 +110,59 @@ export default function ProductTable({
     try {
       const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
       return Array.isArray(parsed)
-        ? parsed.filter((item) => item?.size && Number(item?.stock) > 0)
+        ? parsed
+            .filter(
+              (item): item is SizeStockItem =>
+                Boolean(item?.size) && Number(item?.stock) > 0,
+            )
+            .map((item) => ({
+              size: String(item.size),
+              stock: item.stock,
+            }))
         : [];
     } catch {
       return [];
     }
   };
 
+  const getSearchText = (p: ProductRecord) => {
+    const meta = p.metadata || p;
+    const sizeRows = getSizeStockRows(p);
+    return [
+      (meta as Record<string, unknown>).name,
+      p.name,
+      (meta as Record<string, unknown>).description,
+      (meta as Record<string, unknown>).category,
+      (meta as Record<string, unknown>).brand,
+      (meta as Record<string, unknown>).brand_search,
+      (meta as Record<string, unknown>).color,
+      ...(Array.isArray((meta as Record<string, unknown>).colors)
+        ? ((meta as Record<string, unknown>).colors as unknown[])
+        : []),
+      (meta as Record<string, unknown>).size,
+      ...(Array.isArray((meta as Record<string, unknown>).sizes)
+        ? ((meta as Record<string, unknown>).sizes as unknown[])
+        : []),
+      ...sizeRows.map((item) => `${item.size} ${item.stock}`),
+      (meta as Record<string, unknown>).stock,
+      (meta as Record<string, unknown>).price,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+  };
+
   const filtered = products.filter((p) => {
-    const meta = p.metadata || {};
-    const name = meta.name || p.name || "";
-    return name.toLowerCase().includes((search || "").toLowerCase());
+    const searchTerms = (search || "")
+      .toLowerCase()
+      .split(/\s+/)
+      .map((term) => term.trim())
+      .filter(Boolean);
+
+    if (searchTerms.length === 0) return true;
+
+    const productText = getSearchText(p);
+    return searchTerms.every((term) => productText.includes(term));
   });
 
   if (loading) {
@@ -202,125 +262,119 @@ export default function ProductTable({
 
                 return (
                   <tr
-                    key={p.id}
+                    key={p.id || name}
                     className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors group block md:table-row border border-gray-100 dark:border-white/5 md:border-none rounded-2xl p-4 md:p-0 bg-slate-50/30 md:bg-transparent"
                   >
-                    {/* Гар утас дээр Card хэлбэрээр зэрэгцүүлэх grid бүтэц */}
-                    <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] md:contents gap-4 md:gap-0">
-                      {/* Зураг */}
-                      <td className="md:px-6 md:py-4 flex md:table-cell justify-center sm:justify-start">
-                        <div className="w-20 h-20 sm:w-14 sm:h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-white/5 shadow-inner">
-                          <img
-                            src={getProductImage(p)}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            alt={name}
-                            onError={(e: any) =>
-                              (e.target.src =
-                                "https://placehold.co/400x400?text=Error")
-                            }
-                          />
+                    {/* Зураг */}
+                    <td className="md:px-6 md:py-4 flex md:table-cell justify-center sm:justify-start">
+                      <div className="w-20 h-20 sm:w-14 sm:h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-white/5 shadow-inner">
+                        <img
+                          src={getProductImage(p)}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          alt={name}
+                          onError={(e: SyntheticEvent<HTMLImageElement>) => {
+                            e.currentTarget.src =
+                              "https://placehold.co/400x400?text=Error";
+                          }}
+                        />
+                      </div>
+                    </td>
+
+                    {/* Нэр ба Категори */}
+                    <td className="md:px-6 md:py-4 block md:table-cell">
+                      <p className="font-bold text-gray-900 dark:text-gray-100 text-base md:text-sm">
+                        {name}
+                      </p>
+                      <p className="text-[10px] text-slate-500 dark:text-gray-500 uppercase mt-0.5">
+                        {meta.category || "Ерөнхий"}
+                      </p>
+                    </td>
+
+                    {/* Үнэ */}
+                    <td className="md:px-6 md:py-4 flex items-center md:table-cell">
+                      <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
+                        Үнэ:
+                      </span>
+                      <span className="text-indigo-600 dark:text-indigo-400 font-black font-mono text-sm md:text-base">
+                        {new Intl.NumberFormat().format(price)}₮
+                      </span>
+                    </td>
+
+                    {/* Брэнд */}
+                    <td className="md:px-6 md:py-4 flex items-center md:table-cell text-slate-500 dark:text-gray-500 font-medium text-xs md:text-sm">
+                      <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
+                        Брэнд:
+                      </span>
+                      {brand}
+                    </td>
+
+                    {/* Үлдэгдэл ба Размерууд */}
+                    <td className="md:px-6 md:py-4 block md:table-cell">
+                      <div className="space-y-2">
+                        <div className="flex items-center">
+                          <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
+                            Үлдэгдэл:
+                          </span>
+                          <div
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                              stock > 0
+                                ? "bg-emerald-500/10 text-emerald-500"
+                                : "bg-rose-500/20 text-rose-500 border border-rose-500/30"
+                            }`}
+                          >
+                            {stock > 0 ? `${stock} ширхэг` : "⚠️ Дууссан"}
+                          </div>
                         </div>
-                      </td>
 
-                      {/* Барааны мэдээлэл, үнэ, брэнд, үлдэгдлийг утас дээр нэг дор харуулах блок */}
-                      <div className="space-y-3 sm:space-y-2 md:contents">
-                        {/* Нэр ба Категори */}
-                        <td className="md:px-6 md:py-4 block md:table-cell">
-                          <p className="font-bold text-gray-900 dark:text-gray-100 text-base md:text-sm">
-                            {name}
-                          </p>
-                          <p className="text-[10px] text-slate-500 dark:text-gray-500 uppercase mt-0.5">
-                            {meta.category || "Ерөнхий"}
-                          </p>
-                        </td>
+                        {stock === 0 && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 max-w-max">
+                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                            <span className="text-[10px] text-rose-400 font-bold">
+                              Нөөц дууссан
+                            </span>
+                          </div>
+                        )}
 
-                        {/* Үнэ */}
-                        <td className="md:px-6 md:py-4 flex items-center md:table-cell">
-                          <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
-                            Үнэ:
-                          </span>
-                          <span className="text-indigo-600 dark:text-indigo-400 font-black font-mono text-sm md:text-base">
-                            {new Intl.NumberFormat().format(price)}₮
-                          </span>
-                        </td>
-
-                        {/* Брэнд */}
-                        <td className="md:px-6 md:py-4 flex items-center md:table-cell text-slate-500 dark:text-gray-500 font-medium text-xs md:text-sm">
-                          <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
-                            Брэнд:
-                          </span>
-                          {brand}
-                        </td>
-
-                        {/* Үлдэгдэл ба Размерууд */}
-                        <td className="md:px-6 md:py-4 block md:table-cell">
-                          <div className="space-y-2">
-                            <div className="flex items-center">
-                              <span className="md:hidden text-xs font-medium text-slate-400 mr-2 uppercase tracking-wider text-[10px]">
-                                Үлдэгдэл:
-                              </span>
-                              <div
-                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                                  stock > 0
-                                    ? "bg-emerald-500/10 text-emerald-500"
-                                    : "bg-rose-500/20 text-rose-500 border border-rose-500/30"
+                        {sizeRows.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 max-w-full md:max-w-52">
+                            {sizeRows.map((item) => (
+                              <span
+                                key={item.size}
+                                className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
+                                  Number(item.stock) > 0
+                                    ? "bg-gray-100 dark:bg-white/5 text-slate-400 dark:text-gray-500 dark:text-gray-300"
+                                    : "bg-rose-500/10 text-rose-400 line-through"
                                 }`}
                               >
-                                {stock > 0 ? `${stock} ширхэг` : "⚠️ Дууссан"}
-                              </div>
-                            </div>
-
-                            {stock === 0 && (
-                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 max-w-max">
-                                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                                <span className="text-[10px] text-rose-400 font-bold">
-                                  Нөөц дууссан
-                                </span>
-                              </div>
-                            )}
-
-                            {sizeRows.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 max-w-full md:max-w-52">
-                                {sizeRows.map((item: any) => (
-                                  <span
-                                    key={item.size}
-                                    className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
-                                      Number(item.stock) > 0
-                                        ? "bg-gray-100 dark:bg-white/5 text-slate-400 dark:text-gray-500 dark:text-gray-300"
-                                        : "bg-rose-500/10 text-rose-400 line-through"
-                                    }`}
-                                  >
-                                    {item.size}: {item.stock}ш
-                                  </span>
-                                ))}
-                              </div>
-                            )}
+                                {item.size}: {item.stock}ш
+                              </span>
+                            ))}
                           </div>
-                        </td>
-
-                        {/* Үйлдэл (Засах, Устгах товчлуурууд) */}
-                        <td className="md:px-6 md:py-4 block md:table-cell border-t border-gray-100 dark:border-white/5 md:border-none pt-2 md:pt-0">
-                          <div className="flex items-center justify-end gap-2 md:gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all transform md:translate-x-2 group-hover:translate-x-0">
-                            <button
-                              onClick={() => setEditingProduct(p)}
-                              className="p-2 sm:p-2.5 hover:bg-indigo-500/10 text-indigo-400 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
-                              title="Засах"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                              <span className="md:hidden">Засах</span>
-                            </button>
-                            <button
-                              onClick={() => setDeletingId(p.id)}
-                              className="p-2 sm:p-2.5 hover:bg-rose-500/10 text-rose-400 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
-                              title="Устгах"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              <span className="md:hidden">Устгах</span>
-                            </button>
-                          </div>
-                        </td>
+                        )}
                       </div>
-                    </div>
+                    </td>
+
+                    {/* Үйлдэл (Засах, Устгах товчлуурууд) */}
+                    <td className="md:px-6 md:py-4 block md:table-cell border-t border-gray-100 dark:border-white/5 md:border-none pt-2 md:pt-0">
+                      <div className="flex items-center justify-end gap-2 md:gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all transform md:translate-x-2 group-hover:translate-x-0">
+                        <button
+                          onClick={() => setEditingProduct(p)}
+                          className="p-2 sm:p-2.5 hover:bg-indigo-500/10 text-indigo-400 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
+                          title="Засах"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                          <span className="md:hidden">Засах</span>
+                        </button>
+                        <button
+                          onClick={() => p.id && setDeletingId(p.id)}
+                          className="p-2 sm:p-2.5 hover:bg-rose-500/10 text-rose-400 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
+                          title="Устгах"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span className="md:hidden">Устгах</span>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })
