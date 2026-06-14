@@ -1,10 +1,20 @@
 "use client";
 
-import { FaShoppingCart } from "react-icons/fa";
-import { useCart } from "@/app/context/CartContext";
-import { Store } from "lucide-react";
-import StoresPage from "./components/StoresPage";
 import { useState } from "react";
+import { FaShoppingCart } from "react-icons/fa";
+import { Store } from "lucide-react";
+import { useCart } from "@/app/context/CartContext";
+import dynamic from "next/dynamic";
+
+// Hydration болон Turbopack/SSR алдаанаас сэргийлж зөвхөн клиент талд ачааллана
+const StoresPage = dynamic(() => import("./components/StoresPage"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#7c5cff] border-t-transparent" />
+    </div>
+  ),
+});
 
 export default function Header({
   toggleSidebar,
@@ -18,10 +28,10 @@ export default function Header({
     <>
       <header
         className="sticky top-0 z-50
-          flex items-center md:justify-between justify-end gap-7
+          flex items-center md:justify-between justify-end gap-7 
           px-5 py-3 mx-2 mt-2
-          rounded-[20px]
-          bg-white/20 dark:bg-white/[0.08]
+          rounded-[50px]
+          bg-white/20 dark:bg-white/8
           backdrop-blur-2xl
           border border-white/45 dark:border-white/20
           shadow-[0_2px_0_rgba(255,255,255,0.6)_inset,0_8px_32px_rgba(31,38,135,0.10)]
@@ -34,8 +44,8 @@ export default function Header({
           <span className="text-xl md:text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
             Chat
           </span>
-          <div className="ml-1.5 p-[1.5px] rounded-lg bg-gradient-to-r from-[#9f8cff] via-[#7c5cff] to-[#56a8ff] transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(124,92,255,0.35)]">
-            <div className="px-2 py-0.5 rounded-[6px] bg-white/85 dark:bg-neutral-950/85 backdrop-blur-sm">
+          <div className="ml-1.5 p-[1.5px] rounded-lg bg-linear-to-r from-[#9f8cff] via-[#7c5cff] to-[#56a8ff] transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(124,92,255,0.35)]">
+            <div className="px-2 py-0.5 rounded-md bg-white/85 dark:bg-neutral-950/85 backdrop-blur-sm">
               <span className="text-sm md:text-base font-extrabold tracking-wide uppercase text-neutral-900 dark:text-neutral-100">
                 Mart
               </span>
@@ -44,11 +54,11 @@ export default function Header({
         </div>
 
         {/* Баруун товчлуурууд */}
-        <div className="flex items-center gap-2">
+        <div className="flex  items-center gap-2">
           {/* Дэлгүүр товч */}
           <button
             onClick={() => setIsStoresOpen(!isStoresOpen)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all
+            className={`md:flex hidden items-center gap-1.5 px-3 py-2 rounded-full text-xl font-bold transition-all
               backdrop-blur-md border
               shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]
               hover:-translate-y-px active:scale-95
@@ -58,7 +68,7 @@ export default function Header({
                   : "bg-white/30 border-white/60 text-[#7c5cff] dark:text-[#9b8cff] hover:bg-white/50 dark:border-white/20 dark:bg-white/10"
               }`}
           >
-            <Store className="w-4 h-4" />
+            <Store className="w-6 h-6" />
           </button>
 
           {/* Сагсны товч */}
@@ -80,26 +90,16 @@ export default function Header({
         </div>
       </header>
 
-      {/* Stores panel */}
+      {/* Stores Side Panel */}
       {isStoresOpen && (
         <div
-          style={{
-            position: "fixed",
-            top: "60px",
-            right: 0,
-            width: "340px",
-            height: "calc(100vh - 60px)",
-            background: "rgba(255,255,255,0.18)",
-            backdropFilter: "blur(28px) saturate(180%)",
-            WebkitBackdropFilter: "blur(28px) saturate(180%)",
-            borderLeft: "1px solid rgba(255,255,255,0.45)",
-            boxShadow: "-4px 0 40px rgba(31,38,135,0.12), inset 1px 0 0 rgba(255,255,255,0.6)",
-            display: "flex",
-            flexDirection: "column",
-            overflowY: "auto",
-            zIndex: 99999,
-            animation: "slideIn 0.2s ease-out",
-          }}
+          className="fixed top-17 right-0 z-9999  
+            w-112.5 max-w-full h-[calc(100vh-68px)] 
+            flex  flex-col overflow-y-auto
+            bg-linear-to-b from-blue-400/10 via-blue-900/15 to-slate-900/30 
+            backdrop-blur-[35px] border-l border-white/10 
+            shadow-[-10px_0_30px_rgba(0,0,0,0.25)] 
+            animate-in slide-in-from-right duration-200"
         >
           <StoresPage />
         </div>

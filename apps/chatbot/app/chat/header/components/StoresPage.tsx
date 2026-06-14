@@ -1,6 +1,34 @@
 "use client";
+
 import { useState, useEffect } from "react";
-import { Product, Store, CartItem, ActiveView } from "../components/types";
+import { motion } from "framer-motion";
+// Local type definitions to avoid an external ../types import
+type ActiveView = "stores" | "detail" | "cart";
+
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  image?: string;
+  category?: string;
+  inStock?: boolean;
+};
+
+type Store = {
+  id: string;
+  name: string;
+  logo?: string;
+  category?: string;
+  isVerified?: boolean;
+  rating?: number;
+  productCount?: number;
+};
+
+type CartItem = {
+  product: Product;
+  store: Store;
+  qty: number;
+};
 
 export default function StoresPage() {
   const [view, setView] = useState<ActiveView>("stores");
@@ -17,7 +45,6 @@ export default function StoresPage() {
   const [productsLoading, setProductsLoading] = useState(false);
   const [productsError, setProductsError] = useState<string | null>(null);
 
-  // ── Бүх дэлгүүр татах ───────────────────────────────────────────────────
   useEffect(() => {
     fetchStores();
   }, []);
@@ -41,7 +68,6 @@ export default function StoresPage() {
     }
   }
 
-  // ── Дэлгүүрийн бараа татах ───────────────────────────────────────────────
   useEffect(() => {
     if (!selectedStore) return;
     fetchProducts(selectedStore.name);
@@ -76,7 +102,6 @@ export default function StoresPage() {
     }
   }
 
-  // ── Cart helpers ─────────────────────────────────────────────────────────
   const totalItems = cart.reduce((s, i) => s + i.qty, 0);
   const totalPrice = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
 
@@ -92,10 +117,12 @@ export default function StoresPage() {
     showToast(`${product.name} сагсанд нэмэгдлээ`);
   }
 
+  // Сагснаас устгах
   function removeFromCart(productId: string) {
     setCart((prev) => prev.filter((i) => i.product.id !== productId));
   }
 
+  // Тоо ширхэг өөрчлөх
   function updateQty(productId: string, delta: number) {
     setCart((prev) =>
       prev.map((i) =>
@@ -132,16 +159,14 @@ export default function StoresPage() {
       (s.category ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const displayProducts = storeProducts;
-
   return (
-    <div style={styles.page}>
-      {/* ── STICKY HEADER ── */}
-      <div style={styles.header}>
-        <div style={styles.headerLeft}>
+    <div className="w-full flex-1 flex flex-col font-sans text-2xl text-white select-none rounded-2xl ">
+      {/* ── INTERNAL HEADER ── */}
+      <div className="flex items-center justify-between p-4 border-b border-white/5 bg-black/5 backdrop-blur-md sticky top-0 z-70 gap-2">
+        <div className="min-w-18">
           {view !== "stores" ? (
             <button
-              style={styles.headerBack}
+              className="bg-none border-none text-[#9f8cff] cursor-pointer text-xs font-bold whitespace-nowrap p-0 hover:underline"
               onClick={
                 view === "cart"
                   ? () => setView(selectedStore ? "detail" : "stores")
@@ -151,799 +176,381 @@ export default function StoresPage() {
               ← Буцах
             </button>
           ) : (
-            <div style={styles.logo}>
-              Chat <span style={styles.logoMart}>MART</span>
+            <div className="font-black text-sm tracking-tight">
+              Chat{" "}
+              <span className="bg-[#7c5cff] rounded px-1.25 py-px text-[9px] font-bold ml-0.5 text-white uppercase">
+                MART
+              </span>
             </div>
           )}
         </div>
 
-        <div style={styles.headerTitle}>
+        <div className="flex-1 font-bold text-xs text-center overflow-hidden text-ellipsis whitespace-nowrap text-white/90">
           {view === "detail" && selectedStore?.name}
           {view === "cart" && "Сагс"}
         </div>
 
         <button
-          style={{
-            ...styles.cartBtn,
-            ...(view === "cart" ? styles.cartBtnActive : {}),
-          }}
+          className={`bg-white/5 border border-white/10 rounded-lg text-white text-sm px-2.5 py-1.5 relative min-w-9.5 transition-colors ${
+            view === "cart" ? "bg-[#7c5cff]/20 border-[#7c5cff]" : ""
+          }`}
           onClick={goToCart}
         >
           🛒
-          {totalItems > 0 && <span style={styles.cartBadge}>{totalItems}</span>}
+          {totalItems > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-[#7c5cff] rounded-full text-[9px] font-bold px-1.5 py-0.5 text-white">
+              {totalItems}
+            </span>
+          )}
         </button>
       </div>
 
-      {/* ── 1. STORES LIST ── */}
-      {view === "stores" && (
-        <div style={styles.content}>
-          <div style={styles.searchRow}>
-            <div style={styles.searchWrap}>
-              <span style={styles.searchIcon}>🔍</span>
-              <input
-                style={styles.searchInput}
-                placeholder="Дэлгүүр хайх..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+      {/* ── SCROLLABLE CONTENT ── */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* ── 1. STORES LIST ── */}
+        {view === "stores" && (
+          <motion.div
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex-1 flex items-center bg-black/20 border border-white/5 rounded-xl px-3 py-2 gap-2">
+                <span className="text-xs opacity-40">🔍</span>
+                <input
+                  className="bg-transparent border-none outline-none text-white text-xs flex-1 placeholder:text-white/20"
+                  placeholder="Дэлгүүр хайх..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="text-white text-xs font-bold bg-[#7c5cff]/20 border border-[#7c5cff]/30 px-2.5 py-1.5 rounded-lg">
+                {filteredStores.length}
+              </div>
             </div>
-            <div style={styles.storeCount}>{filteredStores.length}</div>
-          </div>
 
-          {storesLoading && (
-            <div style={styles.centerWrap}>
-              <div style={styles.spinner} />
-              <span style={styles.mutedText}>Дэлгүүрүүд ачааллаж байна...</span>
-            </div>
-          )}
-          {storesError && !storesLoading && (
-            <div style={styles.centerWrap}>
-              <div style={{ fontSize: 28 }}>⚠️</div>
-              <div style={styles.errorText}>{storesError}</div>
-              <button style={styles.retryBtn} onClick={fetchStores}>
-                Дахин оролдох
-              </button>
-            </div>
-          )}
-          {!storesLoading && !storesError && filteredStores.length === 0 && (
-            <div style={styles.centerWrap}>
-              <div style={{ fontSize: 32 }}>🏪</div>
-              <p style={styles.mutedText}>Дэлгүүр олдсонгүй</p>
-            </div>
-          )}
-
-          <div style={styles.storesGrid}>
-            {!storesLoading &&
-              !storesError &&
-              filteredStores.map((store) => (
-                <div
-                  key={store.id}
-                  style={styles.storeCard}
-                  onClick={() => goToDetail(store)}
+            {storesLoading && (
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <div className="w-6 h-6 border-2 border-[#7c5cff]/20 border-t-[#7c5cff] rounded-full animate-spin" />
+                <span className="text-white/40 text-xs">
+                  Дэлгүүрүүд ачааллаж байна...
+                </span>
+              </div>
+            )}
+            {storesError && !storesLoading && (
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <div className="text-xl">⚠️</div>
+                <div className="text-red-400 text-xs">{storesError}</div>
+                <button
+                  className="bg-red-400/10 border border-red-400/20 rounded-md text-red-400 text-xs font-semibold px-3 py-1.5 mt-1"
+                  onClick={fetchStores}
                 >
-                  <div style={styles.storeCardTop}>
-                    <div style={styles.storeCardLogo}>{store.logo ?? "🏪"}</div>
-                    <div style={styles.storeCardInfo}>
-                      <div style={styles.storeCardName}>
-                        {store.name}
-                        {store.isVerified && (
-                          <span style={styles.verified}> ✓</span>
-                        )}
-                      </div>
-                      <div style={styles.storeCardCat}>
-                        {store.category || "Дэлгүүр"}
-                      </div>
-                    </div>
-                    <div style={styles.storeArrow}>→</div>
-                  </div>
-                  <div style={styles.storeCardBottom}>
-                    {store.rating > 0 && (
-                      <span style={styles.storeRating}>⭐ {store.rating}</span>
-                    )}
-                    <span style={styles.storeProdCount}>
-                      {store.productCount} бараа
-                    </span>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── 2. STORE DETAIL ── */}
-      {view === "detail" && selectedStore && (
-        <div style={styles.content}>
-          {/* Store hero */}
-          <div style={styles.storeHero}>
-            <div style={styles.storeHeroLogo}>{selectedStore.logo ?? "🏪"}</div>
-            <div>
-              <div style={styles.storeHeroName}>
-                {selectedStore.name}
-                {selectedStore.isVerified && (
-                  <span style={styles.verified}> ✓</span>
-                )}
+                  Дахин оролдох
+                </button>
               </div>
-              <div style={styles.storeHeroMeta}>
-                {selectedStore.rating > 0 && (
-                  <>
-                    <span>⭐ {selectedStore.rating}</span>
-                    <span style={styles.dot}>·</span>
-                  </>
-                )}
-                <span>{selectedStore.productCount} бараа</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Cart summary bar — items байвал харуулна */}
-          {totalItems > 0 && (
-            <button style={styles.cartBar} onClick={goToCart}>
-              <span>🛒 {totalItems} бараа сонгосон</span>
-              <span style={styles.cartBarPrice}>
-                {totalPrice.toLocaleString()}₮ →
-              </span>
-            </button>
-          )}
-
-          {productsLoading && (
-            <div style={styles.centerWrap}>
-              <div style={styles.spinner} />
-              <span style={styles.mutedText}>Барааг ачааллаж байна...</span>
-            </div>
-          )}
-          {productsError && !productsLoading && (
-            <div style={styles.centerWrap}>
-              <div style={{ fontSize: 28 }}>⚠️</div>
-              <div style={styles.errorText}>{productsError}</div>
-              <button
-                style={styles.retryBtn}
-                onClick={() => fetchProducts(selectedStore.name)}
-              >
-                Дахин оролдох
-              </button>
-            </div>
-          )}
-          {!productsLoading &&
-            !productsError &&
-            displayProducts.length === 0 && (
-              <div style={styles.centerWrap}>
-                <div style={{ fontSize: 32 }}>📦</div>
-                <p style={styles.mutedText}>Бараа олдсонгүй</p>
+            )}
+            {!storesLoading && !storesError && filteredStores.length === 0 && (
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <div className="text-2xl">🏪</div>
+                <p className="text-white/40 text-xs m-0">Дэлгүүр олдсонгүй</p>
               </div>
             )}
 
-          {!productsLoading && !productsError && displayProducts.length > 0 && (
-            <div style={styles.productsGrid}>
-              {displayProducts.map((product) => {
-                const inCart = cart.find((i) => i.product.id === product.id);
-                return (
-                  <div key={product.id} style={styles.productCard}>
-                    {/* Image */}
-                    <div style={styles.productImgWrap}>
-                      {product.image?.startsWith("http") ||
-                      product.image?.startsWith("/") ? (
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          style={styles.productImg}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "";
-                            (e.target as HTMLImageElement).style.display =
-                              "none";
-                          }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: 32 }}>{product.image}</span>
-                      )}
-                      {!product.inStock && (
-                        <div style={styles.outOfStock}>Дууссан</div>
-                      )}
+            <div className="flex flex-col gap-2">
+              {!storesLoading &&
+                !storesError &&
+                filteredStores.map((store) => (
+                  <motion.div
+                    whileHover={{
+                      scale: 1.01,
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      borderColor: "rgba(255, 255, 255, 0.1)",
+                    }}
+                    whileTap={{ scale: 0.99 }}
+                    key={store.id}
+                    className="bg-white/2 border border-white/4 rounded-xl p-3.5 cursor-pointer transition-all duration-200"
+                    onClick={() => goToDetail(store)}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="text-xl w-9 h-9 flex items-center justify-center bg-white/5 rounded-lg shrink-0">
+                        {store.logo ?? "🏪"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-xs tracking-tight text-white/90">
+                          {store.name}
+                          {store.isVerified && (
+                            <span className="text-[#7c5cff] text-[9px] font-bold">
+                              {" "}
+                              ✓
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-white/35 text-[10px]">
+                          {store.category || "Дэлгүүр"}
+                        </div>
+                      </div>
+                      <div className="text-white/25 text-xs shrink-0">→</div>
                     </div>
-
-                    {/* Info */}
-                    <div style={styles.productCategory}>{product.category}</div>
-                    <div style={styles.productName}>{product.name}</div>
-
-                    <div style={styles.productPriceRow}>
-                      <span style={styles.productPrice}>
-                        {Number(product.price).toLocaleString()}₮
-                      </span>
-                      {inCart && (
-                        <span style={styles.inCartBadge}>×{inCart.qty}</span>
-                      )}
-                    </div>
-
-                    <button
-                      style={{
-                        ...styles.addBtn,
-                        ...(!product.inStock ? styles.addBtnDisabled : {}),
-                      }}
-                      disabled={!product.inStock}
-                      onClick={() => addToCart(product, selectedStore)}
-                    >
-                      {product.inStock
-                        ? inCart
-                          ? "Нэмэх +"
-                          : "Сагсанд нэмэх"
-                        : "Дууссан"}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── 3. CART ── */}
-      {view === "cart" && (
-        <div style={styles.content}>
-          {cart.length === 0 ? (
-            <div style={styles.centerWrap}>
-              <div style={{ fontSize: 40 }}>🛒</div>
-              <p style={styles.mutedText}>Сагс хоосон байна</p>
-              <button style={styles.browsBtn} onClick={goToStores}>
-                Дэлгүүр үзэх
-              </button>
-            </div>
-          ) : (
-            <>
-              <div style={styles.cartItems}>
-                {cart.map((item) => (
-                  <div key={item.product.id} style={styles.cartItem}>
-                    {/* Image */}
-                    <div style={styles.cartItemImg}>
-                      {item.product.image?.startsWith("http") ||
-                      item.product.image?.startsWith("/") ? (
-                        <img
-                          src={item.product.image}
-                          alt={item.product.name}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            borderRadius: 8,
-                          }}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display =
-                              "none";
-                          }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: 22 }}>
-                          {item.product.image}
+                    <div className="flex gap-2 text-[10px] text-white/35 border-t border-white/3 pt-2">
+                      {(store.rating ?? 0) > 0 && (
+                        <span className="text-yellow-400">
+                          ⭐ {store.rating ?? 0}
                         </span>
                       )}
+                      <span>{store.productCount} бараа</span>
                     </div>
-
-                    <div style={styles.cartItemInfo}>
-                      <div style={styles.cartItemName}>{item.product.name}</div>
-                      <div style={styles.cartItemStore}>{item.store.name}</div>
-                      <div style={styles.cartItemPrice}>
-                        {(item.product.price * item.qty).toLocaleString()}₮
-                      </div>
-                    </div>
-
-                    <div style={styles.cartItemControls}>
-                      <button
-                        style={styles.qtyBtn}
-                        onClick={() => updateQty(item.product.id, -1)}
-                      >
-                        −
-                      </button>
-                      <span style={styles.qtyNum}>{item.qty}</span>
-                      <button
-                        style={styles.qtyBtn}
-                        onClick={() => updateQty(item.product.id, 1)}
-                      >
-                        +
-                      </button>
-                      <button
-                        style={styles.removeBtn}
-                        onClick={() => removeFromCart(item.product.id)}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+            </div>
+          </motion.div>
+        )}
 
-              <div style={styles.cartFooter}>
-                <div style={styles.cartTotal}>
-                  <span>Нийт дүн</span>
-                  <span style={styles.totalAmount}>
-                    {totalPrice.toLocaleString()}₮
-                  </span>
+        {/* ── 2. STORE DETAIL ── */}
+        {view === "detail" && selectedStore && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 pb-3 border-b border-white/5 mb-2">
+              <div className="text-2xl w-11 h-11 flex items-center justify-center bg-white/5 rounded-xl border border-white/5 shrink-0">
+                {selectedStore.logo ?? "🏪"}
+              </div>
+              <div>
+                <div className="font-bold text-sm text-white/90">
+                  {selectedStore.name}
+                  {selectedStore.isVerified && (
+                    <span className="text-[#7c5cff] text-[9px] font-bold">
+                      {" "}
+                      ✓
+                    </span>
+                  )}
                 </div>
+                <div className="text-white/45 text-[10px] flex gap-1 items-center">
+                  {(selectedStore.rating ?? 0) > 0 && (
+                    <>
+                      <span className="text-yellow-400">
+                        ⭐ {selectedStore.rating ?? 0}
+                      </span>
+                      <span className="mx-0.5">·</span>
+                    </>
+                  )}
+                  <span>{selectedStore.productCount} бараа</span>
+                </div>
+              </div>
+            </div>
+
+            {totalItems > 0 && (
+              <button
+                className="w-full flex justify-between items-center bg-[#7c5cff] border-none rounded-xl text-white cursor-pointer text-xs font-bold p-3 mb-2 shadow-lg shadow-[#7c5cff]/20 active:scale-[0.98] transition-transform"
+                onClick={goToCart}
+              >
+                <span>🛒 {totalItems} бараа сонгосон</span>
+                <span className="font-extrabold">
+                  {totalPrice.toLocaleString()}₮ →
+                </span>
+              </button>
+            )}
+
+            {productsLoading && (
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <div className="w-6 h-6 border-2 border-[#7c5cff]/20 border-t-[#7c5cff] rounded-full animate-spin" />
+                <span className="text-white/45 text-xs">
+                  Барааг ачааллаж байна...
+                </span>
+              </div>
+            )}
+            {productsError && !productsLoading && (
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <div className="text-xl">⚠️</div>
+                <div className="text-red-400 text-xs">{productsError}</div>
                 <button
-                  style={styles.checkoutBtn}
-                  onClick={() => {
-                    showToast("Захиалга амжилттай илгээгдлээ!");
-                    setCart([]);
-                    goToStores();
-                  }}
+                  className="bg-red-400/10 border border-red-400/20 rounded-md text-red-400 text-xs font-semibold px-3 py-1.5"
+                  onClick={() => fetchProducts(selectedStore.name)}
                 >
-                  Захиалга өгөх
+                  Дахин оролдох
                 </button>
               </div>
-            </>
-          )}
+            )}
+            {!productsLoading &&
+              !productsError &&
+              storeProducts.length === 0 && (
+                <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                  <div className="text-2xl">📦</div>
+                  <p className="text-white/45 text-xs m-0">Бараа олдсонгүй</p>
+                </div>
+              )}
+
+            {!productsLoading && !productsError && storeProducts.length > 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                {storeProducts.map((product) => {
+                  const inCart = cart.find((i) => i.product.id === product.id);
+                  return (
+                    <div
+                      key={product.id}
+                      className="bg-white/5 border border-white/5 rounded-xl p-2 flex flex-col"
+                    >
+                      <div className="w-full h-24 rounded-lg mb-2 overflow-hidden bg-white/4 flex items-center justify-center relative shrink-0">
+                        {product.image?.startsWith("http") ||
+                        product.image?.startsWith("/") ? (
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-2xl">{product.image}</span>
+                        )}
+                        {!product.inStock && (
+                          <div className="absolute top-1 right-1 bg-red-400/15 border border-red-400/30 rounded text-[8px] font-bold text-red-400 px-1.5 py-0.5">
+                            Дууссан
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-[8px] text-white/25 uppercase tracking-wider mb-0.5">
+                        {product.category}
+                      </div>
+                      <div className="font-semibold text-[11px] mb-1.5 line-clamp-2 leading-snug flex-1 text-white/90">
+                        {product.name}
+                      </div>
+
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-bold text-xs text-[#9f8cff]">
+                          {Number(product.price).toLocaleString()}₮
+                        </span>
+                        {inCart && (
+                          <span className="bg-[#7c5cff]/20 text-[#9f8cff] rounded text-[9px] font-bold px-1 py-0.5">
+                            ×{inCart.qty}
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        className={`w-full text-white border-none rounded-md text-[10px] font-bold py-1.5 cursor-pointer transition-colors ${
+                          product.inStock
+                            ? "bg-[#7c5cff] hover:bg-[#684be3]"
+                            : "bg-white/5 text-white/25 cursor-not-allowed"
+                        }`}
+                        disabled={!product.inStock}
+                        onClick={() => addToCart(product, selectedStore)}
+                      >
+                        {product.inStock
+                          ? inCart
+                            ? "Нэмэх +"
+                            : "Сагсанд нэмэх"
+                          : "Дууссан"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── 3. CART ── */}
+        {view === "cart" && (
+          <div className="space-y-4">
+            {cart.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <div className="text-3xl">🛒</div>
+                <p className="text-white/45 text-xs m-0">Сагс хоосон байна</p>
+                <button
+                  className="bg-[#7c5cff] hover:bg-[#684be3] border-none rounded-lg text-white cursor-pointer text-xs font-bold px-4 py-2 mt-2 transition-colors"
+                  onClick={goToStores}
+                >
+                  Дэлгүүр үзэх
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-2">
+                  {cart.map((item) => (
+                    <div
+                      key={item.product.id}
+                      className="flex items-center gap-2 bg-white/5 rounded-xl p-2 border border-white/5"
+                    >
+                      <div className="w-10 h-10 shrink-0 rounded-md overflow-hidden bg-white/5 flex items-center justify-center">
+                        {item.product.image?.startsWith("http") ||
+                        item.product.image?.startsWith("/") ? (
+                          <img
+                            src={item.product.image}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        ) : (
+                          <span className="text-base">
+                            {item.product.image}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-[11px] mb-0.5 overflow-hidden text-ellipsis whitespace-nowrap text-white/90">
+                          {item.product.name}
+                        </div>
+                        <div className="text-white/45 text-[9px]">
+                          {item.store.name}
+                        </div>
+                        <div className="text-[#9f8cff] font-bold text-[11px] mt-0.5">
+                          {(item.product.price * item.qty).toLocaleString()}₮
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          className="bg-white/5 border border-white/5 rounded text-white cursor-pointer text-xs w-5 h-5 flex items-center justify-center active:scale-95"
+                          onClick={() => updateQty(item.product.id, -1)}
+                        >
+                          −
+                        </button>
+                        <span className="text-xs font-bold min-w-3.5 text-center">
+                          {item.qty}
+                        </span>
+                        <button
+                          className="bg-white/5 border border-white/5 rounded text-white cursor-pointer text-xs w-5 h-5 flex items-center justify-center active:scale-95"
+                          onClick={() => updateQty(item.product.id, 1)}
+                        >
+                          +
+                        </button>
+                        <button
+                          className="bg-none border-none text-red-400 cursor-pointer text-[10px] ml-1 opacity-70 p-1 hover:opacity-100"
+                          onClick={() => removeFromCart(item.product.id)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t border-white/5 pt-3">
+                  <div className="flex justify-between items-center mb-3 text-xs text-white/45">
+                    <span>Нийт дүн</span>
+                    <span className="text-white font-black text-base">
+                      {totalPrice.toLocaleString()}₮
+                    </span>
+                  </div>
+                  <button
+                    className="w-full bg-[#7c5cff] hover:bg-[#684be3] border-none rounded-xl text-white cursor-pointer text-xs font-bold py-2.5 shadow-lg shadow-[#7c5cff]/10 active:scale-[0.99] transition-transform"
+                    onClick={() => {
+                      showToast("Захиалга амжилттай илгээгдлээ!");
+                      setCart([]);
+                      goToStores();
+                    }}
+                  >
+                    Захиалга өгөх
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── TOAST MESSAGE ── */}
+      {toast && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[#7c5cff] rounded-lg text-white text-[11px] font-bold px-4 py-2 z-99999 whitespace-nowrap shadow-lg shadow-[#7c5cff]/30">
+          {toast}
         </div>
       )}
-
-      {toast && <Toast message={toast} />}
     </div>
   );
 }
-
-function Toast({ message }: { message: string }) {
-  return <div style={styles.toast}>{message}</div>;
-}
-
-// ── Styles ────────────────────────────────────────────────────────────────────
-const c = {
-  bg: "#0f1535",
-  surface: "rgba(255,255,255,0.06)",
-  surfaceHover: "rgba(255,255,255,0.10)",
-  border: "rgba(255,255,255,0.10)",
-  accent: "#6d7fff",
-  text: "#ffffff",
-  muted: "rgba(255,255,255,0.5)",
-  dim: "rgba(255,255,255,0.3)",
-  danger: "#f87171",
-  warning: "#fbbf24",
-  green: "#4ade80",
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  page: {
-    width: "100%",
-    minHeight: "100vh",
-    background: c.bg,
-    fontFamily: "'Inter','Segoe UI',sans-serif",
-    color: c.text,
-    display: "flex",
-    flexDirection: "column",
-  },
-  // Header
-  header: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "12px 16px",
-    borderBottom: `1px solid ${c.border}`,
-    background: "rgba(15,21,53,0.97)",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    gap: 8,
-  },
-  headerLeft: { minWidth: 72 },
-  headerBack: {
-    background: "none",
-    border: "none",
-    color: c.accent,
-    cursor: "pointer",
-    fontSize: 13,
-    fontWeight: 600,
-    padding: 0,
-    whiteSpace: "nowrap",
-  },
-  logo: {
-    fontWeight: 800,
-    fontSize: 15,
-    letterSpacing: "-0.5px",
-    color: c.text,
-  },
-  logoMart: {
-    background: c.accent,
-    borderRadius: 4,
-    padding: "1px 5px",
-    fontSize: 9,
-    fontWeight: 700,
-    marginLeft: 3,
-    color: "#fff",
-  },
-  headerTitle: {
-    flex: 1,
-    fontWeight: 600,
-    fontSize: 14,
-    textAlign: "center",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  cartBtn: {
-    background: c.surface,
-    border: `1px solid ${c.border}`,
-    borderRadius: 8,
-    color: c.text,
-    cursor: "pointer",
-    fontSize: 15,
-    padding: "6px 10px",
-    position: "relative",
-    minWidth: 42,
-  },
-  cartBtnActive: {
-    background: `rgba(109,127,255,0.2)`,
-    borderColor: c.accent,
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -5,
-    right: -5,
-    background: c.accent,
-    borderRadius: "50%",
-    fontSize: 9,
-    fontWeight: 700,
-    padding: "1px 4px",
-    color: "#fff",
-  },
-  // Layout
-  content: { padding: "14px 12px", flex: 1 },
-  centerWrap: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    padding: "48px 16px",
-    textAlign: "center",
-  },
-  mutedText: { color: c.muted, fontSize: 13, margin: 0 },
-  errorText: { color: c.danger, fontSize: 13 },
-  // Search
-  searchRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 12,
-  },
-  searchWrap: {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    background: c.surface,
-    border: `1px solid ${c.border}`,
-    borderRadius: 10,
-    padding: "8px 12px",
-    gap: 6,
-  },
-  searchIcon: { fontSize: 12, opacity: 0.5 },
-  searchInput: {
-    background: "none",
-    border: "none",
-    outline: "none",
-    color: c.text,
-    fontSize: 13,
-    flex: 1,
-  },
-  storeCount: {
-    color: c.muted,
-    fontSize: 11,
-    background: c.surface,
-    border: `1px solid ${c.border}`,
-    padding: "5px 9px",
-    borderRadius: 8,
-  },
-  // Store cards
-  storesGrid: { display: "flex", flexDirection: "column", gap: 8 },
-  storeCard: {
-    background: c.surface,
-    border: `1px solid ${c.border}`,
-    borderRadius: 12,
-    padding: "12px 14px",
-    cursor: "pointer",
-    transition: "background 0.15s",
-  },
-  storeCardTop: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 8,
-  },
-  storeCardLogo: {
-    fontSize: 22,
-    width: 38,
-    height: 38,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "rgba(255,255,255,0.08)",
-    borderRadius: 8,
-    flexShrink: 0,
-  },
-  storeCardInfo: { flex: 1, minWidth: 0 },
-  storeCardName: { fontWeight: 600, fontSize: 14, marginBottom: 1 },
-  storeCardCat: { color: c.muted, fontSize: 11 },
-  storeArrow: { color: c.dim, fontSize: 14, flexShrink: 0 },
-  storeCardBottom: {
-    display: "flex",
-    gap: 10,
-    fontSize: 11,
-    color: c.muted,
-    borderTop: `1px solid ${c.border}`,
-    paddingTop: 8,
-  },
-  storeRating: { color: c.warning },
-  storeProdCount: {},
-  verified: { color: c.accent, fontSize: 10, fontWeight: 700 },
-  // Store hero
-  storeHero: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    paddingBottom: 12,
-    marginBottom: 12,
-    borderBottom: `1px solid ${c.border}`,
-  },
-  storeHeroLogo: {
-    fontSize: 28,
-    width: 50,
-    height: 50,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: c.surface,
-    borderRadius: 10,
-    border: `1px solid ${c.border}`,
-    flexShrink: 0,
-  },
-  storeHeroName: { fontWeight: 700, fontSize: 16, marginBottom: 3 },
-  storeHeroMeta: {
-    color: c.muted,
-    fontSize: 11,
-    display: "flex",
-    gap: 4,
-    alignItems: "center",
-  },
-  dot: { margin: "0 2px" },
-  // Cart bar (sticky summary in detail view)
-  cartBar: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    background: c.accent,
-    border: "none",
-    borderRadius: 10,
-    color: "#fff",
-    cursor: "pointer",
-    fontSize: 13,
-    fontWeight: 600,
-    padding: "10px 14px",
-    marginBottom: 14,
-    boxSizing: "border-box",
-  },
-  cartBarPrice: { fontWeight: 700, fontSize: 14 },
-  // Products grid
-  productsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: 10,
-  },
-  productCard: {
-    background: c.surface,
-    border: `1px solid ${c.border}`,
-    borderRadius: 12,
-    padding: "10px",
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    boxSizing: "border-box",
-  },
-  productImgWrap: {
-    width: "100%",
-    height: 100,
-    borderRadius: 8,
-    marginBottom: 8,
-    overflow: "hidden",
-    background: "rgba(255,255,255,0.04)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    flexShrink: 0,
-  },
-  productImg: { width: "100%", height: "100%", objectFit: "cover" },
-  outOfStock: {
-    position: "absolute",
-    top: 6,
-    right: 6,
-    background: "rgba(248,113,113,0.15)",
-    border: "1px solid rgba(248,113,113,0.3)",
-    borderRadius: 4,
-    fontSize: 9,
-    fontWeight: 600,
-    color: c.danger,
-    padding: "1px 5px",
-  },
-  productCategory: {
-    fontSize: 9,
-    color: c.dim,
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    marginBottom: 2,
-  },
-  productName: {
-    fontWeight: 600,
-    fontSize: 12,
-    marginBottom: 6,
-    lineHeight: 1.3,
-    flex: 1,
-  },
-  productPriceRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  productPrice: { fontWeight: 700, fontSize: 13, color: c.accent },
-  inCartBadge: {
-    background: "rgba(109,127,255,0.2)",
-    color: c.accent,
-    borderRadius: 4,
-    fontSize: 10,
-    fontWeight: 600,
-    padding: "1px 5px",
-  },
-  addBtn: {
-    width: "100%",
-    background: c.accent,
-    border: "none",
-    borderRadius: 7,
-    color: "#fff",
-    cursor: "pointer",
-    fontSize: 11,
-    fontWeight: 600,
-    padding: "7px 0",
-  },
-  addBtnDisabled: {
-    background: "rgba(255,255,255,0.06)",
-    color: c.dim,
-    cursor: "not-allowed",
-  },
-  // Cart
-  cartItems: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-    marginBottom: 16,
-  },
-  cartItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    background: c.surface,
-    borderRadius: 10,
-    padding: 10,
-    border: `1px solid ${c.border}`,
-  },
-  cartItemImg: {
-    width: 44,
-    height: 44,
-    flexShrink: 0,
-    borderRadius: 8,
-    overflow: "hidden",
-    background: "rgba(255,255,255,0.06)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartItemInfo: { flex: 1, minWidth: 0 },
-  cartItemName: {
-    fontWeight: 600,
-    fontSize: 13,
-    marginBottom: 1,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  cartItemStore: { color: c.muted, fontSize: 10 },
-  cartItemPrice: {
-    color: c.accent,
-    fontWeight: 600,
-    fontSize: 12,
-    marginTop: 2,
-  },
-  cartItemControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: 4,
-    flexShrink: 0,
-  },
-  qtyBtn: {
-    background: c.surface,
-    border: `1px solid ${c.border}`,
-    borderRadius: 5,
-    color: c.text,
-    cursor: "pointer",
-    fontSize: 13,
-    width: 24,
-    height: 24,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 0,
-  },
-  qtyNum: { fontSize: 13, fontWeight: 600, minWidth: 18, textAlign: "center" },
-  removeBtn: {
-    background: "none",
-    border: "none",
-    color: c.danger,
-    cursor: "pointer",
-    fontSize: 11,
-    marginLeft: 2,
-    opacity: 0.7,
-    padding: 0,
-  },
-  cartFooter: {
-    borderTop: `1px solid ${c.border}`,
-    paddingTop: 14,
-  },
-  cartTotal: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-    fontSize: 13,
-    color: c.muted,
-  },
-  totalAmount: { color: c.text, fontWeight: 700, fontSize: 17 },
-  checkoutBtn: {
-    width: "100%",
-    background: c.accent,
-    border: "none",
-    borderRadius: 10,
-    color: "#fff",
-    cursor: "pointer",
-    fontSize: 14,
-    fontWeight: 700,
-    padding: "11px 0",
-  },
-  browsBtn: {
-    background: c.accent,
-    border: "none",
-    borderRadius: 9,
-    color: "#fff",
-    cursor: "pointer",
-    fontSize: 13,
-    fontWeight: 600,
-    padding: "10px 22px",
-  },
-  // Misc
-  retryBtn: {
-    background: "rgba(248,113,113,0.12)",
-    border: "1px solid rgba(248,113,113,0.3)",
-    borderRadius: 8,
-    color: c.danger,
-    cursor: "pointer",
-    fontSize: 12,
-    fontWeight: 600,
-    padding: "7px 16px",
-  },
-  spinner: {
-    width: 26,
-    height: 26,
-    border: `3px solid rgba(109,127,255,0.15)`,
-    borderTop: `3px solid ${c.accent}`,
-    borderRadius: "50%",
-    animation: "spin 0.8s linear infinite",
-  },
-  toast: {
-    position: "fixed",
-    bottom: 20,
-    left: "50%",
-    transform: "translateX(-50%)",
-    background: "rgba(109,127,255,0.96)",
-    borderRadius: 8,
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: 500,
-    padding: "10px 18px",
-    zIndex: 999,
-    whiteSpace: "nowrap",
-    boxShadow: "0 4px 15px rgba(109,127,255,0.35)",
-  },
-};
