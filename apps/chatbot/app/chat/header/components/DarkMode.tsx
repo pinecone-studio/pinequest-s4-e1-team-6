@@ -16,19 +16,19 @@ export const DarkMode = ({ collapsed }: { collapsed: boolean }) => {
     <DropdownMenu>
       <DropdownMenuTrigger
         className={`
-    group relative flex items-center rounded-xl py-2
+    apple-liquid-control group relative flex items-center rounded-2xl py-2
     transition-all duration-200 ease-out
-    text-slate-700 hover:bg-black/5 dark:text-slate-200 dark:hover:bg-white/10
+    text-white hover:bg-white/18 dark:text-white dark:hover:bg-white/14
     active:scale-[0.97]
 
-    ${collapsed ? "justify-center px-2" : "gap-2 px-3 w-full"}
+    ${collapsed ? "justify-center px-2.5" : "gap-2 px-3 w-full"}
   `}
       >
         <Palette
           className="
       h-5 w-5
-      text-slate-500 dark:text-slate-300
-      group-hover:text-slate-900 dark:group-hover:text-white
+      text-white
+      group-hover:text-white
       transition
     "
         />
@@ -50,9 +50,7 @@ export const DarkMode = ({ collapsed }: { collapsed: boolean }) => {
           </div>
         )}
         {!collapsed && (
-          <span className="text-sm text-slate-700 dark:text-slate-200">
-            Theme
-          </span>
+          <span className="text-sm text-white">Theme</span>
         )}
       </DropdownMenuTrigger>
 

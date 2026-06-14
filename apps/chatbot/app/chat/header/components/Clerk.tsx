@@ -18,8 +18,8 @@ export const ClerkAuth = ({ collapsed }: { collapsed: boolean }) => {
       <SignInButton mode="redirect">
         <button
           className={`
-            flex items-center rounded-xl py-2 text-slate-700 transition
-            hover:bg-black/5 dark:text-slate-200 dark:hover:bg-white/10
+            apple-liquid-control flex items-center rounded-2xl py-2 text-white transition
+            hover:bg-white/18 dark:text-white dark:hover:bg-white/10
             ${collapsed ? "justify-center px-2" : "gap-2 px-3 w-full"}
           `}
         >
@@ -38,8 +38,8 @@ export const ClerkAuth = ({ collapsed }: { collapsed: boolean }) => {
   return (
     <div
       className={`
-        group relative flex items-center rounded-xl py-2 cursor-pointer
-        text-slate-700 hover:bg-black/5 dark:text-slate-200 dark:hover:bg-white/10 transition
+        apple-liquid-control group relative flex items-center rounded-2xl py-2 cursor-pointer
+        text-white hover:bg-white/18 dark:text-white dark:hover:bg-white/10 transition
         ${collapsed ? "justify-center px-2" : "gap-2 px-3 w-full"}
       `}
       onClick={handleClick}
@@ -67,8 +67,8 @@ export const ClerkAuth = ({ collapsed }: { collapsed: boolean }) => {
 
       {!collapsed && (
         <div className="flex flex-col min-w-0 flex-1">
-          <div className="text-xs font-semibold truncate">{name}</div>
-          <div className="text-[11px] opacity-70 truncate">
+          <div className="text-xs font-semibold truncate text-white">{name}</div>
+          <div className="text-[11px] truncate text-white/70">
             {user?.emailAddresses?.[0]?.emailAddress}
           </div>
         </div>

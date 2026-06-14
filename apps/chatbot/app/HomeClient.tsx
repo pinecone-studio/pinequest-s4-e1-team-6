@@ -75,17 +75,17 @@ export default function HomeClient() {
 
   return (
 
-    <div className="relative flex h-screen w-full overflow-hidden bg-[#3b9eff] transition-colors duration-300 dark:bg-[#0B1020]">
+    <div className="relative flex h-screen w-full overflow-hidden bg-[#2f8bf0] transition-colors duration-300 dark:bg-[#0B1020]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         
         {/* Арын Mesh Blobs: Light дээр image_54da68.png-ийн неон номин цэнхэр болон зөөлөн нил ягаан туяанууд */}
-        <div className="absolute -top-24 left-[-8rem] h-[35rem] w-[35rem] rounded-full bg-[#00f0ff]/35 blur-3xl animate-float-slow dark:bg-[#6c7bff]/25" />
-        <div className="absolute top-12 right-[-6rem] h-[26rem] w-[26rem] rounded-full bg-[#c4b5fd]/40 blur-3xl animate-float-medium dark:bg-[#4aa3ff]/20" />
-        <div className="absolute bottom-[-10rem] left-1/3 h-[28rem] w-[28rem] rounded-full bg-[#59b2ff]/40 blur-3xl animate-float-fast dark:bg-[#7c6dff]/22" />
+        <div className="absolute -top-24 left-[-8rem] h-[35rem] w-[35rem] rounded-full bg-[#00cfff]/24 blur-3xl animate-float-slow dark:bg-[#6c7bff]/25" />
+        <div className="absolute top-12 right-[-6rem] h-[26rem] w-[26rem] rounded-full bg-[#9db8ff]/22 blur-3xl animate-float-medium dark:bg-[#4aa3ff]/20" />
+        <div className="absolute bottom-[-10rem] left-1/3 h-[28rem] w-[28rem] rounded-full bg-[#4f9eff]/24 blur-3xl animate-float-fast dark:bg-[#7c6dff]/22" />
         
         {/* Үндсэн Gradient давхарга: Light дээр image_54da68.png-ийн тод electric blue & cyan gradient уусгалт */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,240,255,0.45),transparent_45%),linear-gradient(135deg,#4da6ff_0%,#358fff_35%,#1a75ff_70%,#a78bfa_100%)] opacity-95 dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.06),transparent_34%),linear-gradient(135deg,#111827_0%,#1f2a60_38%,#0f172a_100%)] dark:opacity-100" />
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0)_42%,rgba(255,255,255,0.2)_43%,rgba(255,255,255,0)_58%,rgba(255,255,255,0.1)_100%)] dark:bg-[linear-gradient(120deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0)_42%,rgba(255,255,255,0.08)_43%,rgba(255,255,255,0)_58%,rgba(255,255,255,0.03)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,214,255,0.28),transparent_42%),linear-gradient(135deg,#4098f3_0%,#2b7fe3_34%,#1f63d8_68%,#8c88f5_100%)] opacity-100 dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.06),transparent_34%),linear-gradient(135deg,#111827_0%,#1f2a60_38%,#0f172a_100%)] dark:opacity-100" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_42%,rgba(255,255,255,0.12)_43%,rgba(255,255,255,0)_58%,rgba(255,255,255,0.05)_100%)] dark:bg-[linear-gradient(120deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0)_42%,rgba(255,255,255,0.08)_43%,rgba(255,255,255,0)_58%,rgba(255,255,255,0.03)_100%)]" />
       </div>
       
       <Sidebar

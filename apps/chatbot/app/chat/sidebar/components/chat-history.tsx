@@ -90,7 +90,7 @@ export const ChatHistory = ({
           group relative flex items-center h-9
           ${collapsed ? "justify-center px-0" : "justify-between px-4"}
           my-0.5 rounded-lg cursor-pointer transition-all duration-200
-          ${isActive ? "bg-black/5 dark:bg-white/10" : "hover:bg-black/5 dark:hover:bg-white/5"}
+          ${isActive ? "bg-white/18 dark:bg-white/10" : "hover:bg-white/10 dark:hover:bg-white/5"}
         `}
       >
         <div
@@ -99,7 +99,7 @@ export const ChatHistory = ({
         >
           {!collapsed && (
             <span
-              className={`text-sm truncate ${isActive ? "font-medium text-black dark:text-white" : "text-slate-600 dark:text-slate-400"}`}
+              className={`text-sm truncate ${isActive ? "font-medium text-slate-900 dark:text-white" : "text-slate-800/90 dark:text-slate-300"}`}
             >
               {highlightText(chat.title || "New chat", search)}
             </span>
@@ -108,13 +108,13 @@ export const ChatHistory = ({
 
         
         {!collapsed && (
-          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onPinChat(chat.id);
               }}
-              className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-slate-400"
+              className="rounded-md p-1.5 text-slate-600 hover:bg-white/12 dark:text-slate-400 dark:hover:bg-white/10"
             > 
               {chat.isPinned ? <PinOff size={13} /> : <Pin size={13} />}
             </button>
@@ -124,7 +124,7 @@ export const ChatHistory = ({
                 setRenameTarget(chat);
                 setRenameValue(chat.title || "");
               }}
-              className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-slate-400"
+              className="rounded-md p-1.5 text-slate-600 hover:bg-white/12 dark:text-slate-400 dark:hover:bg-white/10"
             >
               <Edit2 size={13} />
             </button>
@@ -133,7 +133,7 @@ export const ChatHistory = ({
                 e.stopPropagation();
                 setDeleteTarget(chat);
               }}
-              className="p-1.5 rounded-md hover:bg-red-500/10 text-red-500/60"
+              className="rounded-md p-1.5 text-red-600/70 hover:bg-red-500/10 dark:text-red-400/70"
             >
               <Trash2 size={13} />
             </button>
@@ -157,7 +157,7 @@ export const ChatHistory = ({
             placeholder="Search chats..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs rounded-lg bg-black/5 dark:bg-white/5 outline-none focus:ring-1 focus:ring-[#C5A059]/30"
+            className="w-full rounded-xl border border-white/14 bg-white/10 px-3 py-2 text-sm text-slate-800 placeholder:text-slate-600/75 outline-none backdrop-blur-md focus:ring-1 focus:ring-white/20 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:placeholder:text-slate-400"
           />
         </div>
       )}
@@ -168,7 +168,7 @@ export const ChatHistory = ({
   {pinnedChats.length > 0 && (
     <div className="mb-4">
       {!collapsed && (
-        <p className="px-4 text-[10px] font-bold text-slate-400/70 mb-2 uppercase tracking-widest">
+        <p className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-700/60 dark:text-slate-400/70">
           Pinned
         </p>
       )}
@@ -199,7 +199,7 @@ export const ChatHistory = ({
     {!collapsed && (
       <button
         onClick={() => setIsRecentOpen(!isRecentOpen)}
-        className="w-full flex items-center justify-between px-4 text-[10px] font-bold text-slate-400/70 mb-2 uppercase tracking-widest"
+        className="mb-2 flex w-full items-center justify-between px-4 text-[10px] font-bold uppercase tracking-widest text-slate-700/60 dark:text-slate-400/70"
       >
         <span>Recent</span>
         {isRecentOpen ? (
