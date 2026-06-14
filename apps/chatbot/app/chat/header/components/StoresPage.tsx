@@ -26,10 +26,10 @@ export default function StoresPage() {
     setStoresLoading(true);
     setStoresError(null);
     try {
-      const res = await fetch("/admin/api/get-store");
+      const res = await fetch("/store/api/get-store");
       const text = await res.text();
       if (text.trim().startsWith("<"))
-        throw new Error(`/admin/api/get-store route олдсонгүй (${res.status})`);
+        throw new Error(`/store/api/get-store route олдсонгүй (${res.status})`);
       const data = JSON.parse(text);
       if (!res.ok)
         throw new Error(data.error ?? "Дэлгүүр татахад алдаа гарлаа");
@@ -53,7 +53,7 @@ export default function StoresPage() {
     setStoreProducts([]);
     try {
       const res = await fetch(
-        `/admin/api/productAllGet?storeName=${encodeURIComponent(storeName)}`,
+        `/store/api/productAllGet?storeName=${encodeURIComponent(storeName)}`,
       );
       const text = await res.text();
       if (text.trim().startsWith("<"))
@@ -165,18 +165,9 @@ export default function StoresPage() {
         <button
           style={{
             ...styles.cartBtn,
-            // view === "cart" үед cartBtnActive доторх загварыг нэгтгэнэ,
-            // гэхдээ зөрчил үүсгэхгүйн тулд borderColor-ийг тусад нь удирдана
             ...(view === "cart" ? styles.cartBtnActive : {}),
-            borderColor:
-              view === "cart"
-                ? (styles.cartBtnActive?.borderColor ??
-                  (typeof styles.cartBtnActive?.border === "string"
-                    ? (styles.cartBtnActive.border as string).split(" ")[2]
-                    : undefined) ??
-                  "#6d7fff")
-                : styles.cartBtn?.borderColor,
           }}
+          onClick={goToCart}
         >
           🛒
           {totalItems > 0 && <span style={styles.cartBadge}>{totalItems}</span>}
