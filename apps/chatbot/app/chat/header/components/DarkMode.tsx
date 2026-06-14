@@ -48,16 +48,16 @@ export const DarkMode = ({ collapsed }: { collapsed: boolean }) => {
           >
             Theme
           </div>
-      )}
-      {!collapsed && (
-        <span className="text-sm text-slate-700 dark:text-slate-200">
-          Theme
-        </span>
-      )}
+        )}
+        {!collapsed && (
+          <span className="text-sm text-slate-700 dark:text-slate-200">
+            Theme
+          </span>
+        )}
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        side="right"
+        side="top"
         align="start"
         className="w-44 border-black/10 bg-white text-slate-900 shadow-xl dark:border-white/10 dark:bg-slate-950 dark:text-slate-100"
       >

@@ -170,7 +170,7 @@ export default function Sidebar({
         </div>
 
         {/* BOTTOM SECTION */}
-        <div className="mt-auto w-full px-2 pb-3 bg-inherit ">
+        <div className="mt-auto w-full px-2 pb-3 bg-inherit">
           <div className="h-px bg-black/5 dark:bg-white/5 my-2 mx-2" />
           <DarkMode collapsed={isCollapsed} />
           <ClerkAuth collapsed={isCollapsed} />

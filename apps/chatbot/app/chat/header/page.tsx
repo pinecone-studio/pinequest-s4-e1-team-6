@@ -72,12 +72,12 @@ export default function Header({
           </button>
         </div>
       </header>
-
-      {/* {isStoresOpen && (
+      {isStoresOpen && (
         <div
           style={{
             position: "fixed",
-            top: "60px", 
+
+            top: "60px",
             right: 0,
             width: "340px",
             height: "calc(100vh - 60px)",
@@ -86,14 +86,14 @@ export default function Header({
             display: "flex",
             flexDirection: "column",
             overflowY: "auto",
-            zIndex: 999, // Хамгийн дээр харагдуулах
+            zIndex: 99999,
             boxShadow: "-4px 0 24px rgba(0,0,0,0.3)",
             animation: "slideIn 0.2s ease-out",
           }}
         >
           <StoresPage />
         </div>
-      )} */}
+      )}
     </>
   );
 }

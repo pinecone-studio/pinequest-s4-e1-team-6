@@ -1,5 +1,3 @@
-// types.ts
-
 export interface Product {
   id: string;
   name: string;
@@ -12,12 +10,11 @@ export interface Product {
 export interface Store {
   id: string;
   name: string;
-  logo: string;
-  category: string;
+  logo?: string;
+  category?: string;
   rating: number;
   productCount: number;
   isVerified: boolean;
-  products: Product[];
 }
 
 export interface CartItem {
