@@ -124,6 +124,10 @@ export const ProductCard = ({
     image: imageUrl || product.image,
   };
 
+  // Үлдэгдэл / дууссан эсэх
+  const stockCount = Number(productData.stock ?? 0) || 0;
+  const isSoldOut = productData.stock !== undefined && stockCount <= 0;
+
   // Сагсанд нэмэх: эхлээд барааны detail-руу оруулж (размер/өнгө) сонгуулна.
   // Detail дотроос л жинхэнэ сагслах үйлдэл хийгдэнэ.
   const handleAddToCartClick = () => {

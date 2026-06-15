@@ -116,10 +116,10 @@ model Store {
   products  Product[]
   orders    Order[]
 
-  // KYC — худалдагч таниулах мэдээлэл
+ 
   phone             String?
-  registerNumber    String?  // Иргэний регистрийн дугаар (ж: УБ12345678)
-  idCardImage       String?  // Үнэмлэхний зургийн URL
+  registerNumber    String?  
+  idCardImage       String?  
   bankName          String?
   bankAccountNumber String?
   bankAccountHolder String?

@@ -3,7 +3,6 @@ import { CreditCard, ShoppingBag } from "lucide-react";
 type FooterProduct = {
   name: string;
   price: string | number;
-  [key: string]: unknown;
 };
 
 export const Footer = ({ 

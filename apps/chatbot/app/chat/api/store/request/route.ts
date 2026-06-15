@@ -2,7 +2,6 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Хэрэглэгч худалдагч (store) болсон эсэх / хүсэлт илгээсэн эсэхийг шалгана
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ hasStore: false, role: null });
@@ -20,8 +19,6 @@ export async function GET() {
   });
 }
 
-// Регистрийн дугаар: 2 кирилл үсэг + 8 орон тоо (ж: УБ12345678)
-// Орц нь toUpperCase() хийгдсэн тул зөвхөн том үсгүүдийг шалгана (Ө, Ү, Ё орсон)
 const REGISTER_REGEX = /^[А-ЯЁӨҮ]{2}\d{8}$/u;
 
 export async function POST(req: Request) {
@@ -41,7 +38,6 @@ export async function POST(req: Request) {
   const bankAccountNumber = String(body.bankAccountNumber || "").trim();
   const bankAccountHolder = String(body.bankAccountHolder || "").trim();
 
-  // Заавал талбарын шалгалт
   if (!name)
     return NextResponse.json(
       { error: "Дэлгүүрийн нэр шаардлагатай" },
@@ -54,7 +50,10 @@ export async function POST(req: Request) {
     );
   if (!REGISTER_REGEX.test(registerNumber))
     return NextResponse.json(
-      { error: "Регистрийн дугаарыг 2 үсэг + 8 тоогоор оруулна уу (ж: УБ12345678)" },
+      {
+        error:
+          "Регистрийн дугаарыг 2 үсэг + 8 тоогоор оруулна уу (ж: УБ12345678)",
+      },
       { status: 400 },
     );
   if (!idCardImage)
@@ -70,7 +69,6 @@ export async function POST(req: Request) {
   if (!dbUser)
     return NextResponse.json({ error: "Бүртгэл олдсонгүй" }, { status: 404 });
 
-  // Идэвхтэй (хүлээгдэж буй эсвэл батлагдсан) дэлгүүртэй бол дахин хүсэлт авахгүй
   const activeStore = dbUser.stores.find(
     (s) => s.status === "PENDING" || s.status === "APPROVED",
   );
@@ -80,12 +78,10 @@ export async function POST(req: Request) {
       { status: 409 },
     );
 
-  // Өмнө татгалзсан хүсэлтийг цэвэрлэж, дахин хүсэлт гаргах боломжтой болгоно
   await prisma.store.deleteMany({
     where: { ownerId: dbUser.id, status: "REJECTED" },
   });
 
-  // Бусад хэрэглэгчид регистр/утсаар давхардсан эсэхийг шалгана
   const duplicate = await prisma.store.findFirst({
     where: {
       OR: [{ registerNumber }, { phone }],
