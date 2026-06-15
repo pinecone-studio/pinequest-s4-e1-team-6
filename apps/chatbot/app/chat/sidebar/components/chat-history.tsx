@@ -162,7 +162,7 @@ export const ChatHistory = ({
         <div className="px-3 mb-3 relative">
           <input
             type="text"
-            placeholder="Search chats..."
+            placeholder="Чат хайх..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-xl border border-white/14 bg-white/10 px-3 py-2 text-sm text-slate-800 placeholder:text-slate-600/75 outline-none backdrop-blur-md focus:ring-1 focus:ring-white/20 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:placeholder:text-slate-400"
@@ -209,7 +209,7 @@ export const ChatHistory = ({
         onClick={() => setIsRecentOpen(!isRecentOpen)}
         className="mb-2 flex w-full items-center justify-between px-3 text-[10px] font-black uppercase tracking-[0.22em] text-slate-950/72 dark:text-white/62"
       >
-        <span>Recent</span>
+        <span>Сүүлийн чат</span>
         {isRecentOpen ? (
           <ChevronDown size={12} />
         ) : (

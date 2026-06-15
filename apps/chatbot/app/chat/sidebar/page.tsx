@@ -159,12 +159,12 @@ export default function Sidebar({
                   ${isCollapsed ? "w-11" : "px-4 gap-2"}`}
               >
                 <SquarePen size={18} />
-                {!isCollapsed && <span className="text-sm font-medium">New chat</span>}
+                {!isCollapsed && <span className="text-sm font-medium">Шинэ чат</span>}
               </button>
 
               {isCollapsed && (
                 <div className="hidden md:block pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg bg-white text-black dark:bg-white dark:text-black text-xs font-bold opacity-0 invisible translate-x-[-6px] group-hover:opacity-100 group-hover:visible group-hover:translate-x-0 transition-all duration-200 z-[9999] whitespace-nowrap shadow-2xl border border-black/5">
-                  New Chat
+                  Шинэ чат
                 </div>
               )}
             </div>
@@ -190,7 +190,7 @@ export default function Sidebar({
         </div>
 
         {/* Footer */}
-        <div className={`mt-auto w-full px-2 pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}>
+        <div className={`mt-auto w-full px-2 py-3 pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}>
           <div className="h-px bg-white/12 dark:bg-white/10 my-2 mx-2 max-sm:hidden" />
           <SellerCTA collapsed={isCollapsed} />
           <DarkMode collapsed={isCollapsed} />
