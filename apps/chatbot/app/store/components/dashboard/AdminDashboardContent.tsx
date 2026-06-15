@@ -24,6 +24,8 @@ export default function AdminDashboardContent({
   );
   const [products, setProducts] = useState<unknown[]>([]);
   const [orders, setOrders] = useState<{ totalAmount?: number }[]>([]);
+  const [storeLogo, setStoreLogo] = useState<File | null>(null);
+const [logoPreview, setLogoPreview] = useState<string>("");
 
   useEffect(() => {
     const checkStore = async () => {
@@ -171,18 +173,66 @@ export default function AdminDashboardContent({
                 </div>
               </div>
             )}
-
             <div className="space-y-2">
-              <label className="text-[10px] text-slate-500 dark:text-gray-400 font-bold ml-2 uppercase tracking-widest">
-                Шинэ дэлгүүрийн нэр
-              </label>
-              <input
-                className="w-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 p-3 sm:p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-white placeholder:text-gray-500 text-sm sm:text-base"
-                value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
-                placeholder="Жишээ: High-Tech Store"
-              />
-            </div>
+
+<label className="text-[10px] text-slate-500 dark:text-gray-400 font-bold ml-2 uppercase tracking-widest">
+
+Шинэ дэлгүүрийн нэр
+
+</label>
+
+<input
+
+className="w-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 p-3 sm:p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-white placeholder:text-gray-500 text-sm sm:text-base"
+
+value={tempName}
+
+onChange={(e) => setTempName(e.target.value)}
+
+placeholder="Жишээ: High-Tech Store"
+
+/>
+
+</div> 
+
+       {/* Дэлгүүрийн профайл зураг оруулах хэсэг */}
+<div className="space-y-2">
+  <label className="text-[10px] text-slate-500 dark:text-gray-400 font-bold ml-2 uppercase tracking-widest">
+    Дэлгүүрийн профайл зураг
+  </label>
+  
+  <div className="flex items-center gap-4 p-3 bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-2xl">
+    {/* Зургийг урьдчилж харах хэсэг */}
+    <div className="w-14 h-14 bg-white dark:bg-gray-700 rounded-xl border border-slate-200 dark:border-gray-600 flex items-center justify-center overflow-hidden text-xl shrink-0">
+      {logoPreview ? (
+        <img src={logoPreview} alt="Preview" className="w-full h-full object-cover" />
+      ) : (
+        "🏪"
+      )}
+    </div>
+
+    {/* Файл сонгох input */}
+    <input
+      type="file"
+      accept="image/*"
+      className="block w-full text-xs text-slate-500 dark:text-gray-400
+        file:mr-4 file:py-2 file:px-4
+        file:rounded-xl file:border-0
+        file:text-xs file:font-bold
+        file:bg-indigo-50 file:text-indigo-700
+        dark:file:bg-indigo-950/40 dark:file:text-indigo-400
+        hover:file:bg-indigo-100 dark:hover:file:bg-indigo-950/60
+        cursor-pointer"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          setStoreLogo(file);
+          setLogoPreview(URL.createObjectURL(file)); // Зургийг шууд харуулах холбоос үүсгэх
+        }
+      }}
+    />
+  </div>
+</div>
 
             <button
               onClick={handleSetupStore}

@@ -15,7 +15,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, description } = body;
+    // 👈 Ирж буй body дотроос logoUrl (зургийн линк)-ийг хүлээн авна
+    const { name, description, logoUrl } = body;
 
     if (!name) {
       return NextResponse.json(
@@ -75,10 +76,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🏪 Шинэ дэлгүүр үүсгэхдээ зургийн линкийг хамт хадгална
     const newStore = await prisma.store.create({
       data: {
         name: name,
         description: description || null,
+        logoUrl: logoUrl || null, // 👈 Энд хадгалагдаж байна
         ownerId: dbUser.id,
       },
     });

@@ -122,42 +122,37 @@ export default function StoresPage({ isOpen, setIsOpen, onCartOpen }: StoresPage
     }
   }
 
-  // 3. Барааны дэлгэрэнгүй мэдээлэл татах (Зассан хувилбар)
-  const handleProductClick = async (product: Product) => {
+// StoresPage.tsx доторх handleProductClick функцийг ингэж өөрчил:
+const handleProductClick = async (product: Product) => {
     setView("product-detail");
     setDetailLoading(true);
     setSelectedProduct(product); 
     
     try {
       const storeName = selectedStore?.name || "";
+      // ⚠️ ЗАМЫГ ЗӨВ БОЛГОВ
       const res = await fetch(`/chat/api/product-detail?id=${encodeURIComponent(product.id)}&store=${encodeURIComponent(storeName)}`);
       
-      if (!res.ok) throw new Error("Detail API not found or returned an error");
+      if (!res.ok) throw new Error("API алдаа");
       
       const data = await res.json();
 
       if (data.found && data.metadata) {
         const meta = data.metadata;
         setSelectedProduct({
-          id: product.id,
+          ...product,
           name: meta.name || product.name,
           price: Number(meta.price || product.price),
-          image: meta.product_image_url || meta.imageUrl || product.image,
-          category: meta.category || product.category,
-          brand: meta.brand || product.brand,
-          stock: meta.stock !== undefined ? Number(meta.stock) : product.stock,
-          colors: meta.colors || (meta.color ? [meta.color] : []),
-          sizes: meta.sizes || (meta.size ? [meta.size] : []),
+          image: meta.image || product.image || "https://avatar.iran.liara.run/public/shop",
           description: meta.description || "",
-          metadata: meta
         });
       }
     } catch (error) {
-      console.error("Metadata detail fetch error, showing basic info:", error);
+      console.error("Fetch error:", error);
     } finally {
       setDetailLoading(false);
     }
-  };
+};
 
   const handleStoreClick = (store: Store) => {
     setSelectedStore(store);
@@ -272,9 +267,18 @@ export default function StoresPage({ isOpen, setIsOpen, onCartOpen }: StoresPage
                           className="group relative bg-white/60 dark:bg-white/[0.02] hover:bg-white/90 dark:hover:bg-white/[0.05] border border-white/40 dark:border-white/5 hover:border-[#7c5cff]/30 dark:hover:border-white/10 rounded-2xl p-4 cursor-pointer transition-all duration-300 transform hover:-translate-y-px active:scale-[0.99] flex items-center justify-between"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-white dark:bg-gradient-to-br dark:from-white/10 dark:to-white/[0.02] border border-neutral-200/60 dark:border-white/10 rounded-xl flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                              {store.logo ?? "🏪"}
-                            </div>
+                        <div className="w-12 h-12 bg-white dark:bg-gradient-to-br dark:from-white/10 dark:to-white/[0.02] border border-neutral-200/60 dark:border-white/10 rounded-xl flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+                            {(store as any).logoUrl ? (
+                              <img 
+                                src={(store as any).logoUrl} 
+                                alt={store.name} 
+                                className="w-full h-full object-cover"
+                                  onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }} 
+                              />
+                            ) : (
+                                <span className="text-2xl">{store.logo ?? ""}</span>
+                                 )}
+                          </div>
                             <div>
                               <div className="text-sm font-bold text-neutral-950 dark:text-white group-hover:text-[#7c5cff] dark:group-hover:text-[#9f8cff] transition-colors">{store.name}</div>
                               <div className="text-[10px] font-bold text-neutral-400 dark:text-slate-400 mt-1 tracking-wider uppercase">{store.category || "Дэлгүүр"}</div>
