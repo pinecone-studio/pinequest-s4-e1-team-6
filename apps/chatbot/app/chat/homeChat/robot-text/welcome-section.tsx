@@ -41,14 +41,12 @@ type VisualSearchProduct = {
 
 function QuickActionCard({
   title,
-  description,
   icon: Icon,
   onClick,
   index,
   isUploading = false,
 }: {
   title: string;
-  description: string;
   icon: React.ComponentType<{ className?: string }>;
   onClick: () => void;
   index: number;
@@ -64,18 +62,20 @@ function QuickActionCard({
           e.preventDefault();
           onClick();
         }}
-        className="relative flex h-auto min-h-[96px] w-full flex-col items-start justify-between rounded-[18px] border border-white/14 bg-white/8 p-3.5 text-left backdrop-blur-xl transition-all duration-200 hover:bg-white/12 md:h-[128px] md:rounded-[22px] md:p-5"
+        className="relative flex h-[74px] w-full items-center rounded-[18px] border border-white/16 bg-white/10 px-4 text-left backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_12px_28px_rgba(8,15,40,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/14 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_18px_34px_rgba(8,15,40,0.22)] active:translate-y-0 active:scale-[0.99] md:h-[92px] md:rounded-[22px] md:px-5"
       >
-        <div className="pointer-events-none relative z-10 flex h-full w-full flex-col justify-between gap-2 md:gap-0">
-          <div className="flex items-center gap-2 text-white dark:text-white/92">
-            <Icon className="h-4 w-4 md:h-4.5 md:w-4.5 shrink-0" />
-            <span className="text-[13px] font-bold tracking-[-0.01em] md:text-[15px]">
+        <div className="pointer-events-none relative z-10 flex w-full items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3 text-white dark:text-white/92">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/14 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] md:h-10 md:w-10">
+              <Icon className="h-4.5 w-4.5 shrink-0 md:h-5 md:w-5" />
+            </span>
+            <span className="truncate text-[14px] font-bold tracking-[-0.01em] md:text-[16px]">
               {title}
             </span>
           </div>
-          <p className="w-full text-[12px] leading-snug text-white/90 dark:text-white/72 md:max-w-[28ch] md:text-[14px] md:leading-6">
-            {description}
-          </p>
+          <span className="shrink-0 text-lg font-semibold text-white/62 md:text-xl">
+            +
+          </span>
         </div>
         {isUploading && (
           <span className="absolute right-3 top-3 text-[9px] font-semibold text-white/80 md:right-4 md:top-4 md:text-[11px]">
@@ -221,7 +221,6 @@ export function WelcomeSection({
               >
                 <QuickActionCard
                   title={item.title}
-                  description={item.description}
                   icon={item.icon}
                   isUploading={isImageCard && isSearching}
                   onClick={() => {
