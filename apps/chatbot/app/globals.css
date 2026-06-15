@@ -42,19 +42,14 @@ body {
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.045)),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
-      radial-gradient(circle at top left, rgba(255, 255, 255, 0.2), transparent 34%),
-      radial-gradient(circle at 82% 4%, rgba(147, 215, 255, 0.1), transparent 22%);
-    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.042);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.32),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.02),
-      0 20px 60px rgba(35, 92, 173, 0.1);
-    backdrop-filter: blur(34px) saturate(210%);
-    -webkit-backdrop-filter: blur(34px) saturate(210%);
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.02),
+      0 22px 56px rgba(35, 92, 173, 0.08);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
   }
 
   .apple-liquid-glass::before {
@@ -63,9 +58,9 @@ body {
     inset: 1px;
     border-radius: inherit;
     background:
-      linear-gradient(112deg, rgba(255, 255, 255, 0.18), transparent 22%, transparent 74%, rgba(255, 255, 255, 0.05)),
-      radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.1), transparent 34%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 30%);
+      radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.1), transparent 18%),
+      radial-gradient(circle at 84% 12%, rgba(160, 223, 255, 0.06), transparent 18%),
+      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04), transparent 28%);
     pointer-events: none;
     z-index: -1;
   }
@@ -73,40 +68,35 @@ body {
   .apple-liquid-glass::after {
     content: "";
     position: absolute;
-    inset: auto 8% -34% 42%;
-    height: 52%;
+    inset: auto 12% -30% 34%;
+    height: 48%;
     border-radius: 999px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 68%);
-    filter: blur(24px);
-    opacity: 0.45;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 60%);
+    filter: blur(28px);
+    opacity: 0.26;
     pointer-events: none;
     z-index: -1;
   }
 
   .dark .apple-liquid-glass {
-    background:
-      linear-gradient(135deg, rgba(15, 23, 42, 0.66), rgba(15, 23, 42, 0.3)),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
-      radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 42%),
-      radial-gradient(circle at 82% 4%, rgba(120, 177, 255, 0.12), transparent 24%);
+    background: rgba(15, 23, 42, 0.3);
     border-color: rgba(255, 255, 255, 0.14);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.16),
       inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-      0 20px 60px rgba(0, 0, 0, 0.34);
+      0 22px 56px rgba(0, 0, 0, 0.3);
   }
 
   .dark .apple-liquid-glass::before {
     background:
-      linear-gradient(112deg, rgba(255, 255, 255, 0.12), transparent 22%, transparent 74%, rgba(255, 255, 255, 0.04)),
-      radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.08), transparent 34%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 30%);
+      radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.08), transparent 18%),
+      radial-gradient(circle at 84% 12%, rgba(120, 177, 255, 0.08), transparent 18%),
+      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04), transparent 28%);
   }
 
   .dark .apple-liquid-glass::after {
-    background: radial-gradient(circle, rgba(125, 170, 255, 0.16), transparent 68%);
-    opacity: 0.75;
+    background: radial-gradient(circle, rgba(125, 170, 255, 0.14), transparent 68%);
+    opacity: 0.56;
   }
 
   .apple-liquid-fx {
@@ -115,40 +105,55 @@ body {
     pointer-events: none;
     border-radius: inherit;
     background:
-      radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.14), transparent 12%),
-      radial-gradient(circle at 88% 8%, rgba(140, 222, 255, 0.12), transparent 18%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 24%, transparent 72%, rgba(255, 255, 255, 0.015));
-    mix-blend-mode: screen;
-    opacity: 0.45;
+      radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.1), transparent 12%),
+      radial-gradient(circle at 88% 8%, rgba(140, 222, 255, 0.08), transparent 18%);
+    opacity: 0.4;
   }
 
   .dark .apple-liquid-fx {
     background:
-      radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.14), transparent 12%),
-      radial-gradient(circle at 88% 8%, rgba(140, 194, 255, 0.16), transparent 18%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 24%, transparent 72%, rgba(255, 255, 255, 0.03));
+      radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.08), transparent 12%),
+      radial-gradient(circle at 88% 8%, rgba(140, 194, 255, 0.1), transparent 18%);
   }
 
   .apple-liquid-control {
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.08);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-      0 10px 24px rgba(35, 92, 173, 0.09);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+      0 12px 28px rgba(35, 92, 173, 0.08);
+    backdrop-filter: blur(22px) saturate(170%);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
   }
 
   .dark .apple-liquid-control {
     border-color: rgba(255, 255, 255, 0.18);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    background: rgba(255, 255, 255, 0.06);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.16),
       inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-      0 10px 24px rgba(0, 0, 0, 0.24);
+      0 12px 28px rgba(0, 0, 0, 0.24);
+  }
+
+  .apple-liquid-pill {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 8px 24px rgba(35, 92, 173, 0.06);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+  }
+
+  .dark .apple-liquid-pill {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 8px 24px rgba(0, 0, 0, 0.2);
   }
 }
 

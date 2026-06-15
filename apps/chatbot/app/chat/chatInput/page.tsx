@@ -1,22 +1,38 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { KeyboardEvent, useRef, useState } from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { SendButton } from "./components/SendButton";
 import { InputField } from "./components";
 import { useVisualSearch } from "../hooks/useVisualSearch";
 
+type VisualSearchUserMessage = {
+  role: "USER";
+  content: string;
+  imagePreview: string;
+};
+
+type VisualSearchProduct = {
+  id?: string;
+  name?: string;
+  price?: string | number;
+  image?: string;
+  description?: string;
+  store_id?: string;
+};
+
 interface ChatInputProps {
   onSendMessage: (text: string) => void;
-  onVisualResult: (userMsg: any, products: any[]) => void;
-  history: { role: string; content: string }[];
+  onVisualResult: (
+    userMsg: VisualSearchUserMessage,
+    products: VisualSearchProduct[],
+  ) => void;
   isTyping: boolean;
 }
 
 export default function ChatInput({
   onSendMessage,
   onVisualResult,
-  history,
   isTyping,
 }: ChatInputProps) {
   const [input, setInput] = useState("");
@@ -83,11 +99,11 @@ export default function ChatInput({
   };
 
   return (
-    <footer className="w-full max-w-4xl mx-auto p-4 relative z-50 md:top-0 top-20">
+    <footer className="relative z-50 mx-auto w-full max-w-4xl px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 md:p-4">
       <div
         className="
-          flex flex-col w-full rounded-2xl overflow-hidden
-          bg-white/90 border border-[#d7cbff] shadow-[0_16px_40px_rgba(127,102,255,0.12)]
+          flex w-full flex-col overflow-hidden rounded-2xl
+          border border-[#d7cbff] bg-white/88 shadow-[0_16px_40px_rgba(127,102,255,0.12)]
           dark:bg-white/5 dark:border-white/10 dark:shadow-2xl dark:backdrop-blur-xl
           focus-within:border-[#9f8cff]/70 dark:focus-within:border-[#c9b7ff]/50
           focus-within:shadow-[0_0_0_4px_rgba(159,140,255,0.12)]
@@ -95,7 +111,7 @@ export default function ChatInput({
         "
       >
         {previewImage && (
-          <div className="px-6 pt-3">
+          <div className="px-4 pt-3 md:px-6">
             <div className="relative inline-block">
               <img
                 src={previewImage.url}
@@ -112,7 +128,7 @@ export default function ChatInput({
           </div>
         )}
 
-        <div className="relative flex items-center w-full gap-3 p-2 border-t border-[#d7cbff] dark:border-white/10">
+        <div className="relative flex w-full items-center gap-2 border-t border-[#d7cbff] p-2 md:gap-3 dark:border-white/10">
           <input
             type="file"
             ref={fileInputRef}
@@ -141,7 +157,7 @@ export default function ChatInput({
           <InputField
             value={input}
             onChange={setInput}
-            onKeyDown={(e: any) =>
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
               e.key === "Enter" && !e.shiftKey && handleSend()
             }
             disabled={combinedLoading}
