@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Search, Scale } from "lucide-react";
+import { ArrowLeft, Search, Scale, Sparkles, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/app/context/CartContext";
 
 type Product = {
   id: string;
@@ -14,6 +15,81 @@ type Product = {
   storeName: string;
   brand: string;
   category: string;
+};
+
+type ComparisonInsight = {
+  summary: string;
+  recommendation: string;
+  highlights: Array<{
+    label: string;
+    winner: "left" | "right" | "tie";
+    reason: string;
+  }>;
+};
+
+const parsePriceValue = (price: string) => {
+  const numeric = Number(String(price).replace(/[^\d.]/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
+};
+
+const buildComparisonInsight = (
+  left: Product,
+  right: Product,
+): ComparisonInsight => {
+  const leftPrice = parsePriceValue(left.price);
+  const rightPrice = parsePriceValue(right.price);
+  const cheaperSide =
+    leftPrice === rightPrice ? "tie" : leftPrice < rightPrice ? "left" : "right";
+  const longerDescSide =
+    left.description.length === right.description.length
+      ? "tie"
+      : left.description.length > right.description.length
+        ? "left"
+        : "right";
+  const sameCategory =
+    left.category &&
+    right.category &&
+    left.category.toLowerCase() === right.category.toLowerCase();
+  const sameBrand =
+    left.brand && right.brand && left.brand.toLowerCase() === right.brand.toLowerCase();
+
+  const priceDiff = Math.abs(leftPrice - rightPrice);
+  const highlights: ComparisonInsight["highlights"] = [
+    {
+      label: "Үнэ",
+      winner: cheaperSide,
+      reason:
+        cheaperSide === "tie"
+          ? "Хоёр барааны үнэ ойролцоо байна."
+          : `${cheaperSide === "left" ? left.name : right.name} нь ${priceDiff.toLocaleString()}₮-өөр давуу байна.`,
+    },
+    {
+      label: "Тайлбар",
+      winner: longerDescSide,
+      reason:
+        longerDescSide === "tie"
+          ? "Тайлбарын мэдээллийн хэмжээ ойролцоо байна."
+          : `${longerDescSide === "left" ? left.name : right.name} нь илүү дэлгэрэнгүй мэдээлэлтэй байна.`,
+    },
+    {
+      label: "Төрөл",
+      winner: sameCategory ? "tie" : "left",
+      reason: sameCategory
+        ? `Хоёулаа ${left.category || "ижил төрлийн"} бараа байна.`
+        : `${left.name} нь ${left.category || "өөр"} төрөлд, ${right.name} нь ${right.category || "өөр"} төрөлд хамаарч байна.`,
+    },
+  ];
+
+  const recommendation =
+    cheaperSide === "tie"
+      ? `Хоёр бүтээгдэхүүн ойролцоо түвшинд байна. Тайлбар, бренд, дэлгүүрийн мэдрэмжээрээ өөрт илүү таалагдсанаа сонгоход тохиромжтой.`
+      : `${cheaperSide === "left" ? left.name : right.name} нь үнэ талдаа илүү ашигтай харагдаж байна. Харин ${cheaperSide === "left" ? right.name : left.name} нь дизайн эсвэл мэдээллийн талаасаа илүү таалагдвал түүнийг сонгож болно.`;
+
+  const summary = sameBrand
+    ? `${left.brand} брендийн хоёр сонголт дундаас ${cheaperSide === "tie" ? "үнэ ойролцоо" : "үнэ болон мэдээллийн ялгаа"} ажиглагдаж байна.`
+    : `${left.name} ба ${right.name} хоёрын гол ялгаа нь ${cheaperSide === "tie" ? "бренд ба тайлбарын хэв маягт" : "үнэ, бренд болон танилцуулгын түвшинд"} байна.`;
+
+  return { summary, recommendation, highlights };
 };
 
 function SearchColumn({
@@ -114,6 +190,7 @@ function SearchColumn({
 
 export default function ComparePage() {
   const router = useRouter();
+  const { addToCart } = useCart();
   const [leftQuery, setLeftQuery] = useState("");
   const [rightQuery, setRightQuery] = useState("");
   const [leftResults, setLeftResults] = useState<Product[]>([]);
@@ -121,6 +198,7 @@ export default function ComparePage() {
   const [leftSelected, setLeftSelected] = useState<Product | null>(null);
   const [rightSelected, setRightSelected] = useState<Product | null>(null);
   const [loadingSide, setLoadingSide] = useState<"left" | "right" | null>(null);
+  const [addingId, setAddingId] = useState<string | null>(null);
 
   const runSearch = async (side: "left" | "right") => {
     const query = side === "left" ? leftQuery.trim() : rightQuery.trim();
@@ -139,6 +217,25 @@ export default function ComparePage() {
       setLoadingSide(null);
     }
   };
+
+  const handleAddToCart = async (product: Product) => {
+    setAddingId(product.id);
+    try {
+      await addToCart({
+        ...product,
+        storeId: product.storeId,
+        price: parsePriceValue(product.price),
+        image: product.image || "/placeholder.png",
+      });
+    } finally {
+      setAddingId(null);
+    }
+  };
+
+  const insight =
+    leftSelected && rightSelected
+      ? buildComparisonInsight(leftSelected, rightSelected)
+      : null;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#2f8bf0] text-white dark:bg-[#0B1020]">
@@ -183,7 +280,41 @@ export default function ComparePage() {
 
         {leftSelected && rightSelected && (
           <section className="apple-liquid-glass mt-6 rounded-[30px] p-6">
-            <h2 className="mb-4 text-xl font-black">Comparison Result</h2>
+            <div className="mb-5 rounded-[24px] border border-white/12 bg-white/8 p-4 md:p-5">
+              <div className="mb-3 flex items-center gap-2 text-[#efe8ff]">
+                <Sparkles className="h-4 w-4" />
+                <h2 className="text-base font-black md:text-xl">AI Comparison Summary</h2>
+              </div>
+              <p className="text-sm leading-6 text-white/82 md:text-[15px]">
+                {insight?.summary}
+              </p>
+              <p className="mt-3 rounded-2xl border border-[#9f8cff]/25 bg-[#9f8cff]/10 px-4 py-3 text-sm leading-6 text-[#f4eeff]">
+                {insight?.recommendation}
+              </p>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                {insight?.highlights.map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-white/10 bg-black/10 p-3"
+                  >
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/55">
+                      {item.label}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-white">
+                      {item.winner === "tie"
+                        ? "Tie"
+                        : item.winner === "left"
+                          ? leftSelected.name
+                          : rightSelected.name}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-white/68">
+                      {item.reason}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               {[leftSelected, rightSelected].map((product) => (
                 <article
@@ -203,6 +334,18 @@ export default function ComparePage() {
                     <p><span className="font-semibold text-white">Category:</span> {product.category || "N/A"}</p>
                     <p><span className="font-semibold text-white">Description:</span> {product.description || "Тайлбар байхгүй."}</p>
                   </div>
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    disabled={addingId === product.id}
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#9f8cff] to-[#6f7bff] px-4 py-3 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                  >
+                    {addingId === product.id ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+                    ) : (
+                      <ShoppingCart className="h-4 w-4" />
+                    )}
+                    <span>{addingId === product.id ? "Adding..." : "Add to cart"}</span>
+                  </button>
                 </article>
               ))}
             </div>

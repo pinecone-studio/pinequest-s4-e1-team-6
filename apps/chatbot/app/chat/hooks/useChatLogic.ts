@@ -22,6 +22,7 @@ export const useChatLogic = () => {
   const [sidebarHistory, setSidebarHistory] = useState<SidebarChatItem[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const activeRequestRef = useRef<AbortController | null>(null);
 
   const saveGuestData = useCallback(
     (
@@ -159,6 +160,8 @@ export const useChatLogic = () => {
     async (message: string) => {
       if (!message.trim() || isTyping) return;
       setIsTyping(true);
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
       let chatId = activeChatId;
 
       try {
@@ -186,6 +189,7 @@ export const useChatLogic = () => {
         const res = await fetch("/chat/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             messages: [
               ...(allChats[chatId!] || []),
@@ -216,13 +220,24 @@ export const useChatLogic = () => {
           return updated;
         });
       } catch (e) {
-        console.error("sendMessage error:", e);
+        if ((e as Error).name !== "AbortError") {
+          console.error("sendMessage error:", e);
+        }
       } finally {
+        if (activeRequestRef.current === controller) {
+          activeRequestRef.current = null;
+        }
         setIsTyping(false);
       }
     },
     [activeChatId, allChats, createSession, user?.id, isTyping, isSignedIn],
   );
+
+  const stopGenerating = useCallback(() => {
+    activeRequestRef.current?.abort();
+    activeRequestRef.current = null;
+    setIsTyping(false);
+  }, []);
 
   const generateTitleFromProducts = (products: any[], fallback?: string) => {
     if (products?.length > 0) {
@@ -479,9 +494,10 @@ export const useChatLogic = () => {
     isTyping,
     setIsTyping,
     isLoading,
-    isStreaming: false,
+    isStreaming: isTyping,
     streamingContent: "",
     sendMessage,
+    stopGenerating,
     startNewChat,
     refetchHistory: fetchUserHistory,
     deleteChat,

@@ -1,11 +1,24 @@
-import { Send } from "lucide-react";
+import { Send, Square } from "lucide-react";
 
-export const SendButton = ({ onClick, disabled, isLoading }: any) => (
+interface SendButtonProps {
+  onClick: () => void;
+  onStop?: () => void;
+  disabled?: boolean;
+  isLoading?: boolean;
+}
+
+export const SendButton = ({
+  onClick,
+  onStop,
+  disabled,
+  isLoading,
+}: SendButtonProps) => (
   <button
-    onClick={onClick}
-    disabled={disabled}
+    onClick={isLoading ? onStop : onClick}
+    disabled={isLoading ? false : disabled}
     className="p-3 bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] text-white rounded-xl hover:brightness-105 transition-colors disabled:opacity-50"
+    aria-label={isLoading ? "Stop generating" : "Send message"}
   >
-    {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send size={20} />}
+    {isLoading ? <Square size={18} fill="currentColor" /> : <Send size={20} />}
   </button>
 );

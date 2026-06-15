@@ -28,12 +28,14 @@ interface ChatInputProps {
     products: VisualSearchProduct[],
   ) => void;
   isTyping: boolean;
+  onStop?: () => void;
 }
 
 export default function ChatInput({
   onSendMessage,
   onVisualResult,
   isTyping,
+  onStop,
 }: ChatInputProps) {
   const [input, setInput] = useState("");
   const [previewImage, setPreviewImage] = useState<{
@@ -63,7 +65,7 @@ export default function ChatInput({
       setInput("");
       try {
         const base64Image = await fileToBase64(file);
-        const userMsg = {
+        const userMsg: VisualSearchUserMessage = {
           role: "USER",
           content: text || "Зургаар хайж байна...",
           imagePreview: base64Image,
@@ -99,7 +101,7 @@ export default function ChatInput({
   };
 
   return (
-    <footer className="relative z-50 mx-auto w-full max-w-4xl px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 md:p-4">
+    <footer className="relative z-50 mx-auto w-full max-w-4xl px-1.5 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 md:p-4">
       <div
         className="
           flex w-full flex-col overflow-hidden rounded-2xl
@@ -128,7 +130,7 @@ export default function ChatInput({
           </div>
         )}
 
-        <div className="relative flex w-full items-center gap-2 border-t border-[#d7cbff] p-2 md:gap-3 dark:border-white/10">
+        <div className="relative flex w-full items-center gap-1.5 border-t border-[#d7cbff] p-1.5 md:gap-3 md:p-2 dark:border-white/10">
           <input
             type="file"
             ref={fileInputRef}
@@ -142,7 +144,7 @@ export default function ChatInput({
             onClick={() => fileInputRef.current?.click()}
             disabled={combinedLoading}
             className="
-              p-2 rounded-xl transition-all disabled:opacity-30
+              rounded-xl p-2 transition-all disabled:opacity-30
               text-[#8b7bff] hover:text-[#6f7bff] hover:bg-[#f1ecff]
               dark:text-gray-500 dark:hover:text-white dark:hover:bg-white/10
             "
@@ -166,6 +168,7 @@ export default function ChatInput({
 
           <SendButton
             onClick={() => handleSend()}
+            onStop={onStop}
             disabled={combinedLoading || (!input.trim() && !previewImage)}
             isLoading={isTyping || isSearching}
           />
