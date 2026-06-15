@@ -1,93 +1,147 @@
-import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { auth } from "@clerk/nextjs/server";
-import { index } from "@/lib/api/pinecone";
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from 'next/server'
+import OpenAI from 'openai'
+import { auth } from '@clerk/nextjs/server'
+import { index } from '@/lib/api/pinecone'
+import { prisma } from '@/lib/prisma'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY,
   timeout: 30000,
-});
+})
 
 type IncomingMessage = {
-  role: "USER" | "ASSISTANT" | "SYSTEM" | "user" | "assistant" | "system";
-  content: string;
-};
+  role: 'USER' | 'ASSISTANT' | 'SYSTEM' | 'user' | 'assistant' | 'system'
+  content: string
+}
 
-type OpenAIRole = "user" | "assistant" | "system";
+type OpenAIRole = 'user' | 'assistant' | 'system'
 
 type ProductMatch = {
-  id?: string;
-  score?: number;
-  metadata?: Record<string, unknown>;
-};
+  id?: string
+  score?: number
+  metadata?: Record<string, unknown>
+}
 
 const FALLBACK_NAMESPACES = [
   "Turuu's store",
-  "sadadasda",
-  "sephora",
-  "ETRNTY",
-  "Tugss store",
-];
+  'sadadasda',
+  'sephora',
+  'ETRNTY',
+  'Tugss store',
+]
 
 const SEARCH_STOP_WORDS = new Set([
-  "bnuu",
-  "bn",
-  "baina",
-  "baraa",
-  "бараа",
-  "байна",
-  "байнуу",
-  "байгаа",
-  "байгаа юу",
-  "bgaa",
-  "yu",
-  "uu",
-  "юу",
-  "уу",
-  "вэ",
-  "ve",
-  "gehed",
-  "гэсэн",
-  "нертэй",
-  "нэртэй",
-]);
+  'bnuu',
+  'bnu',
+  'bn',
+  'baina',
+  'baraa',
+  'бараа',
+  'байна',
+  'байнуу',
+  'байгаа',
+  'байгаа юу',
+  'bgaa',
+  'bga',
+  'yu',
+  'uu',
+  'юу',
+  'уу',
+  'вэ',
+  've',
+  'geed',
+  'geer',
+  'gheer',
+  'geheer',
+  'gehed',
+  'mna',
+  'manai',
+  'delguurt',
+  'delguur',
+  'odoo',
+  'odo',
+  'nertei',
+  'гэсэн',
+  'нертэй',
+  'нэртэй',
+])
 
-function normalizeOpenAIRole(role: IncomingMessage["role"]): OpenAIRole {
-  const r = role.toLowerCase();
-  if (r === "assistant") return "assistant";
-  if (r === "system") return "system";
-  return "user";
+const SEARCH_QUALITY_WORDS = new Set([
+  'dajgui',
+  'dajgu',
+  'dajgvi',
+  'gaigui',
+  'gaigu',
+  'goy',
+  'goe',
+  'saihan',
+  'sain',
+  'nice',
+  'cool',
+  'bolomjiin',
+  'unetei',
+  'hyamd',
+  'hyamdhan',
+])
+
+const SEARCH_TERM_ALIASES: Record<string, string[]> = {
+  tsamts: ['t-shirt', 'shirt', 'tee'],
+  tsamt: ['t-shirt', 'shirt', 'tee'],
+  tsamtsnuud: ['t-shirt', 'shirt', 'tee'],
+  futbalka: ['t-shirt', 'shirt', 'tee'],
+  podvolk: ['t-shirt', 'shirt', 'tee'],
+  huvtsas: ['clothing', 'clothes', 'apparel'],
+  gutal: ['shoe', 'shoes', 'sneaker', 'sneakers'],
+  puuz: ['shoe', 'shoes', 'sneaker', 'sneakers'],
+  kurtka: ['jacket', 'coat'],
+  omd: ['pants', 'jeans', 'trousers'],
+}
+
+function normalizeOpenAIRole(role: IncomingMessage['role']): OpenAIRole {
+  const r = role.toLowerCase()
+  if (r === 'assistant') return 'assistant'
+  if (r === 'system') return 'system'
+  return 'user'
 }
 
 function normalizeSearchText(value: unknown) {
-  return String(value || "")
+  return String(value || '')
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 function expandSearchTerm(term: string) {
-  const variants = new Set([term]);
-  if (/^[a-z0-9-]+$/.test(term) && term.length > 4 && term.endsWith("n")) {
-    variants.add(term.slice(0, -1));
+  const variants = new Set([term])
+  if (/^[a-z0-9-]+$/.test(term) && term.length > 4 && term.endsWith('n')) {
+    variants.add(term.slice(0, -1))
   }
-  return Array.from(variants);
+  for (const variant of Array.from(variants)) {
+    for (const alias of SEARCH_TERM_ALIASES[variant] || []) {
+      variants.add(alias)
+    }
+  }
+  return Array.from(variants)
 }
 
 function extractSearchTerms(message: string) {
   return normalizeSearchText(message)
     .split(/\s+/)
     .map((term) => term.trim())
-    .filter((term) => term.length > 1 && !SEARCH_STOP_WORDS.has(term))
-    .flatMap(expandSearchTerm);
+    .filter(
+      (term) =>
+        term.length > 1 &&
+        !SEARCH_STOP_WORDS.has(term) &&
+        !SEARCH_QUALITY_WORDS.has(term)
+    )
+    .flatMap(expandSearchTerm)
 }
 
 function metadataText(metadata: Record<string, unknown> | undefined) {
-  if (!metadata) return "";
-  const sizes = Array.isArray(metadata.sizes) ? metadata.sizes.join(" ") : "";
-  const colors = Array.isArray(metadata.colors) ? metadata.colors.join(" ") : "";
+  if (!metadata) return ''
+  const sizes = Array.isArray(metadata.sizes) ? metadata.sizes.join(' ') : ''
+  const colors = Array.isArray(metadata.colors) ? metadata.colors.join(' ') : ''
   return normalizeSearchText(
     [
       metadata.name,
@@ -103,17 +157,17 @@ function metadataText(metadata: Record<string, unknown> | undefined) {
       sizes,
       metadata.sizeStock,
       metadata.size_stock,
-    ].join(" "),
-  );
+    ].join(' ')
+  )
 }
 
 function hasKeywordMatch(
   metadata: Record<string, unknown> | undefined,
-  searchTerms: string[],
+  searchTerms: string[]
 ) {
-  if (searchTerms.length === 0) return false;
-  const haystack = metadataText(metadata);
-  return searchTerms.some((term) => haystack.includes(term));
+  if (searchTerms.length === 0) return false
+  const haystack = metadataText(metadata)
+  return searchTerms.some((term) => haystack.includes(term))
 }
 
 function isInStock(metadata: Record<string, unknown> | undefined) {
@@ -125,166 +179,171 @@ function isInStock(metadata: Record<string, unknown> | undefined) {
 }
 
 function uniqueById<T extends { id?: string }>(items: T[]) {
-  const seen = new Set<string>();
+  const seen = new Set<string>()
   return items.filter((item) => {
-    const id = item.id || "";
-    if (!id) return true;
-    if (seen.has(id)) return false;
-    seen.add(id);
-    return true;
-  });
+    const id = item.id || ''
+    if (!id) return true
+    if (seen.has(id)) return false
+    seen.add(id)
+    return true
+  })
 }
 
 function hasUnavailableClaim(reply: string) {
-  const normalizedReply = normalizeSearchText(reply);
-  return ["алга", "байхгүй", "oldsongui", "oldsonгүй", "байхгуй", "bhgui"].some(
-    (marker) => normalizedReply.includes(marker),
-  );
+  const normalizedReply = normalizeSearchText(reply)
+  return [
+    'алга',
+    'байхгүй',
+    'oldsongui',
+    'oldsonгүй',
+    'байхгуй',
+    'bhgui',
+    'bhgu',
+  ].some((marker) => normalizedReply.includes(marker))
 }
 
 function markdownSafe(value: unknown) {
-  return String(value || "")
-    .replace(/[|\[\]\n\r]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return String(value || '')
+    .replace(/[|\[\]\n\r]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 function formatProductMarkdown(match: ProductMatch) {
-  const metadata = match.metadata || {};
-  const name = metadata.name || metadata.product_name || "Нэргүй бараа";
-  const price = metadata.price || metadata.formatted_price || "0";
-  const desc = metadata.description || "Тайлбар байхгүй";
-  const id = match.id || metadata.id || "";
-  const brand = metadata.brand || "";
+  const metadata = match.metadata || {}
+  const name = metadata.name || metadata.product_name || 'Нэргүй бараа'
+  const price = metadata.price || metadata.formatted_price || '0'
+  const desc = metadata.description || 'Тайлбар байхгүй'
+  const id = match.id || metadata.id || ''
+  const brand = metadata.brand || ''
   const storeName =
-    metadata.store_name || metadata.storeName || "Official Store";
-  const storeId = metadata.storeId || metadata.store_id || storeName;
-  const img = metadata.product_image_url || metadata.image_url || "";
+    metadata.store_name || metadata.storeName || 'Official Store'
+  const storeId = metadata.storeId || metadata.store_id || storeName
+  const img = metadata.product_image_url || metadata.image_url || ''
 
   return `![${markdownSafe(name)}|${markdownSafe(price)}|${markdownSafe(
-    desc,
+    desc
   )}|${markdownSafe(id)}|${markdownSafe(brand)}|${markdownSafe(
-    storeId,
-  )}|${markdownSafe(storeName)}](${img})`;
+    storeId
+  )}|${markdownSafe(storeName)}](${img})`
 }
 
 function buildMatchedProductReply(matches: ProductMatch[]) {
   const productLines = matches
     .slice(0, 20)
     .map(formatProductMarkdown)
-    .join("\n");
-  return `Тийм ээ, таны хайсан бараатай тохирох дараах бүтээгдэхүүнүүд байна:\n\n${productLines}`;
+    .join('\n')
+  return `Тийм ээ, таны хайсан бараатай тохирох дараах бүтээгдэхүүнүүд байна:\n\n${productLines}`
 }
 
 async function getSearchNamespaces() {
   try {
-    const stats = await index.describeIndexStats();
-    const dynamicNamespaces = Object.keys(stats.namespaces || {});
-    return Array.from(new Set([...FALLBACK_NAMESPACES, ...dynamicNamespaces]));
+    const stats = await index.describeIndexStats()
+    const dynamicNamespaces = Object.keys(stats.namespaces || {})
+    return Array.from(new Set([...FALLBACK_NAMESPACES, ...dynamicNamespaces]))
   } catch (error) {
-    console.error("Pinecone namespace stats error:", error);
-    return FALLBACK_NAMESPACES;
+    console.error('Pinecone namespace stats error:', error)
+    return FALLBACK_NAMESPACES
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const { userId: clerkUserId } = await auth();
-    const body = await req.json();
+    const { userId: clerkUserId } = await auth()
+    const body = await req.json()
 
-    const messages = body?.messages as IncomingMessage[] | undefined;
-    const chatId = body?.chatId as string | undefined;
-    const fallbackUserId = body?.userId as string | undefined;
+    const messages = body?.messages as IncomingMessage[] | undefined
+    const chatId = body?.chatId as string | undefined
+    const fallbackUserId = body?.userId as string | undefined
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
-        { error: "Messages array is required" },
-        { status: 400 },
-      );
+        { error: 'Messages array is required' },
+        { status: 400 }
+      )
     }
 
-    const lastUserMessage = messages[messages.length - 1]?.content?.trim();
+    const lastUserMessage = messages[messages.length - 1]?.content?.trim()
     if (!lastUserMessage) {
       return NextResponse.json(
-        { error: "Last message content is required" },
-        { status: 400 },
-      );
+        { error: 'Last message content is required' },
+        { status: 400 }
+      )
     }
 
-    let context = "";
-    let guardedKeywordMatches: ProductMatch[] = [];
+    let context = ''
+    let guardedKeywordMatches: ProductMatch[] = []
     try {
-      const searchTerms = extractSearchTerms(lastUserMessage);
+      const searchTerms = extractSearchTerms(lastUserMessage)
       const embedding = await openai.embeddings.create({
-        model: "text-embedding-3-small",
+        model: 'text-embedding-3-small',
         input: lastUserMessage,
-      });
+      })
 
-      const namespaces = await getSearchNamespaces();
+      const namespaces = await getSearchNamespaces()
 
       const queryPromises = namespaces.map((ns) =>
         index.namespace(ns).query({
           vector: embedding.data[0].embedding,
           topK: 100,
           includeMetadata: true,
-        }),
-      );
+        })
+      )
 
-      const queryResults = await Promise.allSettled(queryPromises);
+      const queryResults = await Promise.allSettled(queryPromises)
       const allMatches = queryResults.flatMap((result) =>
-        result.status === "fulfilled" ? result.value.matches || [] : [],
-      ).filter((match) =>
-        isInStock(match.metadata as Record<string, unknown> | undefined),
-      );
+        result.status === 'fulfilled' ? result.value.matches || [] : []
+      )
 
       const keywordMatches = allMatches.filter((match) =>
         hasKeywordMatch(
           match.metadata as Record<string, unknown> | undefined,
-          searchTerms,
-        ),
-      );
+          searchTerms
+        )
+      )
       guardedKeywordMatches = uniqueById(keywordMatches)
         .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 20);
+        .slice(0, 20)
 
       const semanticMatches = allMatches
         .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 30);
+        .slice(0, 30)
 
       const topMatches = uniqueById([...keywordMatches, ...semanticMatches])
         .sort((a, b) => {
           const aKeyword = hasKeywordMatch(
             a.metadata as Record<string, unknown> | undefined,
-            searchTerms,
-          );
+            searchTerms
+          )
           const bKeyword = hasKeywordMatch(
             b.metadata as Record<string, unknown> | undefined,
-            searchTerms,
-          );
-          if (aKeyword !== bKeyword) return aKeyword ? -1 : 1;
-          return (b.score || 0) - (a.score || 0);
+            searchTerms
+          )
+          if (aKeyword !== bKeyword) return aKeyword ? -1 : 1
+          return (b.score || 0) - (a.score || 0)
         })
-        .slice(0, 80);
+        .slice(0, 80)
 
       context = topMatches
         .map((m) => {
           const name =
-            m.metadata?.name || m.metadata?.product_name || "Нэргүй бараа";
-          const price = m.metadata?.price || "0";
+            m.metadata?.name || m.metadata?.product_name || 'Нэргүй бараа'
+          const price = m.metadata?.price || '0'
           const img =
-            m.metadata?.product_image_url || m.metadata?.image_url || "";
-          const desc = m.metadata?.description || "Тайлбар байхгүй";
+            m.metadata?.product_image_url || m.metadata?.image_url || ''
+          const desc = m.metadata?.description || 'Тайлбар байхгүй'
           const storeName =
-            m.metadata?.store_name || m.metadata?.storeName || "Official Store";
-          const storeId = m.metadata?.storeId || m.metadata?.store_id || "";
-          const brand = m.metadata?.brand || "";
-          const size = m.metadata?.size || "";
-          const color = m.metadata?.color || "";
-          const sizeStock = m.metadata?.sizeStock || m.metadata?.size_stock || "";
+            m.metadata?.store_name || m.metadata?.storeName || 'Official Store'
+          const storeId = m.metadata?.storeId || m.metadata?.store_id || ''
+          const brand = m.metadata?.brand || ''
+          const size = m.metadata?.size || ''
+          const color = m.metadata?.color || ''
+          const sizeStock =
+            m.metadata?.sizeStock || m.metadata?.size_stock || ''
           const keywordMatch = hasKeywordMatch(
             m.metadata as Record<string, unknown> | undefined,
-            searchTerms,
-          );
+            searchTerms
+          )
 
           return `БҮТЭЭГДЭХҮҮН: ${name}
 ҮНЭ: ${price}₮
@@ -294,24 +353,24 @@ export async function POST(req: Request) {
 ӨНГӨ: ${color}
 РАЗМЕР: ${size}
 РАЗМЕРЫН_ҮЛДЭГДЭЛ: ${sizeStock}
-KEYWORD_MATCH: ${keywordMatch ? "YES" : "NO"}
+KEYWORD_MATCH: ${keywordMatch ? 'YES' : 'NO'}
 ID: ${m.id}
 STORE_NAME: ${storeName}
-STORE_ID: ${storeId}`;
+STORE_ID: ${storeId}`
         })
-        .join("\n---\n");
+        .join('\n---\n')
 
-      console.log("Олдсон барааны тоо:", topMatches.length);
-      console.log("Keyword match барааны тоо:", keywordMatches.length);
+      console.log('Олдсон барааны тоо:', topMatches.length)
+      console.log('Keyword match барааны тоо:', keywordMatches.length)
     } catch (err) {
-      console.error("Vector Search Error:", err);
+      console.error('Vector Search Error:', err)
     }
 
     const chatResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: 'gpt-4o-mini',
       messages: [
         {
-          role: "system",
+          role: 'system',
           content: `Чи бол өгөгдсөн Context (Pinecone дата) дээр тулгуурлан ажилладаг Монголын хамгийн ухаалаг "Shopping Assistant" юм. Чи ХОЁР горимд ажиллана — асуултын төрлийг эхлээд таниад дараа нь хариул.
 
 ═══ ГОРИМ ТАНИХ (INTENT DETECTION) ═══
@@ -365,17 +424,17 @@ ${context}`,
       presence_penalty: 0.6,
       frequency_penalty: 0.3,
       max_tokens: 2500,
-    });
+    })
 
     let aiReply =
-      chatResponse.choices[0]?.message?.content?.trim() || "Хариу олдсонгүй.";
+      chatResponse.choices[0]?.message?.content?.trim() || 'Хариу олдсонгүй.'
 
     if (guardedKeywordMatches.length > 0 && hasUnavailableClaim(aiReply)) {
-      aiReply = buildMatchedProductReply(guardedKeywordMatches);
+      aiReply = buildMatchedProductReply(guardedKeywordMatches)
     }
 
-    const effectiveUserId = clerkUserId || fallbackUserId;
-    if (effectiveUserId && chatId && !chatId.startsWith("guest_")) {
+    const effectiveUserId = clerkUserId || fallbackUserId
+    if (effectiveUserId && chatId && !chatId.startsWith('guest_')) {
       try {
         const dbUser = await prisma.user.upsert({
           where: { clerkUserId: effectiveUserId },
@@ -383,10 +442,10 @@ ${context}`,
           create: {
             clerkUserId: effectiveUserId,
             email: `${effectiveUserId}@internal.user`,
-            password: "CLERK_MANAGED",
-            name: "User",
+            password: 'CLERK_MANAGED',
+            name: 'User',
           },
-        });
+        })
 
         const session = await prisma.chatSession.upsert({
           where: { id: String(chatId) },
@@ -396,30 +455,30 @@ ${context}`,
             userId: dbUser.id,
             title: lastUserMessage.slice(0, 40),
           },
-        });
+        })
 
         await prisma.chatMessage.createMany({
           data: [
             {
               chatSessionId: session.id,
-              role: "USER",
+              role: 'USER',
               content: lastUserMessage,
             },
-            { chatSessionId: session.id, role: "ASSISTANT", content: aiReply },
+            { chatSessionId: session.id, role: 'ASSISTANT', content: aiReply },
           ],
-        });
+        })
       } catch (dbError) {
-        console.error("PRISMA_SAVE_ERROR:", dbError);
+        console.error('PRISMA_SAVE_ERROR:', dbError)
       }
     }
 
-    return NextResponse.json({ reply: aiReply });
+    return NextResponse.json({ reply: aiReply })
   } catch (error: unknown) {
-    console.error("API_GLOBAL_ERROR:", error);
-    const details = error instanceof Error ? error.message : "Unknown error";
+    console.error('API_GLOBAL_ERROR:', error)
+    const details = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: "Internal Error", details },
-      { status: 500 },
-    );
+      { error: 'Internal Error', details },
+      { status: 500 }
+    )
   }
 }

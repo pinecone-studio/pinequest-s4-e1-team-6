@@ -164,8 +164,8 @@ export const ProductCard = ({
       className={`group relative mx-auto flex flex-col overflow-hidden rounded-[2.25rem] border transition-all duration-500 ${
         layout === "grid"
           ? isLightMode
-            ? "h-full w-full min-h-[470px] border-slate-200/80 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.10)] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_0_0_1px_rgba(159,140,255,0.12),0_18px_50px_rgba(15,23,42,0.14),0_0_44px_rgba(159,140,255,0.12)]"
-            : "h-full w-full min-h-[470px] border-white/10 bg-[#141827] shadow-[0_18px_40px_rgba(0,0,0,0.28)] hover:-translate-y-1 hover:border-[#9f8cff]/40 hover:shadow-[0_0_0_1px_rgba(159,140,255,0.16),0_18px_50px_rgba(0,0,0,0.36),0_0_44px_rgba(159,140,255,0.18)]"
+            ? "h-[565px] w-full border-slate-200/80 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.10)] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_0_0_1px_rgba(159,140,255,0.12),0_18px_50px_rgba(15,23,42,0.14),0_0_44px_rgba(159,140,255,0.12)]"
+            : "h-[565px] w-full border-white/10 bg-[#141827] shadow-[0_18px_40px_rgba(0,0,0,0.28)] hover:-translate-y-1 hover:border-[#9f8cff]/40 hover:shadow-[0_0_0_1px_rgba(159,140,255,0.16),0_18px_50px_rgba(0,0,0,0.36),0_0_44px_rgba(159,140,255,0.18)]"
           : `h-125 w-72 md:w-[320px] ${
               isCurrent
                 ? "border-[#9f8cff] shadow-[0_20px_50px_rgba(159,140,255,0.28)]"
@@ -277,8 +277,8 @@ export const ProductCard = ({
         className={`flex flex-col flex-1 justify-between ${
           layout === "grid"
             ? isLightMode
-              ? "bg-white px-6 pb-6 pt-6 text-slate-900"
-              : "bg-[#161b2a] px-6 pb-6 pt-6 text-white"
+              ? "bg-white px-6 pb-8 pt-6 text-slate-900"
+              : "bg-[#161b2a] px-6 pb-8 pt-6 text-white"
             : "bg-[#121212] p-6"
         }`}
       >
@@ -299,7 +299,7 @@ export const ProductCard = ({
           </div>
  
           <div className="flex items-start justify-between gap-4">
-            <h3 className={`font-extrabold leading-tight line-clamp-2 ${layout === "grid" ? (isLightMode ? "text-[18px] text-slate-900" : "text-[18px] text-white") : "text-lg text-white"}`}>
+            <h3 className={`font-extrabold leading-tight line-clamp-2 ${layout === "grid" ? (isLightMode ? "h-12 text-[18px] text-slate-900" : "h-12 text-[18px] text-white") : "text-lg text-white"}`}>
               {productData.name}
             </h3>
             <div className={`shrink-0 rounded-full px-4 py-2 text-[15px] font-medium ${layout === "grid" ? (isLightMode ? "bg-violet-500 text-white shadow-[0_10px_18px_rgba(139,123,255,0.20)]" : "bg-[#8b7bff] text-white shadow-[0_10px_18px_rgba(139,123,255,0.25)]") : "bg-[#d9ccff] text-black"}`}>
@@ -315,12 +315,12 @@ export const ProductCard = ({
           </div>
 
           {layout === "grid" && (
-            <p className={`line-clamp-2 text-[13px] leading-5 ${isLightMode ? "text-slate-600" : "text-white/62"}`}>
+            <p className={`h-10 line-clamp-2 text-[13px] leading-5 ${isLightMode ? "text-slate-600" : "text-white/62"}`}>
               {product.description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt."}
             </p>
           )}
 
-          <div className="flex flex-wrap gap-2 pt-0.5">
+          <div className="flex h-7 flex-nowrap gap-2 overflow-hidden pt-0.5">
             {[
               productData.brand || "Tag A",
               productData.storeName || "Tag B",
@@ -334,7 +334,7 @@ export const ProductCard = ({
                     isLightMode
                       ? "bg-slate-100 text-slate-600 border-slate-200"
                       : "bg-white/6 text-white/72 border-white/8"
-                  }`}
+                  } max-w-[48%] truncate`}
                 >
                   {String(tag)}
                 </span>
@@ -342,7 +342,7 @@ export const ProductCard = ({
           </div>
         </div>
 
-        <div className={`mt-5 ${layout === "grid" ? "h-auto" : "h-13"}`}>
+        <div className={`mt-5 ${layout === "grid" ? "h-auto pb-4" : "h-13"}`}>
           <AnimatePresence mode="wait">
             {(layout === "grid" || isCurrent) && (
               <motion.div
