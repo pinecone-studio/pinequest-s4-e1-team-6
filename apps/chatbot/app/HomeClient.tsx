@@ -40,6 +40,7 @@ export default function HomeClient() {
     isLoading,
     addVisualResult,
     isStreaming,
+    stopGenerating,
     deleteChat: handleDeleteChat,
   } = useChatLogic();
 
@@ -132,6 +133,7 @@ export default function HomeClient() {
                   onSendMessage={sendMessage}
                   onVisualResult={addVisualResult}
                   isTyping={isTyping || isStreaming}
+                  onStop={stopGenerating}
                 />
               </WelcomeSection>
             </div>
@@ -180,6 +182,7 @@ export default function HomeClient() {
               onSendMessage={sendMessage}
               onVisualResult={addVisualResult}
               isTyping={isTyping || isStreaming}
+              onStop={stopGenerating}
             />
           </div>
         )}

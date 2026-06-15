@@ -37,18 +37,18 @@ export default function Header({
         <span className="apple-liquid-fx" />
 
         {/* Лого хэсэг */}
-       <div className="flex items-center select-none font-sans group cursor-pointer shrink-0">
-          <span className="text-xl md:text-2xl font-black tracking-tight text-white dark:text-white">
-            Chat
-          </span>
-          <div className="apple-liquid-pill ml-1.5 px-2.5 py-1 rounded-2xl transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(124,92,255,0.2)]">
-            <div className="px-0.5 py-0.5 rounded-md">
-              <span className="text-sm md:text-base font-extrabold tracking-wide uppercase text-white dark:text-neutral-100">
-                Mart
-              </span>
+       <div className="flex items-center select-none font-sans group cursor-pointer">
+            <span className="text-xl md:text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
+              Chat
+            </span>
+            <div className="ml-1.5 p-[1.5px] rounded-lg bg-gradient-to-r from-[#9f8cff] via-[#7c5cff] to-[#56a8ff] transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(124,92,255,0.35)]">
+              <div className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-950/85 backdrop-blur-sm">
+                <span className="text-sm md:text-base font-extrabold tracking-wide uppercase text-neutral-900 dark:text-neutral-100">
+                  Mart
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
         {/* Баруун талын товчлуурууд */}
         <div className="ml-auto flex items-center gap-2">
