@@ -168,7 +168,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
     return `w-full rounded-2xl border p-4 outline-none transition-all duration-300 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white ${
       hasError
         ? "border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.1)] focus:border-red-500"
-        : "border-slate-200 dark:border-white/10 focus:border-[#077eef] focus:shadow-[0_0_20px_rgba(7,126,239,0.15)] focus:bg-white dark:focus:bg-white/10"
+        : "border-slate-200 dark:border-white/10 focus:border-[#7c5cff] focus:shadow-[0_0_20px_rgba(124,92,255,0.15)] focus:bg-white dark:focus:bg-white/10"
     }`;
   };
  
@@ -209,7 +209,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
  
           <div className="grid grid-cols-2 gap-4">
             <div className="relative flex flex-col gap-2">
-              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#077eef]">
+              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#7c5cff]">
                 Хот / Аймаг
               </label>
               <button
@@ -217,7 +217,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
                 onClick={() =>
                   setOpenDropdown(openDropdown === "city" ? null : "city")
                 }
-                className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-all ${touched.city && errors.city ? "border-red-500/50 bg-red-50" : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white hover:border-[#077eef]"}`}
+                className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-all ${touched.city && errors.city ? "border-red-500/50 bg-red-50" : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white hover:border-[#7c5cff]"}`}
               >
                 <span
                   className={
@@ -246,7 +246,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
                           setFieldValue("city", city);
                           setOpenDropdown(null);
                         }}
-                        className="w-full p-3 text-left text-sm text-slate-700 dark:text-white rounded-xl hover:bg-[#077eef] hover:text-white transition-colors font-medium"
+                        className="w-full p-3 text-left text-sm text-slate-700 dark:text-white rounded-xl hover:bg-[#7c5cff] hover:text-white transition-colors font-medium"
                       >
                         {city}
                       </button>
@@ -257,7 +257,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
             </div>
  
             <div className="relative flex flex-col gap-2">
-              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#077eef]">
+              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#7c5cff]">
                 Дүүрэг / Сум
               </label>
               <button
@@ -268,7 +268,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
                     openDropdown === "district" ? null : "district",
                   )
                 }
-                className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-all ${touched.district && errors.district ? "border-red-500/50 bg-red-50" : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white hover:border-[#077eef]"} ${!formData.city && "opacity-30 cursor-not-allowed"}`}
+                className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-all ${touched.district && errors.district ? "border-red-500/50 bg-red-50" : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white hover:border-[#7c5cff]"} ${!formData.city && "opacity-30 cursor-not-allowed"}`}
               >
                 <span
                   className={
@@ -297,7 +297,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
                           setFieldValue("district", dist);
                           setOpenDropdown(null);
                         }}
-                        className="w-full p-3 text-left text-sm text-slate-700 dark:text-white rounded-xl hover:bg-[#077eef] hover:text-white transition-colors font-medium"
+                        className="w-full p-3 text-left text-sm text-slate-700 dark:text-white rounded-xl hover:bg-[#7c5cff] hover:text-white transition-colors font-medium"
                       >
                         {dist}
                       </button>
@@ -310,7 +310,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
  
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#077eef]">
+              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#7c5cff]">
                 Байр, Орц, Тоот
               </label>
               <input
@@ -323,7 +323,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
               <ErrorMsg field="street" />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#077eef]">
+              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#7c5cff]">
                 Гудамж / Дэлгэрэнгүй
               </label>
               <input
@@ -336,7 +336,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
               <ErrorMsg field="address" />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#077eef]">
+              <label className="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#7c5cff]">
                 Холбоо барих дугаар
               </label>
               <input
@@ -356,7 +356,7 @@ export default function OrderAddress({ onClose, onConfirm }: Props) {
  
           <button
             onClick={handleSubmit}
-            className="w-full py-5 bg-[#077eef] hover:bg-[#066fd4] text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98] uppercase tracking-widest text-sm mt-2"
+            className="w-full py-5 bg-[#7c5cff] hover:bg-[#6a4ae0] text-white font-black rounded-2xl transition-all shadow-lg shadow-violet-500/20 active:scale-[0.98] uppercase tracking-widest text-sm mt-2"
           >
             Хаяг баталгаажуулах
           </button>

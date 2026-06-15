@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import { X, ShoppingBag } from "lucide-react";
+import { X, ShoppingBag, AlertTriangle } from "lucide-react";
+import { useState } from "react";
 import { Order } from "../hooks/useOrders";
 
 export default function OrdersPanel({
@@ -11,6 +12,34 @@ export default function OrdersPanel({
   orders: Order[];
 }) {
   const total = orders.reduce((sum, o) => sum + o.amount, 0);
+  const [disputing, setDisputing] = useState<string | null>(null);
+  const [doneIds, setDoneIds] = useState<string[]>([]);
+
+  const raiseDispute = async (orderId: string) => {
+    const reason = window.prompt(
+      "Маргааны шалтгаанаа бичнэ үү (ж: бараа ирээгүй, эвдэрсэн, буруу бараа):",
+    );
+    if (!reason || !reason.trim()) return;
+    setDisputing(orderId);
+    try {
+      const res = await fetch("/chat/api/orders/dispute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, reason: reason.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDoneIds((p) => [...p, orderId]);
+        alert("Маргаан амжилттай илгээгдлээ. Админ хянаж шийдвэрлэнэ.");
+      } else {
+        alert(data.error || "Маргаан илгээхэд алдаа гарлаа");
+      }
+    } catch {
+      alert("Сүлжээний алдаа гарлаа");
+    } finally {
+      setDisputing(null);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:justify-end sm:p-6">
@@ -38,7 +67,7 @@ export default function OrdersPanel({
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/5">
           <div className="flex items-center gap-2">
-            <ShoppingBag size={18} className="text-[#077eef]" />
+            <ShoppingBag size={18} className="text-[#7c5cff]" />
             <span className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">
               Миний захиалгууд
             </span>
@@ -65,46 +94,68 @@ export default function OrdersPanel({
             orders.map((order) => (
               <div
                 key={order.orderId}
-                className="flex items-center gap-3 px-5 py-4 border-b border-slate-50 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                className="px-5 py-4 border-b border-slate-50 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
               >
-                <div className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 flex-shrink-0 bg-slate-100 dark:bg-white/5">
-                  {order.image ? (
-                    <img
-                      src={order.image}
-                      alt={order.productName}
-                      className="w-full h-full object-cover"
-                    />
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 flex-shrink-0 bg-slate-100 dark:bg-white/5">
+                    {order.image ? (
+                      <img
+                        src={order.image}
+                        alt={order.productName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl">
+                        🛍️
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                      {order.productName}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {order.date}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span className="text-sm font-black text-[#7c5cff]">
+                      {order.amount.toLocaleString()}₮
+                    </span>
+                    <span
+                      className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
+                        order.status === "Баталгаажсан"
+                          ? "bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400"
+                          : order.status === "Хүргэлтэнд"
+                            ? "bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                            : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-white/50"
+                      }`}
+                    >
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Маргаан мэдүүлэх */}
+                <div className="mt-2 flex justify-end">
+                  {doneIds.includes(order.orderId) ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500">
+                      <AlertTriangle size={12} /> Маргаан илгээгдсэн
+                    </span>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xl">
-                      🛍️
-                    </div>
+                    <button
+                      onClick={() => raiseDispute(order.orderId)}
+                      disabled={disputing === order.orderId}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 transition-colors hover:text-red-500 disabled:opacity-50"
+                    >
+                      <AlertTriangle size={12} />
+                      {disputing === order.orderId
+                        ? "Илгээж байна…"
+                        : "Маргаан мэдүүлэх"}
+                    </button>
                   )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                    {order.productName}
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {order.date}
-                  </p>
-                </div>
-
-                <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                  <span className="text-sm font-black text-[#077eef]">
-                    {order.amount.toLocaleString()}₮
-                  </span>
-                  <span
-                    className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
-                      order.status === "Баталгаажсан"
-                        ? "bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400"
-                        : order.status === "Хүргэлтэнд"
-                          ? "bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                          : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-white/50"
-                    }`}
-                  >
-                    {order.status}
-                  </span>
                 </div>
               </div>
             ))

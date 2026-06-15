@@ -56,8 +56,8 @@ const OrderReceipt = ({ orderData, onClose }: OrderReceiptProps) => {
       >
         <div className="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#077eef]/10 dark:bg-[#077eef]/20 rounded-2xl flex items-center justify-center">
-              <Package size={20} className="text-[#077eef]" />
+            <div className="w-10 h-10 bg-[#7c5cff]/10 dark:bg-[#7c5cff]/20 rounded-2xl flex items-center justify-center">
+              <Package size={20} className="text-[#7c5cff]" />
             </div>
             <h2 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">
               Захиалгын тасалбар
@@ -65,7 +65,7 @@ const OrderReceipt = ({ orderData, onClose }: OrderReceiptProps) => {
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-[#077eef] transition-colors p-2"
+            className="text-slate-400 hover:text-[#7c5cff] transition-colors p-2"
           >
             <XCircle size={24} strokeWidth={1.5} />
           </button>
@@ -74,7 +74,7 @@ const OrderReceipt = ({ orderData, onClose }: OrderReceiptProps) => {
         <div className="p-8">
           <div className="flex flex-col items-center mb-8">
             <div className="relative group mb-6">
-              <div className="absolute -inset-4 bg-[#077eef]/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute -inset-4 bg-[#7c5cff]/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="w-32 h-32 bg-slate-50 dark:bg-white/5 rounded-[35px] overflow-hidden border border-slate-200 dark:border-white/10 shadow-lg flex items-center justify-center relative">
                 {orderData.image ? (
                   <img
@@ -83,7 +83,7 @@ const OrderReceipt = ({ orderData, onClose }: OrderReceiptProps) => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Tag size={40} className="text-[#077eef] opacity-40" />
+                  <Tag size={40} className="text-[#7c5cff] opacity-40" />
                 )}
               </div>
               <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1.5 rounded-full border-4 border-white dark:border-[#0f0f0f] shadow-lg">
@@ -96,7 +96,7 @@ const OrderReceipt = ({ orderData, onClose }: OrderReceiptProps) => {
             </h3>
 
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-3xl font-black text-[#077eef] tracking-tighter">
+              <span className="text-3xl font-black text-[#7c5cff] tracking-tighter">
                 {orderData.amount.toLocaleString()}
               </span>
               <span className="text-lg font-bold text-slate-400">₮</span>
@@ -143,7 +143,7 @@ const OrderReceipt = ({ orderData, onClose }: OrderReceiptProps) => {
 
           <button
             onClick={onClose}
-            className="w-full mt-8 py-5 bg-[#077eef] hover:bg-[#066fd4] text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full mt-8 py-5 bg-[#7c5cff] hover:bg-[#6a4ae0] text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl shadow-violet-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
           >
             Дуусгах <ChevronRight size={18} />
           </button>

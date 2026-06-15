@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "./context/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { CartProvider } from "./context/CartContext";
 import CartSidebar from "./chat/cart/frontend/components/CartSidebar";

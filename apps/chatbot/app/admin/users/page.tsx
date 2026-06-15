@@ -57,15 +57,15 @@ export default function AdminUsersPage() {
         />
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-2xl border border-white/10">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-white/5 text-left text-xs uppercase tracking-wider text-slate-400">
             <tr>
               <th className="px-5 py-3">Нэр</th>
               <th className="px-5 py-3">Имэйл</th>
               <th className="px-5 py-3">Дэлгүүр</th>
               <th className="px-5 py-3">Эрх</th>
-              <th className="px-5 py-3">Эрх солих</th>
+              <th className="px-5 py-3 text-right">Эрх солих</th>
             </tr>
           </thead>
           <tbody>
@@ -74,26 +74,33 @@ export default function AdminUsersPage() {
                 key={u.id}
                 className="border-t border-white/5 hover:bg-white/[0.02]"
               >
-                <td className="px-5 py-3">{u.name ?? "—"}</td>
-                <td className="px-5 py-3 text-slate-400">{u.email ?? "—"}</td>
+                <td className="px-5 py-3 whitespace-nowrap">{u.name ?? "—"}</td>
                 <td className="px-5 py-3 text-slate-400">
+                  <span
+                    className="block max-w-[240px] truncate"
+                    title={u.email ?? ""}
+                  >
+                    {u.email ?? "—"}
+                  </span>
+                </td>
+                <td className="px-5 py-3 text-slate-400 whitespace-nowrap">
                   {u.storeName ?? "—"}
                 </td>
                 <td className="px-5 py-3">
                   <span
-                    className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${badge[u.role]}`}
+                    className={`inline-block rounded-full border px-2.5 py-1 text-xs font-semibold ${badge[u.role] ?? badge.USER}`}
                   >
                     {u.role}
                   </span>
                 </td>
-                <td className="px-5 py-3">
+                <td className="px-5 py-3 text-right">
                   <select
                     value={u.role}
                     onChange={(e) => changeRole(u.id, e.target.value)}
-                    className="rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-xs outline-none"
+                    className="rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-xs text-white outline-none focus:border-[#7c5cff]"
                   >
                     {ROLES.map((r) => (
-                      <option key={r} value={r}>
+                      <option key={r} value={r} className="text-black">
                         {r}
                       </option>
                     ))}

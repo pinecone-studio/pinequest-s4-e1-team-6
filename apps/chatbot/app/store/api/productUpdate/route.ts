@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
+import { getStock } from "@/lib/search/stock";
 
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 const index = pc.index(process.env.PINECONE_NAME!);
@@ -108,6 +109,19 @@ export async function PATCH(req: Request) {
       }),
     );
 
+    // Шинэ үлдэгдлээс status-ийг тооцоолж дахин бичнэ.
+    // Ингэснээр нөөц нэмэхэд бараа дахин зарагдах боломжтой болж,
+    // дууссан бол OUT_OF_STOCK болж хайлтаас нуугдана.
+    const totalStock =
+      getStock({
+        stock,
+        colorSizeStock,
+        color_size_stock: colorSizeStock,
+        sizeStock,
+        size_stock: sizeStock,
+      }) ?? Number(stock) ?? 0;
+    const computedStatus = totalStock > 0 ? "AVAILABLE" : "OUT_OF_STOCK";
+
     await index.namespace(storeName).update({
       id: id,
       values: vector,
@@ -119,7 +133,7 @@ export async function PATCH(req: Request) {
         category: category || "",
         brand: brand || "",
         stock: Number(stock) || 0,
-        status: Number(stock) > 0 ? "AVAILABLE" : "OUT_OF_STOCK",
+        status: computedStatus,
         store_name: storeName,
         size: size || "",
         sizes: Array.isArray(sizes) ? sizes.map(String) : [],

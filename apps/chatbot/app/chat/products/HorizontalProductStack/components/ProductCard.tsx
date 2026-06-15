@@ -12,7 +12,7 @@ import {
   Tag,
 } from "lucide-react";
 import { useState, useMemo, type MouseEvent } from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/app/context/ThemeProvider";
 
 type ProductCardData = {
   id?: string;
@@ -123,10 +123,13 @@ export const ProductCard = ({
     ...productData,
     image: imageUrl || product.image,
   };
-  const hasStockInfo = productData.stock !== undefined;
-  const stockCount = Number(productData.stock ?? 0);
-  const isSoldOut = hasStockInfo && stockCount <= 0;
- 
+
+  // Сагсанд нэмэх: эхлээд барааны detail-руу оруулж (размер/өнгө) сонгуулна.
+  // Detail дотроос л жинхэнэ сагслах үйлдэл хийгдэнэ.
+  const handleAddToCartClick = () => {
+    onSelect?.(productWithImage);
+  };
+
   const handleShare = async (e: MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -358,7 +361,7 @@ export const ProductCard = ({
                     e.preventDefault();
                     if (isSoldOut) return;
                     if (layout === "grid") {
-                      onAddToCart?.(productWithImage);
+                      handleAddToCartClick();
                       return;
                     }
                     if (onOrder) onOrder();
@@ -387,8 +390,7 @@ export const ProductCard = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        if (isSoldOut) return;
-                        onAddToCart?.(productWithImage);
+                        handleAddToCartClick();
                       }}
                       disabled={isSoldOut}
                       className="bg-white/5 text-white h-12 w-12 rounded-2xl flex items-center justify-center border border-white/10 active:scale-95 transition-all hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"

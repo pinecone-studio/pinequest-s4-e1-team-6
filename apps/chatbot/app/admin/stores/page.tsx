@@ -9,6 +9,12 @@ type S = {
   description: string | null;
   createdAt: string;
   owner: { name: string | null; email: string | null };
+  phone: string | null;
+  registerNumber: string | null;
+  idCardImage: string | null;
+  bankName: string | null;
+  bankAccountNumber: string | null;
+  bankAccountHolder: string | null;
 };
 const badge: Record<string, string> = {
   APPROVED: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
@@ -109,6 +115,72 @@ export default function AdminStoresPage() {
                   <p className="mt-3 whitespace-pre-line rounded-xl bg-white/5 p-3 text-sm text-slate-300">
                     {s.description}
                   </p>
+                )}
+
+                {/* KYC — баталгаажуулах мэдээлэл */}
+                {(s.registerNumber || s.idCardImage || s.bankName) && (
+                  <div className="mt-3 rounded-xl border border-[#7c5cff]/20 bg-[#7c5cff]/5 p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[#9b8cff]">
+                      Баталгаажуулалт (KYC)
+                    </p>
+                    <div className="flex flex-wrap items-start gap-4">
+                      {s.idCardImage && (
+                        <a
+                          href={s.idCardImage}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group relative block shrink-0"
+                          title="Томруулж харах"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={s.idCardImage}
+                            alt="Үнэмлэх"
+                            className="h-24 w-36 rounded-lg border border-white/10 object-cover transition-transform group-hover:scale-[1.02]"
+                          />
+                          <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 text-xs font-bold text-white opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
+                            🔍 Томруулах
+                          </span>
+                        </a>
+                      )}
+                      <div className="grid grid-cols-1 gap-y-1 text-xs text-slate-300 sm:grid-cols-2 sm:gap-x-6">
+                        {s.phone && (
+                          <p>
+                            <span className="text-slate-500">Утас:</span>{" "}
+                            {s.phone}
+                          </p>
+                        )}
+                        {s.registerNumber && (
+                          <p>
+                            <span className="text-slate-500">Регистр:</span>{" "}
+                            <span className="font-mono font-bold text-white">
+                              {s.registerNumber}
+                            </span>
+                          </p>
+                        )}
+                        {s.bankName && (
+                          <p>
+                            <span className="text-slate-500">Банк:</span>{" "}
+                            {s.bankName}
+                          </p>
+                        )}
+                        {s.bankAccountNumber && (
+                          <p>
+                            <span className="text-slate-500">Данс:</span>{" "}
+                            <span className="font-mono">
+                              {s.bankAccountNumber}
+                            </span>
+                          </p>
+                        )}
+                        {s.bankAccountHolder && (
+                          <p className="sm:col-span-2">
+                            <span className="text-slate-500">Эзэмшигч:</span>{" "}
+                            {s.bankAccountHolder}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="flex shrink-0 gap-2">

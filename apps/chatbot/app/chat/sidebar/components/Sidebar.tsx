@@ -4,6 +4,7 @@ import { NewChatBtn, ChatHistory } from "."; // Adjust path if needed
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ClerkAuth, DarkMode } from "@/app/chat/header/components";
+import { SellerCTA } from "./SellerCTA";
 import { PanelLeft, SquarePen } from "lucide-react";
 
 interface SidebarProps {
@@ -172,6 +173,7 @@ export default function Sidebar({
         {/* BOTTOM SECTION */}
         <div className="mt-auto w-full px-2 pb-3 bg-inherit">
           <div className="h-px bg-black/5 dark:bg-white/5 my-2 mx-2" />
+          <SellerCTA collapsed={isCollapsed} />
           <DarkMode collapsed={isCollapsed} />
           <ClerkAuth collapsed={isCollapsed} />
         </div>

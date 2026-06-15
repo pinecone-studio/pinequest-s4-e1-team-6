@@ -1,12 +1,34 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useUser, SignInButton } from "@clerk/nextjs";
 import { SparklesCore } from "@/lib/utils/chat-animation/sparkles";
 import Link from "next/link";
+import { Clock, CheckCircle2, XCircle } from "lucide-react";
 import RequestStoreForm from "./components/RequestStoreForm";
+
+type StoreState = {
+  hasStore: boolean;
+  status: "PENDING" | "APPROVED" | "REJECTED" | null;
+};
 
 export default function RequestStorePage() {
   const { isSignedIn, isLoaded } = useUser();
+  const [state, setState] = useState<StoreState | null>(null);
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    let cancelled = false;
+    fetch("/chat/api/store/request")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setState(d);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isSignedIn]);
 
   return (
     <div className="relative min-h-screen bg-slate-950 text-slate-100 overflow-hidden">
@@ -46,7 +68,49 @@ export default function RequestStorePage() {
 
         <div className="mt-10 w-full max-w-lg">
           {!isLoaded ? null : isSignedIn ? (
-            <RequestStoreForm />
+            state?.hasStore ? (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center space-y-4 backdrop-blur-md">
+                {state.status === "APPROVED" ? (
+                  <>
+                    <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-400" />
+                    <h2 className="text-xl font-bold">
+                      Таны дэлгүүр баталгаажсан!
+                    </h2>
+                    <p className="text-sm text-slate-400">
+                      Та одоо бараагаа байршуулж зарах боломжтой.
+                    </p>
+                    <Link
+                      href="/store"
+                      className="inline-block rounded-xl bg-gradient-to-r from-[#9f8cff] via-[#7c5cff] to-[#56a8ff] px-6 py-2.5 font-semibold text-white transition-all hover:opacity-90"
+                    >
+                      Дэлгүүр рүү очих
+                    </Link>
+                  </>
+                ) : state.status === "REJECTED" ? (
+                  <>
+                    <XCircle className="mx-auto h-14 w-14 text-red-400" />
+                    <h2 className="text-xl font-bold">Хүсэлт татгалзагдсан</h2>
+                    <p className="text-sm text-slate-400">
+                      Уучлаарай, таны хүсэлт батлагдсангүй. Дэлгэрэнгүй
+                      мэдээллийг админтай холбогдож тодруулна уу.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="mx-auto h-14 w-14 text-amber-400" />
+                    <h2 className="text-xl font-bold">
+                      Таны хүсэлт хянагдаж байна
+                    </h2>
+                    <p className="text-sm text-slate-400">
+                      Админ таны хүсэлт болон бичиг баримтыг шалгаж байна. Түр
+                      хүлээнэ үү — баталгаажсаны дараа танд мэдэгдэнэ.
+                    </p>
+                  </>
+                )}
+              </div>
+            ) : (
+              <RequestStoreForm />
+            )
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-8 text-center space-y-4">
               <p className="text-slate-300">

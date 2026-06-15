@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { index } from "@/lib/api/pinecone";
+import { isInStock } from "@/lib/search/stock";
 import {
   FEATURE_PRESETS_BY_SLUG,
   type FeatureProduct,
@@ -77,6 +78,8 @@ export async function getFeatureProducts(slug: FeatureSlug) {
 
   const matches = queryResults
     .flatMap((result) => result.matches || [])
+    // Үлдэгдэл дууссан барааг онцлох жагсаалтаас хасна
+    .filter((match) => isInStock(match.metadata as Record<string, unknown>))
     .map((match) => {
       const meta = (match.metadata || {}) as Record<string, unknown>;
       return {

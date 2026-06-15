@@ -1,7 +1,7 @@
 "use client";
 
 import { Palette } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/app/context/ThemeProvider";
 import {
   DropdownMenu,
   DropdownMenuContent,

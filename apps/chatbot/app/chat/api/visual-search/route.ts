@@ -73,6 +73,7 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { getStoreNamespaces } from "@/lib/search/get-store-namespaces";
+import { isInStock } from "@/lib/search/stock";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
@@ -158,7 +159,8 @@ export async function POST(req: NextRequest) {
     const allResults = await Promise.all(queryPromises);
     const allMatches = allResults
       .flatMap((r) => r.matches || [])
-      .filter((match) => isInStock(match.metadata as ProductMetadata))
+      // Үлдэгдэл дууссан барааг харуулахгүй
+      .filter((m) => isInStock(m.metadata as Record<string, unknown>))
       .sort((a, b) => (b.score || 0) - (a.score || 0))
       .slice(0, 6);
 
