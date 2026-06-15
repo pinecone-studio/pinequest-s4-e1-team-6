@@ -115,7 +115,7 @@ model Store {
   status StoreStatus @default(PENDING)
   products  Product[]
   orders    Order[]
-
+  logoUrl     String?
  
   phone             String?
   registerNumber    String?  

@@ -30,6 +30,7 @@ export type StoreMinAggregateOutputType = {
   description: string | null
   ownerId: string | null
   status: $Enums.StoreStatus | null
+  logoUrl: string | null
   phone: string | null
   registerNumber: string | null
   idCardImage: string | null
@@ -46,6 +47,7 @@ export type StoreMaxAggregateOutputType = {
   description: string | null
   ownerId: string | null
   status: $Enums.StoreStatus | null
+  logoUrl: string | null
   phone: string | null
   registerNumber: string | null
   idCardImage: string | null
@@ -62,6 +64,7 @@ export type StoreCountAggregateOutputType = {
   description: number
   ownerId: number
   status: number
+  logoUrl: number
   phone: number
   registerNumber: number
   idCardImage: number
@@ -80,6 +83,7 @@ export type StoreMinAggregateInputType = {
   description?: true
   ownerId?: true
   status?: true
+  logoUrl?: true
   phone?: true
   registerNumber?: true
   idCardImage?: true
@@ -96,6 +100,7 @@ export type StoreMaxAggregateInputType = {
   description?: true
   ownerId?: true
   status?: true
+  logoUrl?: true
   phone?: true
   registerNumber?: true
   idCardImage?: true
@@ -112,6 +117,7 @@ export type StoreCountAggregateInputType = {
   description?: true
   ownerId?: true
   status?: true
+  logoUrl?: true
   phone?: true
   registerNumber?: true
   idCardImage?: true
@@ -201,6 +207,7 @@ export type StoreGroupByOutputType = {
   description: string | null
   ownerId: string
   status: $Enums.StoreStatus
+  logoUrl: string | null
   phone: string | null
   registerNumber: string | null
   idCardImage: string | null
@@ -238,6 +245,7 @@ export type StoreWhereInput = {
   description?: Prisma.StringNullableFilter<"Store"> | string | null
   ownerId?: Prisma.StringFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusFilter<"Store"> | $Enums.StoreStatus
+  logoUrl?: Prisma.StringNullableFilter<"Store"> | string | null
   phone?: Prisma.StringNullableFilter<"Store"> | string | null
   registerNumber?: Prisma.StringNullableFilter<"Store"> | string | null
   idCardImage?: Prisma.StringNullableFilter<"Store"> | string | null
@@ -257,6 +265,7 @@ export type StoreOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   registerNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   idCardImage?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -279,6 +288,7 @@ export type StoreWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Store"> | string | null
   ownerId?: Prisma.StringFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusFilter<"Store"> | $Enums.StoreStatus
+  logoUrl?: Prisma.StringNullableFilter<"Store"> | string | null
   phone?: Prisma.StringNullableFilter<"Store"> | string | null
   registerNumber?: Prisma.StringNullableFilter<"Store"> | string | null
   idCardImage?: Prisma.StringNullableFilter<"Store"> | string | null
@@ -298,6 +308,7 @@ export type StoreOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   registerNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   idCardImage?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -320,6 +331,7 @@ export type StoreScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   ownerId?: Prisma.StringWithAggregatesFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusWithAggregatesFilter<"Store"> | $Enums.StoreStatus
+  logoUrl?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   registerNumber?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   idCardImage?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
@@ -335,6 +347,7 @@ export type StoreCreateInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -354,6 +367,7 @@ export type StoreUncheckedCreateInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -371,6 +385,7 @@ export type StoreUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -390,6 +405,7 @@ export type StoreUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -408,6 +424,7 @@ export type StoreCreateManyInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -423,6 +440,7 @@ export type StoreUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -439,6 +457,7 @@ export type StoreUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -465,6 +484,7 @@ export type StoreCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   registerNumber?: Prisma.SortOrder
   idCardImage?: Prisma.SortOrder
@@ -481,6 +501,7 @@ export type StoreMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   registerNumber?: Prisma.SortOrder
   idCardImage?: Prisma.SortOrder
@@ -497,6 +518,7 @@ export type StoreMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   registerNumber?: Prisma.SortOrder
   idCardImage?: Prisma.SortOrder
@@ -595,6 +617,7 @@ export type StoreCreateWithoutOwnerInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -612,6 +635,7 @@ export type StoreUncheckedCreateWithoutOwnerInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -659,6 +683,7 @@ export type StoreScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Store"> | string | null
   ownerId?: Prisma.StringFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusFilter<"Store"> | $Enums.StoreStatus
+  logoUrl?: Prisma.StringNullableFilter<"Store"> | string | null
   phone?: Prisma.StringNullableFilter<"Store"> | string | null
   registerNumber?: Prisma.StringNullableFilter<"Store"> | string | null
   idCardImage?: Prisma.StringNullableFilter<"Store"> | string | null
@@ -674,6 +699,7 @@ export type StoreCreateWithoutProductsInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -692,6 +718,7 @@ export type StoreUncheckedCreateWithoutProductsInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -724,6 +751,7 @@ export type StoreUpdateWithoutProductsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -742,6 +770,7 @@ export type StoreUncheckedUpdateWithoutProductsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -758,6 +787,7 @@ export type StoreCreateWithoutOrdersInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -776,6 +806,7 @@ export type StoreUncheckedCreateWithoutOrdersInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -808,6 +839,7 @@ export type StoreUpdateWithoutOrdersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -826,6 +858,7 @@ export type StoreUncheckedUpdateWithoutOrdersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -842,6 +875,7 @@ export type StoreCreateManyOwnerInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  logoUrl?: string | null
   phone?: string | null
   registerNumber?: string | null
   idCardImage?: string | null
@@ -857,6 +891,7 @@ export type StoreUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -874,6 +909,7 @@ export type StoreUncheckedUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -891,6 +927,7 @@ export type StoreUncheckedUpdateManyWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -947,6 +984,7 @@ export type StoreSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  logoUrl?: boolean
   phone?: boolean
   registerNumber?: boolean
   idCardImage?: boolean
@@ -967,6 +1005,7 @@ export type StoreSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  logoUrl?: boolean
   phone?: boolean
   registerNumber?: boolean
   idCardImage?: boolean
@@ -984,6 +1023,7 @@ export type StoreSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  logoUrl?: boolean
   phone?: boolean
   registerNumber?: boolean
   idCardImage?: boolean
@@ -1001,6 +1041,7 @@ export type StoreSelectScalar = {
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  logoUrl?: boolean
   phone?: boolean
   registerNumber?: boolean
   idCardImage?: boolean
@@ -1011,7 +1052,7 @@ export type StoreSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "ownerId" | "status" | "phone" | "registerNumber" | "idCardImage" | "bankName" | "bankAccountNumber" | "bankAccountHolder" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
+export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "ownerId" | "status" | "logoUrl" | "phone" | "registerNumber" | "idCardImage" | "bankName" | "bankAccountNumber" | "bankAccountHolder" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
 export type StoreInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   products?: boolean | Prisma.Store$productsArgs<ExtArgs>
@@ -1038,6 +1079,7 @@ export type $StorePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     description: string | null
     ownerId: string
     status: $Enums.StoreStatus
+    logoUrl: string | null
     phone: string | null
     registerNumber: string | null
     idCardImage: string | null
@@ -1477,6 +1519,7 @@ export interface StoreFieldRefs {
   readonly description: Prisma.FieldRef<"Store", 'String'>
   readonly ownerId: Prisma.FieldRef<"Store", 'String'>
   readonly status: Prisma.FieldRef<"Store", 'StoreStatus'>
+  readonly logoUrl: Prisma.FieldRef<"Store", 'String'>
   readonly phone: Prisma.FieldRef<"Store", 'String'>
   readonly registerNumber: Prisma.FieldRef<"Store", 'String'>
   readonly idCardImage: Prisma.FieldRef<"Store", 'String'>

@@ -190,7 +190,7 @@ export default function Sidebar({
         </div>
 
         {/* Footer */}
-        <div className={`mt-auto w-full px-2 py-3 pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}>
+        <div className={`mt-auto w-full px-2  pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}>
           <div className="h-px bg-white/12 dark:bg-white/10 my-2 mx-2 max-sm:hidden" />
           <SellerCTA collapsed={isCollapsed} />
           <DarkMode collapsed={isCollapsed} />

@@ -129,6 +129,7 @@ export const StoreScalarFieldEnum = {
   description: 'description',
   ownerId: 'ownerId',
   status: 'status',
+  logoUrl: 'logoUrl',
   phone: 'phone',
   registerNumber: 'registerNumber',
   idCardImage: 'idCardImage',
