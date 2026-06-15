@@ -53,8 +53,20 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set");
 }
 
+function normalizeSslMode(url: string) {
+  const parsedUrl = new URL(url);
+  const sslMode = parsedUrl.searchParams.get("sslmode");
+  const modesWithCurrentVerifyFullBehavior = ["prefer", "require", "verify-ca"];
+
+  if (sslMode && modesWithCurrentVerifyFullBehavior.includes(sslMode)) {
+    parsedUrl.searchParams.set("sslmode", "verify-full");
+  }
+
+  return parsedUrl.toString();
+}
+
 const pool = new Pool({
-  connectionString,
+  connectionString: normalizeSslMode(connectionString),
 });
 
 const adapter = new PrismaPg(pool);

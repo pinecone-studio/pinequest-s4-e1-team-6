@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import OrdersPanel from "./OrdersPanel";
@@ -8,6 +8,14 @@ import { useOrders } from "../hooks/useOrders";
 export default function OrdersButton() {
   const [open, setOpen] = useState(false);
   const orders = useOrders();
+
+  useEffect(() => {
+    const openOrdersPanel = () => setOpen(true);
+
+    window.addEventListener("open-orders-panel", openOrdersPanel);
+    return () =>
+      window.removeEventListener("open-orders-panel", openOrdersPanel);
+  }, []);
 
   return (
     <>
