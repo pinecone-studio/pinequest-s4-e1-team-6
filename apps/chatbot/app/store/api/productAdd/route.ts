@@ -181,6 +181,7 @@ export async function POST(req: NextRequest) {
             brand: brand || "",
             brand_search: normalizedBrand,
             stock: Number(stock),
+            status: Number(stock) > 0 ? "AVAILABLE" : "OUT_OF_STOCK",
             store_name: storeName,
             storeId: store.id,
             size: size || "",

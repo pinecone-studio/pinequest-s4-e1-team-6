@@ -41,14 +41,12 @@ type VisualSearchProduct = {
 
 function QuickActionCard({
   title,
-  description,
   icon: Icon,
   onClick,
   index,
   isUploading = false,
 }: {
   title: string;
-  description: string;
   icon: React.ComponentType<{ className?: string }>;
   onClick: () => void;
   index: number;
@@ -57,28 +55,30 @@ function QuickActionCard({
   return (
     <div className="w-full">
       <motion.button
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
+        transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
         onClick={(e) => {
           e.preventDefault();
           onClick();
         }}
-        className="relative flex h-[128px] w-full flex-col items-start justify-between rounded-[22px] border border-white/14 bg-white/8 p-5 text-left backdrop-blur-xl transition-all duration-200 hover:bg-white/12"
+        className="relative flex h-[74px] w-full items-center rounded-[18px] border border-white/16 bg-white/10 px-4 text-left backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_12px_28px_rgba(8,15,40,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/14 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_18px_34px_rgba(8,15,40,0.22)] active:translate-y-0 active:scale-[0.99] md:h-[92px] md:rounded-[22px] md:px-5"
       >
-        <div className="pointer-events-none relative z-10 flex h-full w-full flex-col justify-between">
-          <div className="flex items-center gap-2 text-white dark:text-white/92">
-            <Icon className="h-4.5 w-4.5" />
-            <span className="text-[15px] font-semibold tracking-[-0.01em]">
+        <div className="pointer-events-none relative z-10 flex w-full items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3 text-white dark:text-white/92">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/14 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] md:h-10 md:w-10">
+              <Icon className="h-4.5 w-4.5 shrink-0 md:h-5 md:w-5" />
+            </span>
+            <span className="truncate text-[14px] font-bold tracking-[-0.01em] md:text-[16px]">
               {title}
             </span>
           </div>
-          <p className="max-w-[28ch] text-[15px] leading-6 text-white dark:text-white/72">
-            {description}
-          </p>
+          <span className="shrink-0 text-lg font-semibold text-white/62 md:text-xl">
+            +
+          </span>
         </div>
         {isUploading && (
-          <span className="absolute right-4 top-4 text-[11px] font-semibold text-white/80">
+          <span className="absolute right-3 top-3 text-[9px] font-semibold text-white/80 md:right-4 md:top-4 md:text-[11px]">
             Uploading...
           </span>
         )}
@@ -132,7 +132,7 @@ export function WelcomeSection({
   };
 
   return (
-    <div className="relative flex min-h-[68vh] flex-col items-center justify-center overflow-hidden px-4 pb-20 pt-6 md:min-h-[85vh] md:px-6 md:pb-38">
+    <div className="relative flex min-h-0 w-full flex-col items-center justify-center overflow-hidden px-3 pb-8 pt-4 md:min-h-[85vh] md:px-6 md:pb-38 md:pt-6">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.12),transparent_70%)]" />
       </div>
@@ -141,16 +141,16 @@ export function WelcomeSection({
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-4 md:mb-8 px-3 py-1 rounded-full border border-white/20 bg-white/15 backdrop-blur-sm shadow-sm"
+          className="mb-3 md:mb-8 px-2.5 py-0.5 rounded-full border border-white/20 bg-white/15 backdrop-blur-sm shadow-sm"
         >
-          <span className="text-white text-[7px] md:text-[9px] font-black tracking-[0.3em] md:tracking-[0.4em] uppercase">
+          <span className="text-white text-[8px] md:text-[9px] font-black tracking-[0.2em] md:tracking-[0.4em] uppercase">
             AI Lifestyle Curated
           </span>
         </motion.div>
 
-        <h1 className="text-3xl md:text-7xl font-black tracking-tighter text-center leading-tight md:leading-[1.1] mb-6 md:mb-6 ">
+        <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-center leading-tight md:leading-[1.1] mb-3 md:mb-6">
           <span className="text-white">Сайн уу, </span>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-[#d7e7ff] to-white animate-shimmer bg-[length:200%_auto] pr-4 italic">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-[#d7e7ff] to-white animate-shimmer bg-[length:200%_auto] pr-2 italic">
             {firstName}!
           </span>
         </h1>
@@ -158,8 +158,8 @@ export function WelcomeSection({
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="flex items-center justify-center gap-x-1.5 text-xs md:text-lg font-light text-white/80 text-center mb-10 md:mb-16 max-w-none md:max-w-max mx-auto md:whitespace-nowrap md:flex-row flex-col"
+          transition={{ delay: 0.2 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-y-1 sm:gap-x-1.5 text-[13px] md:text-lg font-light text-white/80 text-center mb-6 md:mb-16 max-w-[34ch] sm:max-w-none mx-auto"
         >
           <span>Таны сонирхолд нийцсэн</span>
           <span className="text-white italic font-bold">
@@ -181,12 +181,13 @@ export function WelcomeSection({
         />
 
         {children ? (
-          <div className="relative z-20 mt-2 w-full max-w-4xl md:mt-0">
+          <div className="relative z-20 mt-1 w-full max-w-[52rem] md:mt-0">
             {children}
           </div>
         ) : null}
 
-        <div className="mt-6 grid w-full max-w-5xl grid-cols-1 gap-3 px-1 sm:grid-cols-2 md:mt-10 md:grid-cols-3 md:gap-4 md:px-2">
+        {/* Гар утас дээр 1 баганаар, таблет дээр 2, вэб дээр 3 баганаар маш гоё цэгцтэй харагдана */}
+        <div className="mt-4 grid w-full max-w-5xl grid-cols-1 gap-2.5 px-0.5 sm:grid-cols-2 md:mt-10 md:grid-cols-3 md:gap-4 md:px-2">
           {QUICK_ACTIONS.map((item, i) => {
             const isImageCard = item.title === "Image search";
             return (
@@ -220,7 +221,6 @@ export function WelcomeSection({
               >
                 <QuickActionCard
                   title={item.title}
-                  description={item.description}
                   icon={item.icon}
                   isUploading={isImageCard && isSearching}
                   onClick={() => {
@@ -244,7 +244,7 @@ export function WelcomeSection({
         </div>
 
         {isDragging && (
-          <div className="pointer-events-none absolute inset-0 z-20 rounded-[32px] border border-dashed border-white/30 bg-white/10 backdrop-blur-sm" />
+          <div className="pointer-events-none absolute inset-0 z-20 rounded-[24px] md:rounded-[32px] border border-dashed border-white/30 bg-white/10 backdrop-blur-sm" />
         )}
       </div>
 

@@ -89,7 +89,16 @@ type ProductMetadata = {
   description?: string;
   store_id?: string;
   storeId?: string;
+  stock?: string | number;
+  status?: string;
 };
+
+function isInStock(metadata?: ProductMetadata) {
+  const stock = Number(metadata?.stock ?? 0);
+  const status = String(metadata?.status || "").toUpperCase();
+
+  return stock > 0 && status !== "OUT_OF_STOCK";
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -166,6 +175,7 @@ export async function POST(req: NextRequest) {
         ),
         description: String(meta.description || ""),
         store_id: String(meta.store_id || meta.storeId || "default"),
+        stock: Number(meta.stock || 0),
       };
     });
 

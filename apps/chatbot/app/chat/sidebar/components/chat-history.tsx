@@ -87,10 +87,14 @@ export const ChatHistory = ({
       <div
         key={chat.id}
         className={`
-          group relative flex items-center h-9
-          ${collapsed ? "justify-center px-0" : "justify-between px-4"}
-          my-0.5 rounded-lg cursor-pointer transition-all duration-200
-          ${isActive ? "bg-white/18 dark:bg-white/10" : "hover:bg-white/10 dark:hover:bg-white/5"}
+          group relative flex min-h-11 items-center
+          ${collapsed ? "justify-center px-0" : "justify-between px-3.5"}
+          my-1 rounded-xl cursor-pointer border transition-all duration-200
+          ${
+            isActive
+              ? "border-white/18 bg-white/18 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] dark:border-white/12 dark:bg-white/10"
+              : "border-transparent bg-white/8 hover:border-white/14 hover:bg-white/12 dark:bg-white/5 dark:hover:border-white/10 dark:hover:bg-white/8"
+          }
         `}
       >
         <div
@@ -99,7 +103,11 @@ export const ChatHistory = ({
         >
           {!collapsed && (
             <span
-              className={`text-sm truncate ${isActive ? "font-medium text-slate-900 dark:text-white" : "text-slate-800/90 dark:text-slate-300"}`}
+              className={`text-[14px] truncate ${
+                isActive
+                  ? "font-semibold text-slate-950 dark:text-white"
+                  : "font-medium text-slate-900/90 dark:text-white/88"
+              }`}
             >
               {highlightText(chat.title || "New chat", search)}
             </span>
@@ -166,9 +174,9 @@ export const ChatHistory = ({
 
 
   {pinnedChats.length > 0 && (
-    <div className="mb-4">
+    <div className="mb-4 rounded-[22px] border border-white/12 bg-white/9 px-2 py-2 backdrop-blur-md dark:bg-white/4">
       {!collapsed && (
-        <p className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-700/60 dark:text-slate-400/70">
+        <p className="mb-2 px-3 text-[10px] font-black uppercase tracking-[0.22em] text-slate-900/70 dark:text-white/60">
           Pinned
         </p>
       )}
@@ -195,11 +203,11 @@ export const ChatHistory = ({
   )}
 
  
-  <div>
+  <div className="rounded-[22px] border border-white/12 bg-white/9 px-2 py-2 backdrop-blur-md dark:bg-white/4">
     {!collapsed && (
       <button
         onClick={() => setIsRecentOpen(!isRecentOpen)}
-        className="mb-2 flex w-full items-center justify-between px-4 text-[10px] font-bold uppercase tracking-widest text-slate-700/60 dark:text-slate-400/70"
+        className="mb-2 flex w-full items-center justify-between px-3 text-[10px] font-black uppercase tracking-[0.22em] text-slate-950/72 dark:text-white/62"
       >
         <span>Recent</span>
         {isRecentOpen ? (

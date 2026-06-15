@@ -1,22 +1,28 @@
 import { CreditCard, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+
+type FooterProduct = {
+  name: string;
+  price: string | number;
+  [key: string]: unknown;
+};
 
 export const Footer = ({ 
   product, 
   quantity, 
   numericPrice, 
   isAdding, 
+  isSoldOut,
   onBuy, 
   handleAddCart 
 }: { 
-  product: any; 
+  product: FooterProduct; 
   quantity: number;
   numericPrice: number;
   isAdding: boolean;
-  onBuy: (name: string, price: any, product?: any) => void;
+  isSoldOut?: boolean;
+  onBuy: (name: string, price: string | number, product?: FooterProduct) => void;
   handleAddCart: () => void;
 }) => {
-  const [step, setStep] = useState<'detail' | 'form'>('detail');
   return (
     <div className="p-8 border-t border-white/10 bg-[#0b1024]/85 backdrop-blur-2xl space-y-4">
       <div className="flex justify-between items-center mb-2 px-2">
@@ -29,10 +35,11 @@ export const Footer = ({
       <div className="grid grid-cols-1 gap-3">
         <button
           onClick={() => onBuy(product.name, product.price, product)}
-          className="w-full bg-white text-black font-black py-4.5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-slate-200 active:scale-95 shadow-lg shadow-white/5"
+          disabled={isSoldOut}
+          className="w-full bg-white text-black font-black py-4.5 rounded-2xl flex items-center justify-center gap-2 transition-all hover:bg-slate-200 active:scale-95 shadow-lg shadow-white/5 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <CreditCard size={20} />
-          ШУУД ХУДАЛДАН АВАХ
+          {isSoldOut ? "ҮЛДЭГДЭЛ ДУУССАН" : "ШУУД ХУДАЛДАН АВАХ"}
         </button>
 
         <button

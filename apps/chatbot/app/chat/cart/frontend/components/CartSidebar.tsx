@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaMinus, FaPlus, FaTrash, FaTimes } from "react-icons/fa";
@@ -32,6 +32,8 @@ export default function CartSidebar() {
 
   const [showLocationForm, setShowLocationForm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const isSavingOrderRef = useRef(false);
   const [addressData, setAddressData] = useState<AddressData | null>(null);
   const [paymentOrderId, setPaymentOrderId] = useState("CART");
 
@@ -74,6 +76,10 @@ export default function CartSidebar() {
             amount={totalPrice}
             orderId={paymentOrderId}
             onSuccess={async () => {
+              if (isSavingOrderRef.current) return;
+
+              isSavingOrderRef.current = true;
+              setIsSavingOrder(true);
               const orderedItems = [...cartItems];
               const fullAddress = [
                 addressData?.city,
@@ -93,7 +99,10 @@ export default function CartSidebar() {
                     customerPhone: addressData?.phone,
                     address: fullAddress,
                     storeId: orderedItems[0]?.storeId,
-                    storeName: orderedItems[0]?.product?.storeName,
+                    storeName:
+                      orderedItems[0]?.product?.storeName ||
+                      orderedItems[0]?.product?.store_name ||
+                      orderedItems[0]?.product?.metadata?.store_name,
                     items: orderedItems.map((item) => ({
                       productId: item.id,
                       name: item.name,
@@ -105,16 +114,29 @@ export default function CartSidebar() {
                       size: item.selectedSize,
                       selectedSize: item.selectedSize,
                       storeId: item.storeId,
-                      storeName: item.product?.storeName,
+                      storeName:
+                        item.product?.storeName ||
+                        item.product?.store_name ||
+                        item.product?.metadata?.store_name,
                     })),
                   }),
                 });
 
+                const responseData = await response.json().catch(() => null);
+
                 if (!response.ok) {
-                  throw new Error("Order save failed");
+                  alert(
+                    responseData?.error ||
+                      "Захиалга үүсгэх боломжгүй байна. Барааны үлдэгдлээ дахин шалгана уу.",
+                  );
+                  isSavingOrderRef.current = false;
+                  setIsSavingOrder(false);
+                  setShowPayment(false);
+                  setIsCartOpen(false);
+                  return;
                 }
 
-                const savedOrder = (await response.json()) as SavedOrderResponse;
+                const savedOrder = responseData as SavedOrderResponse;
                 saveOrder({
                   orderId: savedOrder?.id || `CART-${Date.now()}`,
                   productName:
@@ -129,12 +151,21 @@ export default function CartSidebar() {
                 clearCart();
                 window.dispatchEvent(new Event("open-orders-panel"));
               } catch (error) {
-                console.error("Cart order save error:", error);
+                console.warn("Cart order save error:", error);
+                alert("Захиалга үүсгэх үед алдаа гарлаа. Дахин оролдоно уу.");
+                isSavingOrderRef.current = false;
+                setIsSavingOrder(false);
+                setShowPayment(false);
+                setIsCartOpen(false);
+                return;
               }
               setShowPayment(false);
               setIsCartOpen(false);
             }}
-            onCancel={() => setShowPayment(false)}
+            onCancel={() => {
+              if (isSavingOrderRef.current || isSavingOrder) return;
+              setShowPayment(false);
+            }}
           />
         </motion.div>
       )}

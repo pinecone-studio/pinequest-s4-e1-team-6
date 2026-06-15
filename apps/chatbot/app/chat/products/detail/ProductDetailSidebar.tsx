@@ -36,6 +36,7 @@ interface Product {
   description?: string;
   storeId?: string;
   storeName?: string;
+  stock?: string | number;
   selectedColor?: string;
   selectedSize?: string;
   metadata?: Record<string, unknown>;
@@ -187,7 +188,13 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
       variant.size === activeSize,
   );
   const maxQuantity =
-    selectedVariant?.stock ?? Number(product?.metadata?.stock || 0);
+    selectedVariant?.stock ??
+    Number(product?.metadata?.stock ?? product?.stock ?? 0);
+  const hasStockInfo =
+    variants.length > 0 ||
+    product?.metadata?.stock !== undefined ||
+    product?.stock !== undefined;
+  const isSoldOut = hasStockInfo && maxQuantity <= 0;
 
   const needsColor = hasColors && colors.length > 1;
   const needsSize = availableSizes.length > 0;
@@ -489,6 +496,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
             quantity={quantity}
             numericPrice={numericPrice}
             isAdding={isAdding}
+            isSoldOut={isSoldOut}
             onBuy={(name, price) => {
               if (!selectionComplete) {
                 setShowSizeWarning(true);
