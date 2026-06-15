@@ -35,7 +35,7 @@ export const DarkMode = ({ collapsed }: { collapsed: boolean }) => {
         {collapsed && (
           <div
             className="
-            pointer-events-none
+            pointer-events-none 
             absolute left-full ml-3 top-1/2 -translate-y-1/2
             px-2 py-1 rounded-md text-xs
       bg-white/95 text-slate-900 shadow-lg ring-1 ring-black/10
@@ -43,7 +43,7 @@ export const DarkMode = ({ collapsed }: { collapsed: boolean }) => {
             opacity-0 translate-x-[-6px]
             group-hover:opacity-100 group-hover:translate-x-0
             transition-all duration-200
-      whitespace-nowrap z-[9999]
+      whitespace-nowrap z-[9999] pb-3
     "
           >
             Theme

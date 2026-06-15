@@ -14,10 +14,10 @@ export const NavActions = () => {
   const { isSignedIn } = useUser();
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 justify-center p-3">
       {!isSignedIn ? (
         <SignInButton mode="redirect">
-          <button className="px-4 py-2 text-sm font-medium rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+          <button className="px-4 pt-4 text-sm font-medium rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-all">
             Sign in
           </button>
         </SignInButton>
