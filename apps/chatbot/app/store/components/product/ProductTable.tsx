@@ -12,13 +12,18 @@ type SizeStockItem = {
 
 type ProductRecord = {
   id?: string;
-  metadata?: Record<string, unknown>;
-  name?: unknown;
-  price?: unknown;
-  brand?: unknown;
-  stock?: unknown;
-};
+  metadata?: Record<string, any>;
+  name?: any;
+  price?: any;
+  brand?: any;
+  stock?: any;
 
+  product_image_url?: string;
+  imageUrl?: string;
+  image?: string;
+  sizeStock?: any;
+  size_stock?: any;
+};
 export default function ProductTable({
   search = "",
   storeName,
