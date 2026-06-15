@@ -10,11 +10,6 @@ import {
   MailCheck,
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
-import emailjs from "@emailjs/browser";
-
-const EMAILJS_SERVICE = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "";
-const EMAILJS_TEMPLATE = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "";
-const EMAILJS_PUBLIC = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "";
 
 const CATEGORIES = [
   "Хувцас, загвар",
@@ -80,45 +75,25 @@ export default function RequestStoreForm() {
     if (!email) return setError("Имэйл хаяг олдсонгүй. Дахин нэвтэрнэ үү.");
     if (!/^\d{8}$/.test(form.phone.trim()))
       return setError("Эхлээд утасны дугаараа зөв оруулна уу");
-    if (!EMAILJS_SERVICE || !EMAILJS_TEMPLATE || !EMAILJS_PUBLIC)
-      return setError("Имэйл үйлчилгээ тохируулагдаагүй байна.");
 
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    setOtpCode(code);
     setSendingOtp(true);
     setError("");
     try {
-      const codeMessage = `Таны баталгаажуулах код: ${code}. Энэ кодыг дэлгүүр нээх хүсэлтийн баталгаажуулалтад ашиглана уу.`;
-      await emailjs.send(
-        EMAILJS_SERVICE,
-        EMAILJS_TEMPLATE,
-        {
-          to_email: email,
-          email,
-          user_email: email,
-          recipient: email,
-          to: email,
-          reply_to: email,
-          to_name: user?.fullName || "Худалдагч",
-          name: user?.fullName || "Худалдагч",
-          code,
-          otp: code,
-          passcode: code,
-          verification_code: code,
-          message: codeMessage,
-          content: codeMessage,
-        },
-        { publicKey: EMAILJS_PUBLIC },
-      );
-      setOtpSent(true);
-    } catch (e: unknown) {
-      const detail =
-        typeof e === "object" && e && "text" in e
-          ? String((e as { text?: string }).text)
-          : "";
-      setError(
-        `Код илгээхэд алдаа гарлаа. ${detail || "Дахин оролдоно уу."}`.trim(),
-      );
+      const res = await fetch("/chat/api/store/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setOtpCode(data.code);
+        setOtpSent(true);
+      } else {
+        setError(data.error || "Код илгээхэд алдаа гарлаа");
+      }
+    } catch {
+      setError("Сүлжээний алдаа гарлаа. Дахин оролдоно уу.");
     } finally {
       setSendingOtp(false);
     }

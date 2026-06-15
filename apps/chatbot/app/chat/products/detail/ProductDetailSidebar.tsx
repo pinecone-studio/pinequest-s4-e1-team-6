@@ -44,6 +44,7 @@ interface Product {
   color_size_stock?: unknown;
   sizeStock?: unknown;
   size_stock?: unknown;
+  [key: string]: unknown;
 }
 
 interface Props {
@@ -115,9 +116,6 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
       }
     } catch {}
 
-    // metadata.sizes массив байгаа ч размер тус бүрийн бодит үлдэгдэлгүй тул
-    // бүгдийг ДУУССАН (stock 0) болгоно — худалдагч жинхэнэ размер/үлдэгдлээ
-    // оруулж байж л зарагдана.
     const sizesArr = meta.sizes;
     if (Array.isArray(sizesArr) && sizesArr.length > 0) {
       return sizesArr
@@ -126,8 +124,6 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
         .map((size) => ({ color: "", size, stock: 0 }));
     }
 
-    // Размерийн мэдээлэл огт байхгүй бараанд төрлөөр нь размер харуулна, гэхдээ
-    // бодит per-размер үлдэгдэлгүй тул бүгдийг ДУУССАН (stock 0) гэж тэмдэглэнэ.
     const text = `${product.name} ${String(meta.category || "")} ${String(
       meta.brand || "",
     )}`.toLowerCase();
