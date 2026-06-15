@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useChatLogic } from "./chat/hooks/useChatLogic";
 import { SparklesCore } from "@/lib/utils/chat-animation/sparkles";
 import { useScrollEffect } from "./chat/hooks/useScrollEffect";
@@ -27,7 +27,6 @@ type SelectedProduct = {
 };
 
 export default function HomeClient() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const { user, isLoaded } = useUser();
@@ -55,6 +54,12 @@ export default function HomeClient() {
   const handledPromptRef = useRef<string | null>(null);
   const currentChatMessages = activeChatId ? allChats[activeChatId] || [] : [];
   const selectedProductPrice = parsePrice(selectedProduct?.price);
+  const recentInterestPrompts = Object.values(allChats)
+    .flat()
+    .filter((message) => message.role === "USER" && message.content?.trim())
+    .map((message) => message.content.trim())
+    .slice(-6)
+    .reverse();
 
   useScrollEffect(messagesEndRef, [currentChatMessages, isTyping]);
 
@@ -75,7 +80,7 @@ export default function HomeClient() {
 
   return (
 
-    <div className="relative flex h-screen w-full overflow-hidden bg-[#2f8bf0] transition-colors duration-300 dark:bg-[#0B1020]">
+    <div className="relative flex h-[100dvh] min-h-[100dvh] w-full overflow-hidden bg-[#2f8bf0] transition-colors duration-300 dark:bg-[#0B1020]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         
         {/* Арын Mesh Blobs: Light дээр image_54da68.png-ийн неон номин цэнхэр болон зөөлөн нил ягаан туяанууд */}
@@ -100,7 +105,7 @@ export default function HomeClient() {
         activeChatId={activeChatId}
       />
 
-      <div className="flex-1 flex flex-col w-full min-w-0 h-screen relative z-10 overflow-hidden">
+      <div className="relative z-10 flex h-[100dvh] min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
         <Header toggleSidebar={toggleSidebar} />
         <OrdersButton />
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -114,14 +119,21 @@ export default function HomeClient() {
           />
         </div>
 
-        <main className="flex-1 overflow-y-auto bg-transparent p-4 relative z-20 custom-scrollbar">
+        <main className="relative z-20 flex-1 overflow-y-auto bg-transparent px-3 pb-3 pt-2 md:px-4 md:pb-4 custom-scrollbar">
           {currentChatMessages.length === 0 ? (
-            <div className="min-h-full flex flex-col justify-center">
+            <div className="flex min-h-full flex-col items-center justify-center pb-4 md:pb-6">
               <WelcomeSection
                 onSelect={(q) => sendMessage(q)}
-                onOpenFeature={(slug) => router.push(`/chat/explore/${slug}`)}
+                onVisualResult={addVisualResult}
                 userName={isLoaded ? user?.firstName : null}
-              />
+                recentInterestPrompts={recentInterestPrompts}
+              >
+                <ChatInput
+                  onSendMessage={sendMessage}
+                  onVisualResult={addVisualResult}
+                  isTyping={isTyping || isStreaming}
+                />
+              </WelcomeSection>
             </div>
           ) : (
             <MessageList
@@ -162,23 +174,11 @@ export default function HomeClient() {
           )}
         </AnimatePresence>
 
-        {currentChatMessages.length === 0 ? (
-          <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center">
-            <div className="pointer-events-auto w-full">
-              <ChatInput
-                onSendMessage={sendMessage}
-                onVisualResult={addVisualResult}
-                history={currentChatMessages}
-                isTyping={isTyping || isStreaming}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="relative z-30 border-t border-black/5 dark:border-white/10">
+        {currentChatMessages.length > 0 && (
+          <div className="relative z-30 border-t border-black/5 bg-transparent dark:border-white/10">
             <ChatInput
               onSendMessage={sendMessage}
               onVisualResult={addVisualResult}
-              history={currentChatMessages}
               isTyping={isTyping || isStreaming}
             />
           </div>

@@ -97,15 +97,14 @@ export default function Sidebar({
 
       <aside
         className={`
-          apple-liquid-glass fixed inset-y-0 left-0 z-[50] flex flex-col h-screen
+          apple-liquid-glass fixed inset-y-0 left-0 z-[50] flex h-[100dvh] flex-col
           transition-all duration-300 ease-in-out
-
+          text-slate-900 dark:text-slate-100
           md:relative md:translate-x-0
-
           ${
             isCollapsed
               ? "-translate-x-full w-0 md:translate-x-0 md:w-16"
-              : "translate-x-0 w-72"
+              : "translate-x-0 w-[min(20rem,calc(100vw-1rem))] md:w-72"
           }
         `}
       >
@@ -114,37 +113,21 @@ export default function Sidebar({
         {/* Top bar */}
         <div className="p-3">
           <div
-            className={`apple-liquid-control flex items-center rounded-[22px] px-2 py-2 ${
-              isCollapsed ? "justify-center" : "justify-between"
+            className={`relative flex items-center transition-all duration-300 ${
+              isCollapsed 
+                ? "flex-col justify-center gap-4" 
+                : "justify-between bg-white/10 dark:bg-white/5 rounded-[32px] p-2"
             }`}
           >
-            {!isCollapsed && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNewChat();
-                }}
-                className="apple-liquid-control flex h-11 items-center gap-2 px-3 rounded-2xl
-                  hover:bg-white/40 dark:hover:bg-white/14
-                  hover:-translate-y-px active:scale-95
-                  transition-all duration-200
-                  text-sm text-white dark:text-white"
-              >
-                <SquarePen size={18} />
-                <span>New chat</span>
-              </button>
-            )}
-
-            <div
-              className={`relative group ${isCollapsed ? "mx-auto flex justify-center w-full" : "ml-auto"}`}
-            >
+            {/* 1. Цэс нээх/хаах товчлуур (ДЭЭР НЬ ГАРГАВ) */}
+            <div className={`relative group ${isCollapsed ? "w-full flex justify-center" : ""}`}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleSidebar();
                 }}
-                className="apple-liquid-control flex h-11 w-11 items-center justify-center rounded-full
-                  hover:bg-white/40 dark:hover:bg-white/14
+                className="apple-liquid-control relative flex h-11 w-11 items-center justify-center rounded-full
+                  hover:bg-white/28 dark:hover:bg-white/14
                   hover:-translate-y-px active:scale-95
                   transition-all duration-200
                   text-white dark:text-white"
@@ -152,9 +135,35 @@ export default function Sidebar({
                 <PanelLeft size={18} />
               </button>
 
+              {/* Tooltip - Hover хийхэд харыг нь цагаан болгов */}
               {isCollapsed && (
-                <div className="hidden md:block pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black text-xs opacity-0 invisible translate-x-[-6px] group-hover:opacity-100 group-hover:visible group-hover:translate-x-0 transition-all duration-200 z-[9999] whitespace-nowrap shadow-xl">
-                  Open menu
+                <div className="hidden md:block pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg bg-white text-black dark:bg-white dark:text-black text-xs font-bold opacity-0 invisible translate-x-[-6px] group-hover:opacity-100 group-hover:visible group-hover:translate-x-0 transition-all duration-200 z-[9999] whitespace-nowrap shadow-2xl border border-black/5">
+                  Menu
+                </div>
+              )}
+            </div>
+
+            {/* 2. New Chat Товчлуур (ДООРОО БАЙРЛАХ БӨӨРӨНХИЙ) */}
+            <div className={`relative group ${isCollapsed ? "w-full flex justify-center" : ""}`}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNewChat();
+                }}
+                className={`apple-liquid-control relative flex h-11 items-center justify-center rounded-full
+                  hover:bg-white/28 dark:hover:bg-white/14
+                  hover:-translate-y-px active:scale-95
+                  transition-all duration-200
+                  text-white dark:text-white
+                  ${isCollapsed ? "w-11" : "px-4 gap-2"}`}
+              >
+                <SquarePen size={18} />
+                {!isCollapsed && <span className="text-sm font-medium">New chat</span>}
+              </button>
+
+              {isCollapsed && (
+                <div className="hidden md:block pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg bg-white text-black dark:bg-white dark:text-black text-xs font-bold opacity-0 invisible translate-x-[-6px] group-hover:opacity-100 group-hover:visible group-hover:translate-x-0 transition-all duration-200 z-[9999] whitespace-nowrap shadow-2xl border border-black/5">
+                  New Chat
                 </div>
               )}
             </div>
@@ -180,10 +189,8 @@ export default function Sidebar({
         </div>
 
         {/* Footer */}
-        <div
-          className={`mt-auto w-full px-2 pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}
-        >
-          <div className="h-px bg-white/18 dark:bg-white/10 my-2 mx-2 max-sm:hidden" />
+        <div className={`mt-auto w-full px-2 pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}>
+          <div className="h-px bg-white/12 dark:bg-white/10 my-2 mx-2 max-sm:hidden" />
           <DarkMode collapsed={isCollapsed} />
           <ClerkAuth collapsed={isCollapsed} />
         </div>
