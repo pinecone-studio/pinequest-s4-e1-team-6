@@ -261,6 +261,24 @@ export default function ProductForm({
       return alert("Барааны нэр болон үнэ заавал байх ёстой!");
     }
 
+    // Өнгө, размер, тоо ширхэг ЗААВАЛ (категори, брэнд заавал биш)
+    if (normalizedSizeRows.length === 0) {
+      return alert(
+        "Та дор хаяж нэг өнгө, размер, тоо ширхэг бүхий мөр оруулна уу!",
+      );
+    }
+    const incompleteRow = sizeStockRows.find((row) => {
+      const hasAny = row.color.trim() || row.size.trim() || String(row.stock).trim();
+      const complete =
+        row.color.trim() && row.size.trim() && Number(row.stock) > 0;
+      return hasAny && !complete;
+    });
+    if (incompleteRow) {
+      return alert(
+        "Бөглөсөн мөр бүрт өнгө, размер, тоо ширхэг (0-ээс их) гурвууланг нь оруулна уу!",
+      );
+    }
+
     setIsSubmitting(true);
     try {
       let imageUrl = previews[0] || "";

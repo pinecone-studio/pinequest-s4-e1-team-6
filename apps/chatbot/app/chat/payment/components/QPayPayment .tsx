@@ -73,7 +73,7 @@ const QPayPayment = ({
           </div>
           <button
             onClick={onCancel}
-            className="absolute right-6 top-7 text-slate-400 hover:text-[#077eef] transition-colors p-2"
+            className="absolute right-6 top-7 text-slate-400 hover:text-[#7c5cff] transition-colors p-2"
           >
             <XCircle size={28} strokeWidth={1.5} />
           </button>
@@ -91,10 +91,10 @@ const QPayPayment = ({
               >
                 {/* QR Code Container */}
                 <div className="relative group mx-auto w-64 h-64">
-                  <div className="absolute -inset-4 bg-[#077eef]/10 rounded-[45px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute -inset-4 bg-[#7c5cff]/10 rounded-[45px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="bg-white p-6 rounded-[35px] relative flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-white/10 overflow-hidden">
                     <div className="w-full h-full bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-3">
-                      <QrCode size={48} className="text-[#077eef] opacity-80" />
+                      <QrCode size={48} className="text-[#7c5cff] opacity-80" />
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
                         #{orderId}
                       </span>
@@ -104,7 +104,7 @@ const QPayPayment = ({
  
                 {/* Amount Display */}
                 <div className="text-center space-y-2">
-                  <p className="text-[11px] font-black text-[#077eef] uppercase tracking-[0.25em]">
+                  <p className="text-[11px] font-black text-[#7c5cff] uppercase tracking-[0.25em]">
                     Төлөх дүн
                   </p>
                   <div className="flex items-baseline justify-center gap-1">
@@ -123,7 +123,7 @@ const QPayPayment = ({
                       className={
                         timeLeft < 60
                           ? "text-red-500 animate-pulse"
-                          : "text-[#077eef]"
+                          : "text-[#7c5cff]"
                       }
                     >
                       {formatTime(timeLeft)}
@@ -134,13 +134,13 @@ const QPayPayment = ({
                       initial={{ width: "100%" }}
                       animate={{ width: `${(timeLeft / 300) * 100}%` }}
                       transition={{ ease: "linear" }}
-                      className="h-full bg-[#077eef] rounded-full shadow-[0_0_10px_rgba(7,126,239,0.5)]"
+                      className="h-full bg-[#7c5cff] rounded-full shadow-[0_0_10px_rgba(124,92,255,0.5)]"
                     />
                   </div>
  
                   <button
                     onClick={handleVerify}
-                    className="w-full py-5 bg-[#077eef] hover:bg-[#066fd4] text-white rounded-2xl font-black text-sm shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] uppercase tracking-[0.1em]"
+                    className="w-full py-5 bg-[#7c5cff] hover:bg-[#6a4ae0] text-white rounded-2xl font-black text-sm shadow-lg shadow-violet-500/20 transition-all active:scale-[0.98] uppercase tracking-[0.1em]"
                   >
                     ТӨЛБӨР БАТАЛГААЖУУЛАХ
                   </button>
@@ -156,8 +156,8 @@ const QPayPayment = ({
                 className="py-24 text-center"
               >
                 <div className="relative w-20 h-20 mx-auto mb-8">
-                  <div className="absolute inset-0 rounded-full border-4 border-[#077eef]/20" />
-                  <Loader2 className="w-20 h-20 text-[#077eef] animate-spin stroke-[1.5]" />
+                  <div className="absolute inset-0 rounded-full border-4 border-[#7c5cff]/20" />
+                  <Loader2 className="w-20 h-20 text-[#7c5cff] animate-spin stroke-[1.5]" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">
                   Шалгаж байна
@@ -221,7 +221,7 @@ const QPayPayment = ({
                       date: new Date().toLocaleString(),
                     });
                   }}
-                  className="w-full py-5 bg-[#077eef] hover:bg-[#066fd4] text-white rounded-2xl text-sm font-black shadow-xl shadow-blue-500/30 transition-all uppercase tracking-widest active:scale-95"
+                  className="w-full py-5 bg-[#7c5cff] hover:bg-[#6a4ae0] text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30 transition-all uppercase tracking-widest active:scale-95"
                 >
                   ЗАХИАЛГА ХАРАХ
                 </button>
@@ -231,7 +231,7 @@ const QPayPayment = ({
  
  
           <div className="flex items-center justify-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] pt-4 border-t border-slate-100 dark:border-white/5">
-            <ShieldCheck size={14} className="text-[#077eef]" />
+            <ShieldCheck size={14} className="text-[#7c5cff]" />
             <span>Secure SSL Encrypted Transaction</span>
           </div>
         </div>

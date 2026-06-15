@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { getStoreNamespaces } from "@/lib/search/get-store-namespaces";
+import { isInStock } from "@/lib/search/stock";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
@@ -69,6 +70,7 @@ export async function GET(req: NextRequest) {
       });
 
     const products = Array.from(deduped.values())
+      .filter((match) => isInStock(match.metadata as Record<string, unknown>))
       .slice(0, 12)
       .map((match) => {
         const meta = (match.metadata || {}) as ProductMetadata;

@@ -32,7 +32,9 @@ enum OrderStatus {
   CONFIRMED
   SHIPPED
   DELIVERED
+  COMPLETED
   CANCELLED
+  DISPUTED
 }
 
 enum PaymentStatus {
@@ -113,6 +115,14 @@ model Store {
   status StoreStatus @default(PENDING)
   products  Product[]
   orders    Order[]
+
+  // KYC — худалдагч таниулах мэдээлэл
+  phone             String?
+  registerNumber    String?  // Иргэний регистрийн дугаар (ж: УБ12345678)
+  idCardImage       String?  // Үнэмлэхний зургийн URL
+  bankName          String?
+  bankAccountNumber String?
+  bankAccountHolder String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -219,6 +229,11 @@ model Order {
   totalAmount Float
   status      OrderStatus @default(PENDING)
 
+  // Маргаан (dispute)
+  disputeReason   String?
+  disputedAt      DateTime?
+  disputeResolved Boolean   @default(false)
+
   items     OrderItem[]
   payment   Payment?
   createdAt DateTime @default(now())
@@ -226,6 +241,7 @@ model Order {
 
   @@index([userId, createdAt])
   @@index([storeId])
+  @@index([status])
 }
 
 model OrderItem {

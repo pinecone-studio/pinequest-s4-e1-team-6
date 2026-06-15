@@ -1,13 +1,32 @@
 "use client";
 
-import { X, ShoppingBag, Plus, Minus, CreditCard, Store, ShieldCheck } from "lucide-react";
+import {
+  X,
+  ShoppingBag,
+  Plus,
+  Minus,
+  CreditCard,
+  Store,
+  ShieldCheck,
+  Ruler,
+  AlertCircle,
+} from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
+import { Reviews } from "./components/Reviews";
 import { createPortal } from "react-dom";
 import { parsePrice } from "@/lib/utils/price";
+
+const SIZE_GUIDE = [
+  { size: "M", chest: "96-100", length: "70" },
+  { size: "L", chest: "100-104", length: "72" },
+  { size: "XL", chest: "104-108", length: "74" },
+  { size: "2XL", chest: "108-112", length: "76" },
+  { size: "3XL", chest: "112-116", length: "78" },
+];
 
 interface Product {
   id: string;
@@ -37,70 +56,162 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [showSizeWarning, setShowSizeWarning] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [fetchedMeta, setFetchedMeta] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const { addToCart, setIsCartOpen } = useCart();
+
+  useEffect(() => {
+    const id = product?.id;
+    if (!id) return;
+    let cancelled = false;
+    const params = new URLSearchParams({ id });
+    if (product?.storeName) params.set("store", product.storeName);
+    fetch(`/chat/api/product-detail?${params.toString()}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && d?.metadata) setFetchedMeta(d.metadata);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.id, product?.storeName]);
 
   const numericPrice = parsePrice(product?.price ?? 0);
   const variants = useMemo(() => {
     if (!product) return [];
 
+    const meta = {
+      ...(product.metadata || {}),
+      ...(fetchedMeta || {}),
+    } as Record<string, unknown>;
     const raw =
-      product.metadata?.colorSizeStock ||
-      product.metadata?.color_size_stock ||
+      meta.colorSizeStock ||
+      meta.color_size_stock ||
       product.colorSizeStock ||
       product.color_size_stock ||
-      product.metadata?.sizeStock ||
-      product.metadata?.size_stock ||
+      meta.sizeStock ||
+      meta.size_stock ||
       product.sizeStock ||
       product.size_stock;
 
     try {
       const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-      if (!Array.isArray(parsed)) return [];
+      if (Array.isArray(parsed)) {
+        const rows = parsed
+          .map((item) => ({
+            color: String(item?.color || "").trim(),
+            size: String(item?.size || "").trim(),
+            stock: Math.max(0, Number(item?.stock) || 0),
+          }))
 
-      return parsed
-        .map((item) => ({
-          color: String(item?.color || "").trim(),
-          size: String(item?.size || "").trim(),
-          stock: Math.max(0, Number(item?.stock) || 0),
-        }))
-        .filter((item) => item.color && item.size);
-    } catch {
-      return [];
+          .filter((item) => item.size);
+        if (rows.length > 0) return rows;
+      }
+    } catch {}
+
+    // metadata.sizes массив байгаа ч размер тус бүрийн бодит үлдэгдэлгүй тул
+    // бүгдийг ДУУССАН (stock 0) болгоно — худалдагч жинхэнэ размер/үлдэгдлээ
+    // оруулж байж л зарагдана.
+    const sizesArr = meta.sizes;
+    if (Array.isArray(sizesArr) && sizesArr.length > 0) {
+      return sizesArr
+        .map((s) => String(s).trim())
+        .filter(Boolean)
+        .map((size) => ({ color: "", size, stock: 0 }));
     }
-  }, [product]);
+
+    // Размерийн мэдээлэл огт байхгүй бараанд төрлөөр нь размер харуулна, гэхдээ
+    // бодит per-размер үлдэгдэлгүй тул бүгдийг ДУУССАН (stock 0) гэж тэмдэглэнэ.
+    const text = `${product.name} ${String(meta.category || "")} ${String(
+      meta.brand || "",
+    )}`.toLowerCase();
+    const isShoe =
+      /gutal|puuz|пүүз|гутал|shoe|sneaker|boot|air force|air max|jordan|p-6000|adistar|yeezy|dunk|nike|adidas|new balance|sb |footwear/.test(
+        text,
+      );
+    const isClothing =
+      /camc|цамц|tsamts|hoodie|shirt|sorochk|сорочк|jacket|куртк|өмд|omd|trouser|jean|нэхий|пальто|coat|tops|малгай|cap|hat|sweater|пиджак/.test(
+        text,
+      );
+    const defaultSizes = isShoe
+      ? ["38", "39", "40", "41", "42", "43", "44", "45"]
+      : isClothing
+        ? ["M", "L", "XL", "2XL", "3XL"]
+        : [];
+    if (defaultSizes.length > 0) {
+      return defaultSizes.map((size) => ({ color: "", size, stock: 0 }));
+    }
+
+    return [];
+  }, [product, fetchedMeta]);
+
+  const hasColors = variants.some((variant) => variant.color);
   const colors = useMemo(
-    () => Array.from(new Set(variants.map((variant) => variant.color))),
+    () =>
+      Array.from(new Set(variants.map((variant) => variant.color))).filter(
+        Boolean,
+      ),
     [variants],
   );
-  const firstAvailableVariant =
-    variants.find((variant) => variant.stock > 0) || variants[0];
-  const activeColor = colors.includes(selectedColor)
-    ? selectedColor
-    : firstAvailableVariant?.color || "";
+
+  const activeColor = !hasColors
+    ? ""
+    : colors.includes(selectedColor)
+      ? selectedColor
+      : colors.length === 1
+        ? colors[0]
+        : "";
   const availableSizes = useMemo(
     () =>
-      variants
-        .filter((variant) => variant.color === activeColor)
-        .map((variant) => variant.size),
-    [activeColor, variants],
+      Array.from(
+        new Set(
+          variants
+            .filter((variant) =>
+              hasColors ? variant.color === activeColor : true,
+            )
+            .map((variant) => variant.size),
+        ),
+      ),
+    [activeColor, variants, hasColors],
   );
-  const activeSize = availableSizes.includes(selectedSize)
-    ? selectedSize
-    : variants.find((variant) => variant.color === activeColor && variant.stock > 0)
-        ?.size ||
-      variants.find((variant) => variant.color === activeColor)?.size ||
-      "";
+
+  const activeSize = availableSizes.includes(selectedSize) ? selectedSize : "";
   const selectedVariant = variants.find(
-    (variant) => variant.color === activeColor && variant.size === activeSize,
+    (variant) =>
+      (hasColors ? variant.color === activeColor : true) &&
+      variant.size === activeSize,
   );
   const maxQuantity =
     selectedVariant?.stock ?? Number(product?.metadata?.stock || 0);
 
+  const needsColor = hasColors && colors.length > 1;
+  const needsSize = availableSizes.length > 0;
+  const selectionComplete =
+    variants.length === 0 ||
+    ((!needsColor || !!activeColor) && (!needsSize || !!activeSize));
+
   if (!product) return null;
 
+  const stockForVariant = (color: string, size: string) =>
+    variants.find(
+      (v) => (hasColors ? v.color === color : true) && v.size === size,
+    )?.stock ?? 0;
+
   const handleAddCart = async () => {
-    if (variants.length > 0 && (!selectedVariant || selectedVariant.stock < quantity)) {
-      alert("Сонгосон өнгө, размерийн үлдэгдэл хүрэлцэхгүй байна.");
+    if (!selectionComplete) {
+      setShowSizeWarning(true);
+      return;
+    }
+    if (
+      variants.length > 0 &&
+      (!selectedVariant || selectedVariant.stock < quantity)
+    ) {
+      setShowSizeWarning(true);
       return;
     }
 
@@ -119,7 +230,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
     setIsCartOpen(true);
   };
 
-  return createPortal (
+  return createPortal(
     <AnimatePresence>
       <div className=" fixed inset-0 z-100">
         <motion.div
@@ -137,7 +248,6 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className="absolute right-0 top-0 h-full w-full md:w-112.5 bg-[#0b1024]/85 backdrop-blur-2xl border-l border-white/10 shadow-2xl flex flex-col text-white"
         >
-          {/* Дээд талын зөөлөн violet туяа */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(159,140,255,0.18),transparent_70%)]" />
 
           <div className="relative flex-1 overflow-y-auto p-8 custom-scrollbar">
@@ -175,66 +285,158 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
               Баталгаат бараа · Хурдан хүргэлт
             </div>
 
-              <div className="space-y-6">
+            <div className="space-y-6">
               {variants.length > 0 && (
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-                  <h3 className="text-white font-bold uppercase text-[10px] tracking-widest">
-                    Сонголт
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="space-y-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-200">
-                        Өнгө
+                <div className="space-y-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  {needsColor && (
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
+                        Өнгө:{" "}
+                        <span className="text-white">
+                          {activeColor || "сонгоно уу"}
+                        </span>
                       </span>
-                      <select
-                        value={activeColor}
-                        onChange={(event) => {
-                          const color = event.target.value;
-                          const nextSize =
-                            variants.find(
-                              (variant) =>
-                                variant.color === color && variant.stock > 0,
-                            )?.size ||
-                            variants.find((variant) => variant.color === color)
-                              ?.size ||
-                            "";
+                      <div className="flex flex-wrap gap-2">
+                        {colors.map((color) => {
+                          const active = color === activeColor;
+                          return (
+                            <button
+                              key={color}
+                              onClick={() => {
+                                setSelectedColor(color);
+                                setSelectedSize("");
+                                setQuantity(1);
+                                setShowSizeWarning(false);
+                              }}
+                              className={`rounded-xl border px-4 py-2 text-sm font-bold transition-all ${
+                                active
+                                  ? "border-[#9f8cff] bg-[#9f8cff]/20 text-white"
+                                  : "border-white/15 text-slate-300 hover:border-white/30 hover:bg-white/5"
+                              }`}
+                            >
+                              {color}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
-                          setSelectedColor(color);
-                          setSelectedSize(nextSize);
-                          setQuantity(1);
-                        }}
-                        className="w-full rounded-xl border border-white/10 bg-white/10 px-3 py-3 text-sm font-bold text-white outline-none"
-                      >
-                        {colors.map((color) => (
-                          <option key={color} value={color} className="text-black">
-                            {color}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="space-y-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-200">
-                        Размер
-                      </span>
-                      <select
-                        value={activeSize}
-                        onChange={(event) => {
-                          setSelectedSize(event.target.value);
-                          setQuantity(1);
-                        }}
-                        className="w-full rounded-xl border border-white/10 bg-white/10 px-3 py-3 text-sm font-bold text-white outline-none"
-                      >
-                        {availableSizes.map((size) => (
-                          <option key={size} value={size} className="text-black">
-                            {size}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                  <p className="text-xs font-bold text-slate-200">
-                    Энэ сонголтын үлдэгдэл: {selectedVariant?.stock ?? 0} ширхэг
-                  </p>
+                  {needsSize && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
+                          Размер:{" "}
+                          <span className="text-white">
+                            {activeSize || "сонгоно уу"}
+                          </span>
+                        </span>
+                        <button
+                          onClick={() => setShowSizeGuide((v) => !v)}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#b7a6ff] transition-colors hover:text-white"
+                        >
+                          <Ruler size={14} />
+                          Хэмжээний заавар
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {availableSizes.map((size) => {
+                          const active = size === activeSize;
+                          const soldOut =
+                            stockForVariant(activeColor, size) <= 0;
+                          return (
+                            <button
+                              key={size}
+                              disabled={soldOut}
+                              onClick={() => {
+                                setSelectedSize(size);
+                                setQuantity(1);
+                                setShowSizeWarning(false);
+                              }}
+                              className={`relative min-w-[3.25rem] rounded-xl border px-4 py-2.5 text-sm font-bold transition-all ${
+                                active
+                                  ? "border-[#9f8cff] bg-[#9f8cff]/20 text-white"
+                                  : "border-white/15 text-slate-200 hover:border-white/30 hover:bg-white/5"
+                              } ${soldOut ? "cursor-not-allowed opacity-30 line-through" : ""}`}
+                            >
+                              {size}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <AnimatePresence>
+                        {showSizeGuide && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-2 overflow-hidden rounded-xl border border-white/10">
+                              <table className="w-full text-xs">
+                                <thead className="bg-white/5 text-slate-400">
+                                  <tr>
+                                    <th className="px-3 py-2 text-left">
+                                      Размер
+                                    </th>
+                                    <th className="px-3 py-2 text-left">
+                                      Цээж (см)
+                                    </th>
+                                    <th className="px-3 py-2 text-left">
+                                      Урт (см)
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {SIZE_GUIDE.map((row) => (
+                                    <tr
+                                      key={row.size}
+                                      className="border-t border-white/5"
+                                    >
+                                      <td className="px-3 py-2 font-bold text-white">
+                                        {row.size}
+                                      </td>
+                                      <td className="px-3 py-2 text-slate-300">
+                                        {row.chest}
+                                      </td>
+                                      <td className="px-3 py-2 text-slate-300">
+                                        {row.length}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
+
+                  {needsSize &&
+                  availableSizes.every(
+                    (s) => stockForVariant(activeColor, s) <= 0,
+                  ) ? (
+                    <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-xs font-semibold text-red-300">
+                      <AlertCircle size={15} />
+                      Энэ бараа дууссан байна
+                    </div>
+                  ) : activeSize ? (
+                    <p className="text-xs font-bold text-slate-300">
+                      Энэ сонголтын үлдэгдэл: {selectedVariant?.stock ?? 0}{" "}
+                      ширхэг
+                    </p>
+                  ) : showSizeWarning ? (
+                    <div className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs font-semibold text-amber-300">
+                      <AlertCircle size={15} />
+                      Та размер мэдээллээ сонгоно уу
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">
+                      Худалдан авахын тулд эхлээд сонголтоо хийнэ үү
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -277,6 +479,8 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
                   </button>
                 </div>
               </div>
+
+              <Reviews productId={product.id || product.name || "product"} />
             </div>
           </div>
 
@@ -286,18 +490,22 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
             numericPrice={numericPrice}
             isAdding={isAdding}
             onBuy={(name, price) => {
+              if (!selectionComplete) {
+                setShowSizeWarning(true);
+                return;
+              }
               onBuy(name, price, {
                 ...product,
                 selectedColor: activeColor,
                 selectedSize: activeSize,
               });
-              onClose(); 
+              onClose();
             }}
             handleAddCart={handleAddCart}
           />
         </motion.div>
       </div>
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }

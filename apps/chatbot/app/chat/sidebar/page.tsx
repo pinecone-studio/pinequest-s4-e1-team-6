@@ -4,6 +4,7 @@ import { NewChatBtn, ChatHistory } from "./components";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ClerkAuth, DarkMode } from "../header/components";
+import { SellerCTA } from "./components/SellerCTA";
 import { PanelLeft, SquarePen } from "lucide-react";
 
 interface SidebarProps {
@@ -191,6 +192,7 @@ export default function Sidebar({
         {/* Footer */}
         <div className={`mt-auto w-full px-2 pb-3 ${isCollapsed ? "max-sm:hidden" : ""}`}>
           <div className="h-px bg-white/12 dark:bg-white/10 my-2 mx-2 max-sm:hidden" />
+          <SellerCTA collapsed={isCollapsed} />
           <DarkMode collapsed={isCollapsed} />
           <ClerkAuth collapsed={isCollapsed} />
         </div>

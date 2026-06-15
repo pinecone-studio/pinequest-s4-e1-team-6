@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { index } from "@/lib/api/pinecone";
+import { isAdmin } from "@/lib/roles";
 
 type OrderRequestItem = {
   id?: string;
@@ -16,28 +17,17 @@ type OrderRequestItem = {
   price?: number | string;
 };
 
+// Админ — бүх хэрэглэгчийн бүх захиалгыг харна
 export async function GET() {
   try {
-    const { userId: clerkId } = await auth();
-    if (!clerkId)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const adminUser = await prisma.user.findUnique({
-      where: { clerkUserId: clerkId },
-      include: { stores: true },
-    });
-
-    if (!adminUser || adminUser.stores.length === 0) {
-      return NextResponse.json([]);
-    }
-
-    const storeIds = adminUser.stores.map((s) => s.id);
+    if (!(await isAdmin()))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const orders = await prisma.order.findMany({
-      where: { storeId: { in: storeIds } },
       include: {
         items: true,
         store: { select: { name: true } },
+        user: { select: { name: true, email: true } },
       },
       orderBy: { createdAt: "desc" },
     });

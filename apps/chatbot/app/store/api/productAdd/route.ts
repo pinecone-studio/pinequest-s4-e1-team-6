@@ -1,6 +1,11 @@
 import { index } from "@/lib/api/pinecone";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import {
+  DELIVERED_STATUSES,
+  productLimitFor,
+  ordersToNextTier,
+} from "@/lib/store/trust-tier";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -99,6 +104,42 @@ export async function POST(req: NextRequest) {
     if (!store) {
       return NextResponse.json({ error: "Дэлгүүр олдсонгүй" }, { status: 404 });
     }
+
+    // ── Trust-tier хязгаарлалт ──────────────────────────────────────────
+    // Амжилттай хүргэгдсэн захиалгын тоогоор байршуулж болох барааны хязгаар
+    const deliveredCount = await prisma.order.count({
+      where: {
+        storeId: store.id,
+        status: { in: [...DELIVERED_STATUSES] },
+      },
+    });
+    const limit = productLimitFor(deliveredCount);
+    if (limit !== Infinity) {
+      let currentProducts = 0;
+      try {
+        const stats = await index.describeIndexStats();
+        currentProducts = stats.namespaces?.[storeName]?.recordCount ?? 0;
+      } catch {
+        currentProducts = 0;
+      }
+      if (currentProducts >= limit) {
+        const need = ordersToNextTier(deliveredCount);
+        return NextResponse.json(
+          {
+            error: `Та одоогоор хамгийн ихдээ ${limit} бараа байршуулах эрхтэй (${currentProducts}/${limit}). ${
+              need
+                ? `Дараагийн түвшинд хүрэхийн тулд ${need} захиалгыг амжилттай хүргэнэ үү.`
+                : ""
+            }`.trim(),
+            limit,
+            currentProducts,
+            deliveredCount,
+          },
+          { status: 403 },
+        );
+      }
+    }
+    // ────────────────────────────────────────────────────────────────────
 
     const embeddings = new OpenAIEmbeddings({
       openAIApiKey: process.env.OPENAI_KEY,

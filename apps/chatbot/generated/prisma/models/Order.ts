@@ -53,6 +53,9 @@ export type OrderMinAggregateOutputType = {
   address: string | null
   totalAmount: number | null
   status: $Enums.OrderStatus | null
+  disputeReason: string | null
+  disputedAt: Date | null
+  disputeResolved: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -72,6 +75,9 @@ export type OrderMaxAggregateOutputType = {
   address: string | null
   totalAmount: number | null
   status: $Enums.OrderStatus | null
+  disputeReason: string | null
+  disputedAt: Date | null
+  disputeResolved: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -91,6 +97,9 @@ export type OrderCountAggregateOutputType = {
   address: number
   totalAmount: number
   status: number
+  disputeReason: number
+  disputedAt: number
+  disputeResolved: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -124,6 +133,9 @@ export type OrderMinAggregateInputType = {
   address?: true
   totalAmount?: true
   status?: true
+  disputeReason?: true
+  disputedAt?: true
+  disputeResolved?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -143,6 +155,9 @@ export type OrderMaxAggregateInputType = {
   address?: true
   totalAmount?: true
   status?: true
+  disputeReason?: true
+  disputedAt?: true
+  disputeResolved?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -162,6 +177,9 @@ export type OrderCountAggregateInputType = {
   address?: true
   totalAmount?: true
   status?: true
+  disputeReason?: true
+  disputedAt?: true
+  disputeResolved?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -268,6 +286,9 @@ export type OrderGroupByOutputType = {
   address: string | null
   totalAmount: number
   status: $Enums.OrderStatus
+  disputeReason: string | null
+  disputedAt: Date | null
+  disputeResolved: boolean
   createdAt: Date
   updatedAt: Date
   _count: OrderCountAggregateOutputType | null
@@ -310,6 +331,9 @@ export type OrderWhereInput = {
   address?: Prisma.StringNullableFilter<"Order"> | string | null
   totalAmount?: Prisma.FloatFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
+  disputeReason?: Prisma.StringNullableFilter<"Order"> | string | null
+  disputedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  disputeResolved?: Prisma.BoolFilter<"Order"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -333,6 +357,9 @@ export type OrderOrderByWithRelationInput = {
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputeResolved?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -359,6 +386,9 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   address?: Prisma.StringNullableFilter<"Order"> | string | null
   totalAmount?: Prisma.FloatFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
+  disputeReason?: Prisma.StringNullableFilter<"Order"> | string | null
+  disputedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  disputeResolved?: Prisma.BoolFilter<"Order"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -382,6 +412,9 @@ export type OrderOrderByWithAggregationInput = {
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputeResolved?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderCountOrderByAggregateInput
@@ -409,6 +442,9 @@ export type OrderScalarWhereWithAggregatesInput = {
   address?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   totalAmount?: Prisma.FloatWithAggregatesFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusWithAggregatesFilter<"Order"> | $Enums.OrderStatus
+  disputeReason?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  disputedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+  disputeResolved?: Prisma.BoolWithAggregatesFilter<"Order"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
 }
@@ -426,6 +462,9 @@ export type OrderCreateInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -449,6 +488,9 @@ export type OrderUncheckedCreateInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -468,6 +510,9 @@ export type OrderUpdateInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -491,6 +536,9 @@ export type OrderUncheckedUpdateInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -512,6 +560,9 @@ export type OrderCreateManyInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -529,6 +580,9 @@ export type OrderUpdateManyMutationInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -548,6 +602,9 @@ export type OrderUncheckedUpdateManyInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -577,6 +634,9 @@ export type OrderCountOrderByAggregateInput = {
   address?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrder
+  disputedAt?: Prisma.SortOrder
+  disputeResolved?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -602,6 +662,9 @@ export type OrderMaxOrderByAggregateInput = {
   address?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrder
+  disputedAt?: Prisma.SortOrder
+  disputeResolved?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -621,6 +684,9 @@ export type OrderMinOrderByAggregateInput = {
   address?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrder
+  disputedAt?: Prisma.SortOrder
+  disputeResolved?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -769,6 +835,9 @@ export type OrderCreateWithoutUserInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   store?: Prisma.StoreCreateNestedOneWithoutOrdersInput
@@ -790,6 +859,9 @@ export type OrderUncheckedCreateWithoutUserInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -840,6 +912,9 @@ export type OrderScalarWhereInput = {
   address?: Prisma.StringNullableFilter<"Order"> | string | null
   totalAmount?: Prisma.FloatFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
+  disputeReason?: Prisma.StringNullableFilter<"Order"> | string | null
+  disputedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  disputeResolved?: Prisma.BoolFilter<"Order"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
 }
@@ -857,6 +932,9 @@ export type OrderCreateWithoutStoreInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -878,6 +956,9 @@ export type OrderUncheckedCreateWithoutStoreInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -923,6 +1004,9 @@ export type OrderCreateWithoutItemsInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -945,6 +1029,9 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutOrderInput
@@ -979,6 +1066,9 @@ export type OrderUpdateWithoutItemsInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -1001,6 +1091,9 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutOrderNestedInput
@@ -1019,6 +1112,9 @@ export type OrderCreateWithoutPaymentInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -1041,6 +1137,9 @@ export type OrderUncheckedCreateWithoutPaymentInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -1075,6 +1174,9 @@ export type OrderUpdateWithoutPaymentInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -1097,6 +1199,9 @@ export type OrderUncheckedUpdateWithoutPaymentInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -1116,6 +1221,9 @@ export type OrderCreateManyUserInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1133,6 +1241,9 @@ export type OrderUpdateWithoutUserInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   store?: Prisma.StoreUpdateOneWithoutOrdersNestedInput
@@ -1154,6 +1265,9 @@ export type OrderUncheckedUpdateWithoutUserInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -1174,6 +1288,9 @@ export type OrderUncheckedUpdateManyWithoutUserInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1192,6 +1309,9 @@ export type OrderCreateManyStoreInput = {
   address?: string | null
   totalAmount: number
   status?: $Enums.OrderStatus
+  disputeReason?: string | null
+  disputedAt?: Date | string | null
+  disputeResolved?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1209,6 +1329,9 @@ export type OrderUpdateWithoutStoreInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -1230,6 +1353,9 @@ export type OrderUncheckedUpdateWithoutStoreInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -1250,6 +1376,9 @@ export type OrderUncheckedUpdateManyWithoutStoreInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeResolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1300,6 +1429,9 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   address?: boolean
   totalAmount?: boolean
   status?: boolean
+  disputeReason?: boolean
+  disputedAt?: boolean
+  disputeResolved?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1324,6 +1456,9 @@ export type OrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   address?: boolean
   totalAmount?: boolean
   status?: boolean
+  disputeReason?: boolean
+  disputedAt?: boolean
+  disputeResolved?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1345,6 +1480,9 @@ export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   address?: boolean
   totalAmount?: boolean
   status?: boolean
+  disputeReason?: boolean
+  disputedAt?: boolean
+  disputeResolved?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1366,11 +1504,14 @@ export type OrderSelectScalar = {
   address?: boolean
   totalAmount?: boolean
   status?: boolean
+  disputeReason?: boolean
+  disputedAt?: boolean
+  disputeResolved?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "productId" | "productName" | "productImage" | "storeId" | "quantity" | "price" | "paidAt" | "customerName" | "customerPhone" | "address" | "totalAmount" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "productId" | "productName" | "productImage" | "storeId" | "quantity" | "price" | "paidAt" | "customerName" | "customerPhone" | "address" | "totalAmount" | "status" | "disputeReason" | "disputedAt" | "disputeResolved" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   store?: boolean | Prisma.Order$storeArgs<ExtArgs>
@@ -1410,6 +1551,9 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     address: string | null
     totalAmount: number
     status: $Enums.OrderStatus
+    disputeReason: string | null
+    disputedAt: Date | null
+    disputeResolved: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["order"]>
@@ -1853,6 +1997,9 @@ export interface OrderFieldRefs {
   readonly address: Prisma.FieldRef<"Order", 'String'>
   readonly totalAmount: Prisma.FieldRef<"Order", 'Float'>
   readonly status: Prisma.FieldRef<"Order", 'OrderStatus'>
+  readonly disputeReason: Prisma.FieldRef<"Order", 'String'>
+  readonly disputedAt: Prisma.FieldRef<"Order", 'DateTime'>
+  readonly disputeResolved: Prisma.FieldRef<"Order", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Order", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Order", 'DateTime'>
 }

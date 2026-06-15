@@ -3,6 +3,7 @@ import OpenAI from 'openai'
 import { auth } from '@clerk/nextjs/server'
 import { index } from '@/lib/api/pinecone'
 import { prisma } from '@/lib/prisma'
+import { isInStock } from '@/lib/search/stock'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY,
@@ -283,9 +284,14 @@ export async function POST(req: Request) {
       )
 
       const queryResults = await Promise.allSettled(queryPromises)
-      const allMatches = queryResults.flatMap((result) =>
-        result.status === 'fulfilled' ? result.value.matches || [] : []
-      )
+      const allMatches = queryResults
+        .flatMap((result) =>
+          result.status === 'fulfilled' ? result.value.matches || [] : []
+        )
+        // Үлдэгдэл дууссан (OUT_OF_STOCK) барааг хэрэглэгчид харуулахгүй
+        .filter((match) =>
+          isInStock(match.metadata as Record<string, unknown> | undefined)
+        )
 
       const keywordMatches = allMatches.filter((match) =>
         hasKeywordMatch(

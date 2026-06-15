@@ -1464,6 +1464,12 @@ export const StoreScalarFieldEnum = {
   description: 'description',
   ownerId: 'ownerId',
   status: 'status',
+  phone: 'phone',
+  registerNumber: 'registerNumber',
+  idCardImage: 'idCardImage',
+  bankName: 'bankName',
+  bankAccountNumber: 'bankAccountNumber',
+  bankAccountHolder: 'bankAccountHolder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1547,6 +1553,9 @@ export const OrderScalarFieldEnum = {
   address: 'address',
   totalAmount: 'totalAmount',
   status: 'status',
+  disputeReason: 'disputeReason',
+  disputedAt: 'disputedAt',
+  disputeResolved: 'disputeResolved',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

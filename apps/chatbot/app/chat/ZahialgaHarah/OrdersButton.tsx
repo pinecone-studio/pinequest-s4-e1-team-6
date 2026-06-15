@@ -24,9 +24,9 @@ export default function OrdersButton() {
         className="
           fixed bottom-24 right-6 z-50
           w-12 h-12 rounded-full
-          bg-[#077eef] hover:bg-[#066fd4]
+          bg-[#7c5cff] hover:bg-[#6a4ae0]
           flex items-center justify-center
-          shadow-lg shadow-blue-500/30
+          shadow-lg shadow-violet-500/30
           transition-all duration-200 active:scale-95
         "
       >

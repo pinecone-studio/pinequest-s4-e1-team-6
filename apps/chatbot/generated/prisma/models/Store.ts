@@ -30,6 +30,12 @@ export type StoreMinAggregateOutputType = {
   description: string | null
   ownerId: string | null
   status: $Enums.StoreStatus | null
+  phone: string | null
+  registerNumber: string | null
+  idCardImage: string | null
+  bankName: string | null
+  bankAccountNumber: string | null
+  bankAccountHolder: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +46,12 @@ export type StoreMaxAggregateOutputType = {
   description: string | null
   ownerId: string | null
   status: $Enums.StoreStatus | null
+  phone: string | null
+  registerNumber: string | null
+  idCardImage: string | null
+  bankName: string | null
+  bankAccountNumber: string | null
+  bankAccountHolder: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +62,12 @@ export type StoreCountAggregateOutputType = {
   description: number
   ownerId: number
   status: number
+  phone: number
+  registerNumber: number
+  idCardImage: number
+  bankName: number
+  bankAccountNumber: number
+  bankAccountHolder: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,6 +80,12 @@ export type StoreMinAggregateInputType = {
   description?: true
   ownerId?: true
   status?: true
+  phone?: true
+  registerNumber?: true
+  idCardImage?: true
+  bankName?: true
+  bankAccountNumber?: true
+  bankAccountHolder?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +96,12 @@ export type StoreMaxAggregateInputType = {
   description?: true
   ownerId?: true
   status?: true
+  phone?: true
+  registerNumber?: true
+  idCardImage?: true
+  bankName?: true
+  bankAccountNumber?: true
+  bankAccountHolder?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +112,12 @@ export type StoreCountAggregateInputType = {
   description?: true
   ownerId?: true
   status?: true
+  phone?: true
+  registerNumber?: true
+  idCardImage?: true
+  bankName?: true
+  bankAccountNumber?: true
+  bankAccountHolder?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,6 +201,12 @@ export type StoreGroupByOutputType = {
   description: string | null
   ownerId: string
   status: $Enums.StoreStatus
+  phone: string | null
+  registerNumber: string | null
+  idCardImage: string | null
+  bankName: string | null
+  bankAccountNumber: string | null
+  bankAccountHolder: string | null
   createdAt: Date
   updatedAt: Date
   _count: StoreCountAggregateOutputType | null
@@ -196,6 +238,12 @@ export type StoreWhereInput = {
   description?: Prisma.StringNullableFilter<"Store"> | string | null
   ownerId?: Prisma.StringFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusFilter<"Store"> | $Enums.StoreStatus
+  phone?: Prisma.StringNullableFilter<"Store"> | string | null
+  registerNumber?: Prisma.StringNullableFilter<"Store"> | string | null
+  idCardImage?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankName?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankAccountNumber?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankAccountHolder?: Prisma.StringNullableFilter<"Store"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Store"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Store"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -209,6 +257,12 @@ export type StoreOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  registerNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  idCardImage?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountHolder?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   owner?: Prisma.UserOrderByWithRelationInput
@@ -225,6 +279,12 @@ export type StoreWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Store"> | string | null
   ownerId?: Prisma.StringFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusFilter<"Store"> | $Enums.StoreStatus
+  phone?: Prisma.StringNullableFilter<"Store"> | string | null
+  registerNumber?: Prisma.StringNullableFilter<"Store"> | string | null
+  idCardImage?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankName?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankAccountNumber?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankAccountHolder?: Prisma.StringNullableFilter<"Store"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Store"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Store"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -238,6 +298,12 @@ export type StoreOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  registerNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  idCardImage?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountHolder?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.StoreCountOrderByAggregateInput
@@ -254,6 +320,12 @@ export type StoreScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   ownerId?: Prisma.StringWithAggregatesFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusWithAggregatesFilter<"Store"> | $Enums.StoreStatus
+  phone?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
+  registerNumber?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
+  idCardImage?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
+  bankName?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
+  bankAccountNumber?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
+  bankAccountHolder?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Store"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Store"> | Date | string
 }
@@ -263,6 +335,12 @@ export type StoreCreateInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutStoresInput
@@ -276,6 +354,12 @@ export type StoreUncheckedCreateInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutStoreInput
@@ -287,6 +371,12 @@ export type StoreUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutStoresNestedInput
@@ -300,6 +390,12 @@ export type StoreUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutStoreNestedInput
@@ -312,6 +408,12 @@ export type StoreCreateManyInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -321,6 +423,12 @@ export type StoreUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -331,6 +439,12 @@ export type StoreUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -351,6 +465,12 @@ export type StoreCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  registerNumber?: Prisma.SortOrder
+  idCardImage?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrder
+  bankAccountHolder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -361,6 +481,12 @@ export type StoreMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  registerNumber?: Prisma.SortOrder
+  idCardImage?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrder
+  bankAccountHolder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -371,6 +497,12 @@ export type StoreMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  registerNumber?: Prisma.SortOrder
+  idCardImage?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrder
+  bankAccountHolder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -463,6 +595,12 @@ export type StoreCreateWithoutOwnerInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductCreateNestedManyWithoutStoreInput
@@ -474,6 +612,12 @@ export type StoreUncheckedCreateWithoutOwnerInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutStoreInput
@@ -515,6 +659,12 @@ export type StoreScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Store"> | string | null
   ownerId?: Prisma.StringFilter<"Store"> | string
   status?: Prisma.EnumStoreStatusFilter<"Store"> | $Enums.StoreStatus
+  phone?: Prisma.StringNullableFilter<"Store"> | string | null
+  registerNumber?: Prisma.StringNullableFilter<"Store"> | string | null
+  idCardImage?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankName?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankAccountNumber?: Prisma.StringNullableFilter<"Store"> | string | null
+  bankAccountHolder?: Prisma.StringNullableFilter<"Store"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Store"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Store"> | Date | string
 }
@@ -524,6 +674,12 @@ export type StoreCreateWithoutProductsInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutStoresInput
@@ -536,6 +692,12 @@ export type StoreUncheckedCreateWithoutProductsInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutStoreInput
@@ -562,6 +724,12 @@ export type StoreUpdateWithoutProductsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutStoresNestedInput
@@ -574,6 +742,12 @@ export type StoreUncheckedUpdateWithoutProductsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutStoreNestedInput
@@ -584,6 +758,12 @@ export type StoreCreateWithoutOrdersInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutStoresInput
@@ -596,6 +776,12 @@ export type StoreUncheckedCreateWithoutOrdersInput = {
   description?: string | null
   ownerId: string
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutStoreInput
@@ -622,6 +808,12 @@ export type StoreUpdateWithoutOrdersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutStoresNestedInput
@@ -634,6 +826,12 @@ export type StoreUncheckedUpdateWithoutOrdersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutStoreNestedInput
@@ -644,6 +842,12 @@ export type StoreCreateManyOwnerInput = {
   name: string
   description?: string | null
   status?: $Enums.StoreStatus
+  phone?: string | null
+  registerNumber?: string | null
+  idCardImage?: string | null
+  bankName?: string | null
+  bankAccountNumber?: string | null
+  bankAccountHolder?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -653,6 +857,12 @@ export type StoreUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUpdateManyWithoutStoreNestedInput
@@ -664,6 +874,12 @@ export type StoreUncheckedUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutStoreNestedInput
@@ -675,6 +891,12 @@ export type StoreUncheckedUpdateManyWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStoreStatusFieldUpdateOperationsInput | $Enums.StoreStatus
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idCardImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountHolder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -725,6 +947,12 @@ export type StoreSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  phone?: boolean
+  registerNumber?: boolean
+  idCardImage?: boolean
+  bankName?: boolean
+  bankAccountNumber?: boolean
+  bankAccountHolder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -739,6 +967,12 @@ export type StoreSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  phone?: boolean
+  registerNumber?: boolean
+  idCardImage?: boolean
+  bankName?: boolean
+  bankAccountNumber?: boolean
+  bankAccountHolder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -750,6 +984,12 @@ export type StoreSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  phone?: boolean
+  registerNumber?: boolean
+  idCardImage?: boolean
+  bankName?: boolean
+  bankAccountNumber?: boolean
+  bankAccountHolder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -761,11 +1001,17 @@ export type StoreSelectScalar = {
   description?: boolean
   ownerId?: boolean
   status?: boolean
+  phone?: boolean
+  registerNumber?: boolean
+  idCardImage?: boolean
+  bankName?: boolean
+  bankAccountNumber?: boolean
+  bankAccountHolder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "ownerId" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
+export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "ownerId" | "status" | "phone" | "registerNumber" | "idCardImage" | "bankName" | "bankAccountNumber" | "bankAccountHolder" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
 export type StoreInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   products?: boolean | Prisma.Store$productsArgs<ExtArgs>
@@ -792,6 +1038,12 @@ export type $StorePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     description: string | null
     ownerId: string
     status: $Enums.StoreStatus
+    phone: string | null
+    registerNumber: string | null
+    idCardImage: string | null
+    bankName: string | null
+    bankAccountNumber: string | null
+    bankAccountHolder: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["store"]>
@@ -1225,6 +1477,12 @@ export interface StoreFieldRefs {
   readonly description: Prisma.FieldRef<"Store", 'String'>
   readonly ownerId: Prisma.FieldRef<"Store", 'String'>
   readonly status: Prisma.FieldRef<"Store", 'StoreStatus'>
+  readonly phone: Prisma.FieldRef<"Store", 'String'>
+  readonly registerNumber: Prisma.FieldRef<"Store", 'String'>
+  readonly idCardImage: Prisma.FieldRef<"Store", 'String'>
+  readonly bankName: Prisma.FieldRef<"Store", 'String'>
+  readonly bankAccountNumber: Prisma.FieldRef<"Store", 'String'>
+  readonly bankAccountHolder: Prisma.FieldRef<"Store", 'String'>
   readonly createdAt: Prisma.FieldRef<"Store", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Store", 'DateTime'>
 }

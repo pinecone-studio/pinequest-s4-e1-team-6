@@ -25,6 +25,30 @@ export async function PATCH(req: Request) {
   const { userId, role } = await req.json();
   if (!["USER", "STORE_OWNER", "ADMIN"].includes(role))
     return NextResponse.json({ error: "Buruu role" }, { status: 400 });
-  await prisma.user.update({ where: { id: userId }, data: { role } });
+
+  const data: {
+    role: "USER" | "STORE_OWNER" | "ADMIN";
+    storeName?: string | null;
+  } = { role };
+
+  if (role === "USER") {
+    // Эрх хураах — идэвхтэй дэлгүүрийг нь татгалзсан болгож, дахин хүсэлт
+    // гаргах боломжтой болгоно
+    await prisma.store.updateMany({
+      where: { ownerId: userId, status: { in: ["PENDING", "APPROVED"] } },
+      data: { status: "REJECTED" },
+    });
+    data.storeName = null;
+  } else if (role === "STORE_OWNER") {
+    // Батлагдсан дэлгүүртэй бол storeName-г нь сэргээнэ
+    const store = await prisma.store.findFirst({
+      where: { ownerId: userId, status: "APPROVED" },
+      orderBy: { createdAt: "asc" },
+      select: { name: true },
+    });
+    if (store) data.storeName = store.name;
+  }
+
+  await prisma.user.update({ where: { id: userId }, data });
   return NextResponse.json({ success: true });
 }

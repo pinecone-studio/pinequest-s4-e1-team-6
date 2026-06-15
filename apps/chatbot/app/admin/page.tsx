@@ -38,13 +38,13 @@ export default async function AdminDashboard() {
       label: "Нийт бараа",
       value: productCount,
       icon: Package,
-      href: "/admin/stores",
+      href: "/admin/products",
     },
     {
       label: "Нийт захиалга",
       value: orderCount,
       icon: ShoppingCart,
-      href: "/admin/stores",
+      href: "/admin/orders",
     },
   ];
 
@@ -55,20 +55,36 @@ export default async function AdminDashboard() {
         <p className="text-sm text-slate-400 mt-1">Системийн ерөнхий байдал</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
           <Link
             key={c.label}
             href={c.href}
-            className={`rounded-2xl border p-6 transition-all hover:bg-white/5 ${
+            className={`group relative overflow-hidden rounded-2xl border p-6 transition-all hover:-translate-y-0.5 ${
               c.highlight
-                ? "border-[#7c5cff] bg-[#7c5cff]/10"
-                : "border-white/10 bg-white/[0.03]"
+                ? "border-[#7c5cff]/60 bg-[#7c5cff]/10 hover:bg-[#7c5cff]/15"
+                : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
             }`}
           >
-            <c.icon className="h-6 w-6 text-[#9b8cff] mb-3" />
+            <div className="mb-3 flex items-center justify-between">
+              <span
+                className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+                  c.highlight ? "bg-[#7c5cff]/25" : "bg-white/5"
+                }`}
+              >
+                <c.icon className="h-5 w-5 text-[#9b8cff]" />
+              </span>
+              {c.highlight && (
+                <span className="rounded-full bg-[#7c5cff] px-2 py-0.5 text-[10px] font-bold uppercase">
+                  Шинэ
+                </span>
+              )}
+            </div>
             <p className="text-3xl font-black">{c.value}</p>
-            <p className="text-sm text-slate-400 mt-1">{c.label}</p>
+            <p className="mt-1 text-sm text-slate-400">{c.label}</p>
+            <span className="absolute right-5 bottom-5 text-slate-600 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100">
+              →
+            </span>
           </Link>
         ))}
       </div>

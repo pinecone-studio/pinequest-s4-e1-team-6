@@ -210,12 +210,12 @@ export default function CartSidebar() {
                       <span className="text-black font-bold">
                         {(item.price * item.quantity).toLocaleString()}₮
                       </span>
-                      <div className="flex items-center gap-3 bg-[#0094ff] px-2 py-1 rounded-lg border border-white/10">
+                      <div className="flex items-center gap-3 bg-[#7c5cff] px-2 py-1 rounded-lg border border-white/10">
                         <button
                           onClick={() =>
                             updateQuantity(item.cartKey || item.id, -1)
                           }
-                          className="text-white hover:text-[#071eef] p-1"
+                          className="text-white hover:text-[#9f8cff] p-1"
                         >
                           <FaMinus size={10} />
                         </button>
@@ -226,7 +226,7 @@ export default function CartSidebar() {
                           onClick={() =>
                             updateQuantity(item.cartKey || item.id, 1)
                           }
-                          className="text-white hover:text-[#071eef] p-1"
+                          className="text-white hover:text-[#9f8cff] p-1"
                         >
                           <FaPlus size={10} />
                         </button>
@@ -248,7 +248,7 @@ export default function CartSidebar() {
               </div>
               <button
                 onClick={() => setShowLocationForm(true)}
-                className="w-full py-4 bg-[#0094ff] text-white font-black rounded-xl hover:bg-[#e3e6ec] hover:text-black transition-all text-xl"
+                className="w-full py-4 bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] text-white font-black rounded-xl hover:brightness-110 transition-all text-xl shadow-[0_10px_24px_rgba(111,123,255,0.3)]"
               >
                 Захиалга өгөх
               </button>
