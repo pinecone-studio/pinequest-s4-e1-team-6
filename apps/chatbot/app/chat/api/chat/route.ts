@@ -32,6 +32,7 @@ const FALLBACK_NAMESPACES = [
 
 const SEARCH_STOP_WORDS = new Set([
   "bnuu",
+  "bnu",
   "bn",
   "baina",
   "baraa",
@@ -41,17 +42,60 @@ const SEARCH_STOP_WORDS = new Set([
   "байгаа",
   "байгаа юу",
   "bgaa",
+  "bga",
   "yu",
   "uu",
   "юу",
   "уу",
   "вэ",
   "ve",
+  "geed",
+  "geer",
+  "gheer",
+  "geheer",
   "gehed",
+  "mna",
+  "manai",
+  "delguurt",
+  "delguur",
+  "odoo",
+  "odo",
+  "nertei",
   "гэсэн",
   "нертэй",
   "нэртэй",
 ]);
+
+const SEARCH_QUALITY_WORDS = new Set([
+  "dajgui",
+  "daajgui",
+  "dajgvi",
+  "gaigui",
+  "gaigu",
+  "goy",
+  "goe",
+  "saihan",
+  "sain",
+  "nice",
+  "cool",
+  "bolomjiin",
+  "unetei",
+  "hyamd",
+  "hyamdhan",
+]);
+
+const SEARCH_TERM_ALIASES: Record<string, string[]> = {
+  tsamts: ["t-shirt", "shirt", "tee"],
+  tsamt: ["t-shirt", "shirt", "tee"],
+  tsamtsnuud: ["t-shirt", "shirt", "tee"],
+  futbalka: ["t-shirt", "shirt", "tee"],
+  podvolk: ["t-shirt", "shirt", "tee"],
+  huvtsas: ["clothing", "clothes", "apparel"],
+  gutal: ["shoe", "shoes", "sneaker", "sneakers"],
+  puuz: ["shoe", "shoes", "sneaker", "sneakers"],
+  kurtka: ["jacket", "coat"],
+  omd: ["pants", "jeans", "trousers"],
+};
 
 function normalizeOpenAIRole(role: IncomingMessage["role"]): OpenAIRole {
   const r = role.toLowerCase();
@@ -73,6 +117,11 @@ function expandSearchTerm(term: string) {
   if (/^[a-z0-9-]+$/.test(term) && term.length > 4 && term.endsWith("n")) {
     variants.add(term.slice(0, -1));
   }
+  for (const variant of Array.from(variants)) {
+    for (const alias of SEARCH_TERM_ALIASES[variant] || []) {
+      variants.add(alias);
+    }
+  }
   return Array.from(variants);
 }
 
@@ -80,7 +129,12 @@ function extractSearchTerms(message: string) {
   return normalizeSearchText(message)
     .split(/\s+/)
     .map((term) => term.trim())
-    .filter((term) => term.length > 1 && !SEARCH_STOP_WORDS.has(term))
+    .filter(
+      (term) =>
+        term.length > 1 &&
+        !SEARCH_STOP_WORDS.has(term) &&
+        !SEARCH_QUALITY_WORDS.has(term),
+    )
     .flatMap(expandSearchTerm);
 }
 
@@ -129,7 +183,7 @@ function uniqueById<T extends { id?: string }>(items: T[]) {
 
 function hasUnavailableClaim(reply: string) {
   const normalizedReply = normalizeSearchText(reply);
-  return ["алга", "байхгүй", "oldsongui", "oldsonгүй", "байхгуй", "bhgui"].some(
+  return ["алга", "байхгүй", "oldsongui", "oldsonгүй", "байхгуй", "bhgui", "bhgu"].some(
     (marker) => normalizedReply.includes(marker),
   );
 }
