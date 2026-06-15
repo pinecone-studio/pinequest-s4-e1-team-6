@@ -44,7 +44,8 @@ function QuickActionCard({
   onClick: () => void;
   index: number;
   isUploading?: boolean;
-}) {
+}) 
+{
   return (
     <div className="w-full">
       <motion.button
