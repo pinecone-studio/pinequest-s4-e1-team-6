@@ -254,6 +254,9 @@ function formatProductMarkdown(match: ProductMatch) {
     metadata.store_name || metadata.storeName || "Official Store";
   const storeId = metadata.storeId || metadata.store_id || storeName;
   const img = metadata.product_image_url || metadata.image_url || "";
+  const stock     = Number(metadata.stock ?? 0);
+if (stock <= 0) return "";
+
 
   return `![${markdownSafe(name)}|${markdownSafe(price)}|${markdownSafe(
     desc,
@@ -264,6 +267,7 @@ function formatProductMarkdown(match: ProductMatch) {
 
 function buildMatchedProductReply(matches: ProductMatch[]) {
   const productLines = matches
+      .filter(Boolean)
     .slice(0, 20)
     .map(formatProductMarkdown)
     .join("\n");
@@ -454,6 +458,7 @@ export async function POST(req: Request) {
         .slice(0, 80);
 
       context = topMatches
+  .filter((m) => isInStock(m.metadata as Record<string, unknown> | undefined))
         .map((m) => {
           const name =
             m.metadata?.name || m.metadata?.product_name || "Нэргүй бараа";

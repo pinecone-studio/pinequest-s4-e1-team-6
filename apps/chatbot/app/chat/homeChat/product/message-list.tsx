@@ -10,6 +10,7 @@ import OrderAddress from "../../payment/components/form";
 import QPayPayment from "../../payment/components/QPayPayment ";
 import OrderReceipt from "../../ZahialgaHarah/OrderReceipt";
 import { parsePrice } from "@/lib/utils/price";
+import { useRouter } from "next/navigation";
 
 interface Product {
   id: string;
@@ -93,6 +94,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   const [receiptData, setReceiptData] = useState<any>(null);
   const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
   const isSavingOrderRef = useRef(false);
+  const router = useRouter();
 
   const handleOpenOrderForm = (name: string, price: any, product?: Product) => {
     const allProducts = messages.flatMap((m) =>
@@ -323,7 +325,19 @@ export const MessageList: React.FC<MessageListProps> = ({
                             {rawText}
                           </ReactMarkdown>
                         </div>
-
+{rawText.includes("[[COMPARE_BUTTON]]") && (
+  <button
+    type="button"
+    onClick={() => {
+      const products = extractProducts(message.content);
+      localStorage.setItem("compare_products", JSON.stringify(products));
+      router.push("/chat/compare");
+    }}
+    className="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-500 text-white font-bold rounded-xl shadow-lg text-sm"
+  >
+    ⚖️ Эдгээр барааг харьцуулах
+  </button>
+)}
                         {paymentTrigger && (
                           <motion.button
                             whileHover={{ scale: 1.02 }}
