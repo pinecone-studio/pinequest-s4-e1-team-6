@@ -100,6 +100,10 @@ export default function CartSidebar() {
                       image: item.image,
                       price: item.price,
                       quantity: item.quantity,
+                      color: item.selectedColor,
+                      selectedColor: item.selectedColor,
+                      size: item.selectedSize,
+                      selectedSize: item.selectedSize,
                       storeId: item.storeId,
                       storeName: item.product?.storeName,
                     })),
@@ -175,7 +179,7 @@ export default function CartSidebar() {
             ) : (
               cartItems.map((item, idx) => (
                 <div
-                  key={`item-${item.id || idx}`}
+                  key={item.cartKey || `item-${item.id || idx}`}
                   className="flex gap-4 bg-[#e3e6ec] p-3 rounded-xl border border-white/5 shadow-sm"
                 >
                   <img
@@ -188,8 +192,15 @@ export default function CartSidebar() {
                       <h3 className="text-black font-semibold text-lg line-clamp-1">
                         {item.name}
                       </h3>
+                      {(item.selectedColor || item.selectedSize) && (
+                        <p className="text-xs font-semibold text-slate-600">
+                          {[item.selectedColor, item.selectedSize]
+                            .filter(Boolean)
+                            .join(" / ")}
+                        </p>
+                      )}
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.cartKey || item.id)}
                         className="text-gray-500 hover:text-red-500 transition-colors"
                       >
                         <FaTrash size={12} />
@@ -201,7 +212,9 @@ export default function CartSidebar() {
                       </span>
                       <div className="flex items-center gap-3 bg-[#0094ff] px-2 py-1 rounded-lg border border-white/10">
                         <button
-                          onClick={() => updateQuantity(item.id, -1)}
+                          onClick={() =>
+                            updateQuantity(item.cartKey || item.id, -1)
+                          }
                           className="text-white hover:text-[#071eef] p-1"
                         >
                           <FaMinus size={10} />
@@ -210,7 +223,9 @@ export default function CartSidebar() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateQuantity(item.id, 1)}
+                          onClick={() =>
+                            updateQuantity(item.cartKey || item.id, 1)
+                          }
                           className="text-white hover:text-[#071eef] p-1"
                         >
                           <FaPlus size={10} />

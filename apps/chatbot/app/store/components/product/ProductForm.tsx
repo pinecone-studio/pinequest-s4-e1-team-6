@@ -26,6 +26,7 @@ interface ProductFormProps {
 }
 
 type SizeStockRow = {
+  color: string;
   size: string;
   stock: string;
 };
@@ -52,7 +53,7 @@ export default function ProductForm({
     size: "",
   });
   const [sizeStockRows, setSizeStockRows] = useState<SizeStockRow[]>([
-    { size: "", stock: "" },
+    { color: "", size: "", stock: "" },
   ]);
 
   const [previews, setPreviews] = useState<string[]>([]);
@@ -63,32 +64,34 @@ export default function ProductForm({
   };
 
   const parseSizeStock = (value: unknown): SizeStockRow[] => {
-    if (!value) return [{ size: "", stock: "" }];
+    if (!value) return [{ color: "", size: "", stock: "" }];
 
     try {
       const parsed = typeof value === "string" ? JSON.parse(value) : value;
       if (Array.isArray(parsed)) {
         const rows = parsed
           .map((item) => ({
+            color: String(item.color || ""),
             size: String(item.size || ""),
             stock: String(item.stock ?? ""),
           }))
-          .filter((item) => item.size || item.stock);
-        return rows.length > 0 ? rows : [{ size: "", stock: "" }];
+          .filter((item) => item.color || item.size || item.stock);
+        return rows.length > 0 ? rows : [{ color: "", size: "", stock: "" }];
       }
     } catch {
-      return [{ size: "", stock: "" }];
+      return [{ color: "", size: "", stock: "" }];
     }
 
-    return [{ size: "", stock: "" }];
+    return [{ color: "", size: "", stock: "" }];
   };
 
   const normalizedSizeRows = sizeStockRows
     .map((row) => ({
+      color: row.color.trim(),
       size: row.size.trim(),
       stock: Math.max(0, Number(row.stock) || 0),
     }))
-    .filter((row) => row.size && row.stock > 0);
+    .filter((row) => row.color && row.size && row.stock > 0);
 
   const totalVariantStock = normalizedSizeRows.reduce(
     (sum, row) => sum + row.stock,
@@ -108,16 +111,29 @@ export default function ProductForm({
   };
 
   const addSizeStockRow = () => {
-    setSizeStockRows((prev) => [...prev, { size: "", stock: "" }]);
+    setSizeStockRows((prev) => [...prev, { color: "", size: "", stock: "" }]);
   };
 
   const removeSizeStockRow = (index: number) => {
     setSizeStockRows((prev) =>
       prev.length === 1
-        ? [{ size: "", stock: "" }]
+        ? [{ color: "", size: "", stock: "" }]
         : prev.filter((_, i) => i !== index),
     );
   };
+
+  const COLOR_OPTIONS = [
+    "Цагаан",
+    "Хар",
+    "Саарал",
+    "Улаан",
+    "Цэнхэр",
+    "Ногоон",
+    "Шар",
+    "Бор",
+    "Ягаан",
+    "Нил ягаан",
+  ];
 
   const CATEGORY_DATA: Record<string, { brands: string[]; sizes: string[] }> = {
     Гутал: {
@@ -216,7 +232,14 @@ export default function ProductForm({
         color: meta.color || "",
         size: meta.size || "",
       });
-      setSizeStockRows(parseSizeStock(meta.sizeStock || meta.size_stock));
+      setSizeStockRows(
+        parseSizeStock(
+          meta.colorSizeStock ||
+            meta.color_size_stock ||
+            meta.sizeStock ||
+            meta.size_stock,
+        ),
+      );
 
       const currentImg = meta.imageUrl || meta.product_image_url;
       if (currentImg) {
@@ -261,15 +284,22 @@ export default function ProductForm({
         imageUrl = cloudJson.secure_url;
       }
 
-      const uniqueSizes = new Set(normalizedSizeRows.map((row) => row.size));
-      if (uniqueSizes.size !== normalizedSizeRows.length) {
+      const uniqueVariants = new Set(
+        normalizedSizeRows.map(
+          (row) => `${row.color.toLowerCase()}::${row.size.toLowerCase()}`,
+        ),
+      );
+      if (uniqueVariants.size !== normalizedSizeRows.length) {
         return alert(
-          "Ижил размер давхардсан байна. Нэг размерийг нэг мөрөөр оруулна уу.",
+          "Ижил өнгө, размер давхардсан байна. Нэг өнгө + размерийг нэг мөрөөр оруулна уу.",
         );
       }
 
-      const sizes = normalizedSizeRows.map((row) => row.size);
-      const stockTotal = totalVariantStock || Number(formData.stock || "0");
+      const sizes = Array.from(new Set(normalizedSizeRows.map((row) => row.size)));
+      const colors = Array.from(
+        new Set(normalizedSizeRows.map((row) => row.color)),
+      );
+      const stockTotal = totalVariantStock;
 
       const payload = {
         ...formData,
@@ -278,9 +308,12 @@ export default function ProductForm({
         storeName: storeName,
         price: Number(formData.price),
         stock: stockTotal,
+        color: colors.join(", "),
         size: sizes.join(", "),
+        colors,
         sizes,
         sizeStock: JSON.stringify(normalizedSizeRows),
+        colorSizeStock: JSON.stringify(normalizedSizeRows),
       };
 
       const apiUrl = initialData
@@ -312,7 +345,7 @@ export default function ProductForm({
             color: "",
             size: "",
           });
-          setSizeStockRows([{ size: "", stock: "" }]);
+          setSizeStockRows([{ color: "", size: "", stock: "" }]);
           setPreviews([]);
           setImageFiles([]);
         }
@@ -437,7 +470,9 @@ export default function ProductForm({
                               handleInputChange("brand", "");
                               handleInputChange("size", "");
                               handleInputChange("stock", "");
-                              setSizeStockRows([{ size: "", stock: "" }]);
+                              setSizeStockRows([
+                                { color: "", size: "", stock: "" },
+                              ]);
                             }}
                           >
                             <option value="">Сонгох</option>
@@ -511,15 +546,35 @@ export default function ProductForm({
                       {/* Размер бүрийн үлдэгдэл - утас дээр шахцалдахгүй цуварна */}
                       <div className="space-y-2 col-span-1 sm:col-span-2">
                         <label className="text-[10px] text-gray-500 font-bold ml-2 uppercase tracking-widest">
-                          Размер бүрийн үлдэгдэл
+                          Өнгө, размер бүрийн үлдэгдэл
                         </label>
                         <div className="space-y-3 rounded-2xl sm:rounded-3xl border border-white/10 bg-black/20 p-3 sm:p-4">
                           {sizeStockRows.map((row, index) => (
-                            /* grid-cols-1 sm:grid-cols-[1fr_120px_44px] -> утас дээр доошоо цувж харагдана */
                             <div
                               key={index}
-                              className="grid grid-cols-1 sm:grid-cols-[1fr_120px_44px] gap-2 sm:gap-3 border-b border-white/5 sm:border-none pb-3 sm:pb-0"
+                              className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_110px_44px] gap-2 sm:gap-3 border-b border-white/5 sm:border-none pb-3 sm:pb-0"
                             >
+                              <select
+                                disabled={!formData.category}
+                                className="w-full bg-gray-800/80 border border-white/10 p-3 sm:p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 text-sm"
+                                value={row.color}
+                                onChange={(e) =>
+                                  updateSizeStockRow(
+                                    index,
+                                    "color",
+                                    e.target.value,
+                                  )
+                                }
+                              >
+                                <option value="">
+                                  {formData.category ? "Өнгө сонгох" : "---"}
+                                </option>
+                                {COLOR_OPTIONS.map((color) => (
+                                  <option key={color} value={color}>
+                                    {color}
+                                  </option>
+                                ))}
+                              </select>
                               <select
                                 disabled={!formData.category}
                                 className="w-full bg-gray-800/80 border border-white/10 p-3 sm:p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-white appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 text-sm"
@@ -580,7 +635,7 @@ export default function ProductForm({
                               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-indigo-300 hover:bg-indigo-500/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors w-full sm:w-auto"
                             >
                               <Plus className="w-4 h-4" />
-                              Размер нэмэх
+                              Өнгө / размер нэмэх
                             </button>
                             <div className="text-left sm:text-right border-t border-white/5 sm:border-none pt-2 sm:pt-0">
                               <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">
