@@ -95,6 +95,10 @@ const SEARCH_TERM_ALIASES: Record<string, string[]> = {
   puuz: ["shoe", "shoes", "sneaker", "sneakers"],
   kurtka: ["jacket", "coat"],
   omd: ["pants", "jeans", "trousers"],
+  har: ["black"],
+  tsagaan: ["white"],
+  ulaan: ["red"],
+  huh: ["blue"],
 };
 
 function normalizeOpenAIRole(role: IncomingMessage["role"]): OpenAIRole {
@@ -138,12 +142,26 @@ function extractSearchTerms(message: string) {
     .flatMap(expandSearchTerm);
 }
 
+function extractSearchTermGroups(message: string) {
+  return normalizeSearchText(message)
+    .split(/\s+/)
+    .map((term) => term.trim())
+    .filter(
+      (term) =>
+        term.length > 1 &&
+        !SEARCH_STOP_WORDS.has(term) &&
+        !SEARCH_QUALITY_WORDS.has(term),
+    )
+    .map(expandSearchTerm);
+}
+
 function metadataText(metadata: Record<string, unknown> | undefined) {
   if (!metadata) return "";
   const sizes = Array.isArray(metadata.sizes) ? metadata.sizes.join(" ") : "";
   const colors = Array.isArray(metadata.colors)
     ? metadata.colors.join(" ")
     : "";
+  const tags = Array.isArray(metadata.tags) ? metadata.tags.join(" ") : "";
   return normalizeSearchText(
     [
       metadata.name,
@@ -153,6 +171,9 @@ function metadataText(metadata: Record<string, unknown> | undefined) {
       metadata.brand,
       metadata.brand_search,
       metadata.category,
+      metadata.categoryName,
+      metadata.category_name,
+      tags,
       metadata.color,
       colors,
       metadata.size,
@@ -170,6 +191,17 @@ function hasKeywordMatch(
   if (searchTerms.length === 0) return false;
   const haystack = metadataText(metadata);
   return searchTerms.some((term) => haystack.includes(term));
+}
+
+function hasStrictKeywordMatch(
+  metadata: Record<string, unknown> | undefined,
+  searchTermGroups: string[][],
+) {
+  if (searchTermGroups.length === 0) return false;
+  const haystack = metadataText(metadata);
+  return searchTermGroups.every((group) =>
+    group.some((term) => haystack.includes(term)),
+  );
 }
 
 function isInStock(metadata: Record<string, unknown> | undefined) {
@@ -235,7 +267,69 @@ function buildMatchedProductReply(matches: ProductMatch[]) {
     .slice(0, 20)
     .map(formatProductMarkdown)
     .join("\n");
-  return `Тийм ээ, таны хайсан бараатай тохирох дараах бүтээгдэхүүнүүд байна:\n\n${productLines}`;
+  return `Тийм ээ, танд яг таарах сонголтууд байна. Эхлээд хайсантай чинь хамгийн ойр бараануудыг харуулъя:\n\n${productLines}\n\nХэрвээ хүсвэл би үүнтэй төстэй загвар, өөр өнгө эсвэл өдөр тутам өмсөхөд илүү эвтэйхэн хувилбаруудыг бас шүүж өгч болно.`;
+}
+
+function compactHistoryContent(content: string) {
+  return content
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "[харуулсан барааны карт]")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 500);
+}
+
+async function buildRecentUserHistoryContext(
+  clerkUserId: string | undefined,
+  fallbackUserId: string | undefined,
+) {
+  const effectiveUserId = clerkUserId || fallbackUserId;
+  if (!effectiveUserId) return "";
+
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkUserId: effectiveUserId },
+      select: { id: true },
+    });
+
+    if (!dbUser) return "";
+
+    const recentMessages = await prisma.chatMessage.findMany({
+      where: {
+        chatSession: {
+          userId: dbUser.id,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: {
+        role: true,
+        content: true,
+        chatSession: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+    if (recentMessages.length === 0) return "";
+
+    return recentMessages
+      .reverse()
+      .map((message, index) => {
+        const role = message.role === "USER" ? "Хэрэглэгч" : "AI";
+        const title = message.chatSession.title
+          ? ` (${message.chatSession.title})`
+          : "";
+        return `${index + 1}. ${role}${title}: ${compactHistoryContent(
+          message.content,
+        )}`;
+      })
+      .join("\n");
+  } catch (error) {
+    console.error("RECENT_HISTORY_CONTEXT_ERROR:", error);
+    return "";
+  }
 }
 
 async function getSearchNamespaces() {
@@ -257,6 +351,10 @@ export async function POST(req: Request) {
     const messages = body?.messages as IncomingMessage[] | undefined;
     const chatId = body?.chatId as string | undefined;
     const fallbackUserId = body?.userId as string | undefined;
+    const recentUserHistoryContext = await buildRecentUserHistoryContext(
+      clerkUserId || undefined,
+      fallbackUserId,
+    );
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -277,6 +375,7 @@ export async function POST(req: Request) {
     let guardedKeywordMatches: ProductMatch[] = [];
     try {
       const searchTerms = extractSearchTerms(lastUserMessage);
+      const searchTermGroups = extractSearchTermGroups(lastUserMessage);
       const embedding = await openai.embeddings.create({
         model: "text-embedding-3-small",
         input: lastUserMessage,
@@ -302,12 +401,25 @@ export async function POST(req: Request) {
           isInStock(match.metadata as Record<string, unknown> | undefined),
         );
 
-      const keywordMatches = allMatches.filter((match) =>
+      const strictKeywordMatches = allMatches.filter((match) =>
+        hasStrictKeywordMatch(
+          match.metadata as Record<string, unknown> | undefined,
+          searchTermGroups,
+        ),
+      );
+
+      const looseKeywordMatches = allMatches.filter((match) =>
         hasKeywordMatch(
           match.metadata as Record<string, unknown> | undefined,
           searchTerms,
         ),
       );
+      const keywordMatches =
+        strictKeywordMatches.length > 0
+          ? strictKeywordMatches
+          : searchTermGroups.length > 1
+            ? []
+            : looseKeywordMatches;
       guardedKeywordMatches = uniqueById(keywordMatches)
         .sort((a, b) => (b.score || 0) - (a.score || 0))
         .slice(0, 20);
@@ -318,6 +430,16 @@ export async function POST(req: Request) {
 
       const topMatches = uniqueById([...keywordMatches, ...semanticMatches])
         .sort((a, b) => {
+          const aStrictKeyword = hasStrictKeywordMatch(
+            a.metadata as Record<string, unknown> | undefined,
+            searchTermGroups,
+          );
+          const bStrictKeyword = hasStrictKeywordMatch(
+            b.metadata as Record<string, unknown> | undefined,
+            searchTermGroups,
+          );
+          if (aStrictKeyword !== bStrictKeyword) return aStrictKeyword ? -1 : 1;
+
           const aKeyword = hasKeywordMatch(
             a.metadata as Record<string, unknown> | undefined,
             searchTerms,
@@ -343,6 +465,11 @@ export async function POST(req: Request) {
             m.metadata?.store_name || m.metadata?.storeName || "Official Store";
           const storeId = m.metadata?.storeId || m.metadata?.store_id || "";
           const brand = m.metadata?.brand || "";
+          const category =
+            m.metadata?.category ||
+            m.metadata?.categoryName ||
+            m.metadata?.category_name ||
+            "";
           const size = m.metadata?.size || "";
           const color = m.metadata?.color || "";
           const sizeStock =
@@ -351,15 +478,21 @@ export async function POST(req: Request) {
             m.metadata as Record<string, unknown> | undefined,
             searchTerms,
           );
+          const strictKeywordMatch = hasStrictKeywordMatch(
+            m.metadata as Record<string, unknown> | undefined,
+            searchTermGroups,
+          );
 
           return `БҮТЭЭГДЭХҮҮН: ${name}
 ҮНЭ: ${price}₮
 ЗУРАГ: ${img}
 ТАЙЛБАР: ${desc}
 БРЕНД: ${brand}
+АНГИЛАЛ: ${category}
 ӨНГӨ: ${color}
 РАЗМЕР: ${size}
 РАЗМЕРЫН_ҮЛДЭГДЭЛ: ${sizeStock}
+STRICT_KEYWORD_MATCH: ${strictKeywordMatch ? "YES" : "NO"}
 KEYWORD_MATCH: ${keywordMatch ? "YES" : "NO"}
 ID: ${m.id}
 STORE_NAME: ${storeName}
@@ -368,6 +501,7 @@ STORE_ID: ${storeId}`;
         .join("\n---\n");
 
       console.log("Олдсон барааны тоо:", topMatches.length);
+      console.log("Strict keyword match барааны тоо:", strictKeywordMatches.length);
       console.log("Keyword match барааны тоо:", keywordMatches.length);
     } catch (err) {
       console.error("Vector Search Error:", err);
@@ -381,7 +515,7 @@ STORE_ID: ${storeId}`;
           content: `Чи бол өгөгдсөн Context (Pinecone дата) дээр тулгуурлан ажилладаг Монголын хамгийн ухаалаг "Shopping Assistant" юм. Чи ХОЁР горимд ажиллана — асуултын төрлийг эхлээд таниад дараа нь хариул.
 
 ═══ ГОРИМ ТАНИХ (INTENT DETECTION) ═══
-- SEARCH горим — хэрэглэгч бараа ХАЙЖ/ҮЗЭХ гэж байвал (ж: "Nike байна уу?", "гутал харуулаач", "куртка бнуу?", "ямар бараа байна?", "өөр зүйл үзүүлээч"). → Context-оос тохирох барааг доорх Markdown форматаар жагсаа.
+- SEARCH горим — хэрэглэгч бараа ХАЙЖ/ҮЗЭХ гэж байвал (ж: "Nike байна уу?", "гутал харуулаач", "куртка бнуу?", "ямар бараа байна?", "өөр зүйл үзүүлээч"). → Context-оос тохирох барааг доорх Markdown форматаар жагсаа. Эхлээд хэрэглэгчийн яг асуусан нэр/брэнд/размер/өнгөтэй хамгийн ойр барааг харуул.
 - CHAT горим — хэрэглэгч аль хэдийн харсан бараа эсвэл ерөнхий зүйлийн талаар АСУУЖ байвал (ж: "энэ гутал юунд зориулагдсан бэ?", "ямар хэмжээтэй вэ?", "заал дотор өмсөж болох уу?", "үнэ нь хэд вэ?", "арьс уу даавуу юу?", "ямар өнгөтэй вэ?", "энэ хоёрын ялгаа юу вэ?"). → ChatGPT шиг чөлөөтэй, дэлгэрэнгүй, найрсаг ТЕКСТЭЭР хариул. Markdown барааны карт (![...]) бүү дахин гарга.
 - Эргэлзвэл: харилцааны түүх (chat history) дэх СҮҮЛД харуулсан барааг асуултын сэдэв гэж үз.
 
@@ -393,15 +527,35 @@ STORE_ID: ${storeId}`;
 4. Хэрэв тодорхой техникийн дэлгэрэнгүй дэлгүүрийн дата дотор байхгүй бол ерөнхий мэдлэгээр хариулаад, шаардлагатай бол "дэлгүүрийн баталгаат мэдээлэл бол ..." гэж зааглаж болно. Гэхдээ үнэ/нөөцийг ХЭЗЭЭ Ч бүү зохио.
 5. CHAT горимд бараа дахин жагсаахгүй, зөвхөн тухайн барааны тухай чөлөөт яриагаар хариул. Хэрэглэгч "өөр бараа үзүүлээч" гэвэл л SEARCH горим руу шилж жагса.
 
+═══ ХЭРЭГЛЭГЧИЙН СҮҮЛИЙН 10 HISTORY ═══
+Доорх history нь энэ хэрэглэгчийн өмнөх хадгалагдсан ярианаас авсан context. Үүнийг хэрэглэгчийг илүү сайн ойлгох, өмнө сонирхсон бараа/брэнд/размер/үнэний хүрээ/стилийг санахад ашигла.
+- Хэрэглэгчийн хүсэлттэй холбоотой үед л ашигла; холбоогүй бол хүчээр дурддаггүй.
+- "Та өмнө нь ..." гэж хэлж болно, гэхдээ байгалийн, туслах маягаар хэл.
+- Энэ history дээр үндэслэн үнэ, үлдэгдэл, баталгаатай stock зохиож болохгүй. Үнэ/stock бол зөвхөн CONTEXT эсвэл тухайн ярианд бодитоор байсан мэдээллээр хэл.
+
+${recentUserHistoryContext || "Одоогоор хадгалагдсан history алга."}
+
 ═══ SEARCH ГОРИМЫН ДҮРЭМ ═══
 1. ЗӨВХӨН CONTEXT АШИГЛА: Context-д байхгүй БАРААГ (нэр/үнэ) хэзээ ч бүү зохио. Хэрэглэгчийн хайсан бараа байхгүй бол "Уучлаарай, манайд яг одоо [нэр] алга байна" гэж хэлээд ойролцоо/ижил төрлийн бараа санал болго.
-2. KEYWORD_MATCH: YES бараа байвал хэрэглэгчийн хайсантай шууд таарсан гэсэн үг — бүгдийг эхэнд нь Markdown форматаар харуул, "байхгүй" гэж бүү хэл.
-3. ЗУРГИЙН ДҮРЭМ: Зөвхөн Context-д ирсэн 'ЗУРАГ'/'image_url' линкийг ашигла. Гадны (loremflickr, google гэх мэт) линк ХЭЗЭЭ Ч бүү ашигла.
-4. БАРААНЫ ТӨЛӨӨЛӨЛ: Зөвхөн гутал биш, Context дахь БҮХ төрлийн (цамц, өмд, куртка, хэрэгсэл г.м) барааг ижил түвшинд санал болго. Ерөнхий асуулт ("Юу байна?") дээр өөр өөр category-г хольж хамгийн багадаа 10 барааг жагса.
-5. KEYWORD_MATCH: NO барааг зөвхөн нэмэлт санал болгоход ашигла.
+2. STRICT_KEYWORD_MATCH: YES бараа байвал хэрэглэгчийн олон үгтэй хайлт бүрэн таарсан гэсэн үг — эдгээрийг ЗААВАЛ эхэнд нь Markdown форматаар харуул. Жишээ: "air max" гэвэл нэр/metadata дээр air ба max хоёулаа орсон барааг л эхэнд гарга; Air Jordan, Air Force зэрэг зөвхөн "air" таарсан барааг яг Air Max-ийн оронд бүү гарга.
+3. KEYWORD_MATCH: YES боловч STRICT_KEYWORD_MATCH: NO барааг зөвхөн яг таарсан барааны ДАРАА, төстэй/нэмэлт санал хэлэх үед ашигла.
+4. ЗУРГИЙН ДҮРЭМ: Зөвхөн Context-д ирсэн 'ЗУРАГ'/'image_url' линкийг ашигла. Гадны (loremflickr, google гэх мэт) линк ХЭЗЭЭ Ч бүү ашигла.
+5. БАРААНЫ ТӨЛӨӨЛӨЛ: Зөвхөн гутал биш, Context дахь БҮХ төрлийн (цамц, өмд, куртка, хэрэгсэл г.м) барааг ижил түвшинд санал болго. Ерөнхий асуулт ("Юу байна?") дээр өөр өөр category-г хольж хамгийн багадаа 10 барааг жагса.
+6. KEYWORD_MATCH: NO барааг зөвхөн хэрэглэгчийн асуусан category/стильтэй холбоотой нэмэлт санал болгоход ашигла. Шууд таарах бараа байвал эхний картууд заавал STRICT_KEYWORD_MATCH: YES эсвэл KEYWORD_MATCH: YES байна.
+7. SEARCH хариултын бүтэц:
+   - 1 богино зөвлөх өгүүлбэр: хэрэглэгчийн хайсан зүйлд таарсан байдлаар хэл. Жишээ: "Тийм ээ, Air Max сонирхож байвал өдөр тутам өмсөхөд эвтэйхэн хоёр сонголт байна."
+   - Markdown барааны картууд.
+   - 1 богино, хүчлэхгүй follow-up санал/асуулт. Жишээ: "Хүсвэл би үүнтэй төстэй илүү хөнгөн sneaker эсвэл энэ жилийн trend загваруудаас шүүж өгье."
 
 ═══ ХАРИЛЦААНЫ ХЭЛБЭР ═══
-Найрсаг, эелдэг, туслахад бэлэн бай (✨, 😊). Хэрэглэгчийг сонголтоо тодорхой болгоход нь туслах асуулт асуу. Утгын хувьд ойролцоо байхад хангалттай (ж: "Nike" → "Nike Air Max"-ийг шууд харуул).
+Найрсаг, эелдэг, туслахад бэлэн хувийн shopping зөвлөх шиг бай (✨, 😊). Хэрэглэгчийг сонголтоо тодорхой болгоход нь туслах богино асуулт асуу. Утгын хувьд ойролцоо байхад хангалттай (ж: "Nike" → "Nike Air Max"-ийг шууд харуул).
+
+═══ ЗӨВЛӨХ МАЯГИЙН САНАЛ БОЛГОЛТ ═══
+1. Хариулт "бараа жагсаагч" шиг биш, хэрэглэгчийн хүсэлд тааруулж чиглүүлдэг зөвлөх шиг байна.
+2. Нэмэлт санал нь хүчлэхгүй, байгалийн байна: "Хэрвээ хүсвэл...", "Сонирхвол...", "Таны стильд ойролцоо..." гэх мэт.
+3. Нэмэлтээр сонирхуулахдаа CONTEXT дахь ижил АНГИЛАЛ, брэнд, өнгө, зориулалт, price range ойролцоо барааг л ашигла. Хамаагүй өөр category руу үсрэхгүй.
+4. Хэрэглэгч өмнөх history дээр пүүз/брэнд/размер сонирхож байсан бол "Таны өмнө сонирхсон стильтэй ойролцоо..." гэж товч дурдан илүү хувийн болгож болно.
+5. Хэрэглэгч зөвхөн "байна уу?" гэж асуусан бол эхлээд шууд байгаа барааг харуул, дараа нь ганц зөөлөн follow-up асуулт тавь. Урт сурталчилгаа, шахалт бүү хий.
 
 ═══ БАРАА ХАРУУЛАХ ФОРМАТ (зөвхөн SEARCH горимд) ═══
 Бараа харуулахдаа ЗААВАЛ:
