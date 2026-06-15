@@ -119,6 +119,7 @@ export async function PATCH(req: Request) {
         category: category || "",
         brand: brand || "",
         stock: Number(stock) || 0,
+        status: Number(stock) > 0 ? "AVAILABLE" : "OUT_OF_STOCK",
         store_name: storeName,
         size: size || "",
         sizes: Array.isArray(sizes) ? sizes.map(String) : [],

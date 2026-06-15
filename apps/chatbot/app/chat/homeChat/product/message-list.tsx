@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Copy } from "lucide-react";
@@ -92,20 +92,23 @@ export const MessageList: React.FC<MessageListProps> = ({
   const [activePayment, setActivePayment] = useState<any>(null);
   const [receiptData, setReceiptData] = useState<any>(null);
   const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
+  const isSavingOrderRef = useRef(false);
 
   const handleOpenOrderForm = (name: string, price: any, product?: Product) => {
     const allProducts = messages.flatMap((m) =>
       extractProducts(m.content || ""),
     );
     const match = product || allProducts.find((p) => p.name === name);
+    const productId = match?.id || `id-${name}-${price}`;
+    const selectedStoreName = storeName || match?.storeName || "";
 
     setAddressFormProduct({
       name: name,
       price: price,
       image: match?.image || "",
-      id: match?.id || `id-${name}-${price}`,
+      id: productId,
       storeId: match?.storeId || "",
-      storeName: storeName || match?.storeName,
+      storeName: selectedStoreName || match?.storeName,
       selectedColor: match?.selectedColor || "",
       selectedSize: match?.selectedSize || "",
     });
@@ -160,10 +163,13 @@ export const MessageList: React.FC<MessageListProps> = ({
   };
 
   const handlePaymentSuccess = async (details: any) => {
+    if (isSavingOrderRef.current) return;
+
+    isSavingOrderRef.current = true;
     const paidInfo = activePayment;
     setActivePayment(null);
     try {
-      await fetch("/chat/api/orders", {
+      const response = await fetch("/chat/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -189,8 +195,21 @@ export const MessageList: React.FC<MessageListProps> = ({
           ],
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        alert(
+          errorData?.error ||
+            "Захиалга үүсгэх боломжгүй байна. Барааны үлдэгдлээ дахин шалгана уу.",
+        );
+        isSavingOrderRef.current = false;
+        return;
+      }
     } catch (error) {
-      console.error("Order save error:", error);
+      console.warn("Order save error:", error);
+      alert("Захиалга үүсгэх үед алдаа гарлаа. Дахин оролдоно уу.");
+      isSavingOrderRef.current = false;
+      return;
     }
     setReceiptData({
       productName: paidInfo.productName,
@@ -330,7 +349,6 @@ export const MessageList: React.FC<MessageListProps> = ({
                         products={products}
                         onBuy={handleOpenOrderForm}
                         onSelect={onProductClick}
-                        history={[]}
                       />
                     </div>
                   )}

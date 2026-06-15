@@ -123,6 +123,9 @@ export const ProductCard = ({
     ...productData,
     image: imageUrl || product.image,
   };
+  const hasStockInfo = productData.stock !== undefined;
+  const stockCount = Number(productData.stock ?? 0);
+  const isSoldOut = hasStockInfo && stockCount <= 0;
  
   const handleShare = async (e: MouseEvent) => {
     e.stopPropagation();
@@ -290,7 +293,7 @@ export const ProductCard = ({
             {productData.stock !== undefined && (
               <div className={`flex items-center gap-1 ${layout === "grid" ? (isLightMode ? "text-slate-400" : "text-white/40") : "text-white/40"}`}>
                 <Box size={12} />
-                <span className="text-[10px]">Нөөц: {productData.stock}</span>
+                <span className="text-[10px]">Нөөц: {stockCount}</span>
               </div>
             )}
           </div>
@@ -353,6 +356,7 @@ export const ProductCard = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
+                    if (isSoldOut) return;
                     if (layout === "grid") {
                       onAddToCart?.(productWithImage);
                       return;
@@ -366,14 +370,14 @@ export const ProductCard = ({
                         : "bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] text-white shadow-[0_14px_24px_rgba(111,123,255,0.25)] hover:brightness-105"
                       : "bg-gradient-to-br from-[#9f8cff] to-[#6f7bff] text-white shadow-[0_8px_20px_rgba(111,123,255,0.25)]"
                   }`}
-                  disabled={productData.stock === 0}
+                  disabled={isSoldOut}
                 >
                   {layout === "grid" ? (
                     <span className="inline-flex items-center gap-2">
                       <ShoppingBag size={16} />
-                      Add To Cart
+                      {isSoldOut ? "Дууссан" : "Add To Cart"}
                     </span>
-                  ) : productData.stock === 0 ? "Дууссан" : "Захиалах"}
+                  ) : isSoldOut ? "Дууссан" : "Захиалах"}
                 </button>
 
                 {layout !== "grid" && (
@@ -383,9 +387,11 @@ export const ProductCard = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
+                        if (isSoldOut) return;
                         onAddToCart?.(productWithImage);
                       }}
-                      className="bg-white/5 text-white h-12 w-12 rounded-2xl flex items-center justify-center border border-white/10 active:scale-95 transition-all hover:bg-white/10"
+                      disabled={isSoldOut}
+                      className="bg-white/5 text-white h-12 w-12 rounded-2xl flex items-center justify-center border border-white/10 active:scale-95 transition-all hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <ShoppingBag size={18} />
                     </button>

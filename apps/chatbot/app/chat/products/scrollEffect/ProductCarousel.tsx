@@ -14,30 +14,36 @@ interface Product {
   storeId?: string;
   brand?: string;
   storeName?: string;
+  stock?: string | number;
+  metadata?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
 interface ProductCarouselProps {
   products: Product[];
   onSelect: (product: Product) => void;
-  onBuy: (name: string, price: any, product?: any) => void;
-  history?: any[];
+  onBuy: (name: string, price: string | number, product?: Product) => void;
 }
 
 export const ProductCarousel = ({
   products,
   onBuy,
   onSelect,
-  history,
 }: ProductCarouselProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const visibleProducts = products.filter((product) => {
+    const stock = product.metadata?.stock ?? product.stock;
+    if (stock === undefined) return true;
 
-  if (!products || products.length === 0) return null;
+    return Number(stock) > 0;
+  });
+
+  if (!visibleProducts || visibleProducts.length === 0) return null;
 
   return (
     <div className="w-full">
       <HorizontalProductStack
-        products={products}
+        products={visibleProducts}
         onSelect={(product: Product) => {
           setSelectedProduct(product);
           onSelect(product);
