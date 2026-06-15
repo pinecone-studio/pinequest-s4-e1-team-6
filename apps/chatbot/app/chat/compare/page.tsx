@@ -251,13 +251,13 @@ export default function ComparePage() {
           </button>
           <div className="flex items-center gap-2 text-white">
             <Scale className="h-5 w-5" />
-            <span className="text-lg font-bold">Product Comparison</span>
+            <span className="text-lg font-bold">Бүтээгдэхүүн харьцуулалт</span>
           </div>
         </header>
 
         <div className="grid gap-5 lg:grid-cols-2">
           <SearchColumn
-            title="Search Product A"
+            title="Харьцуулах эхний бүтээгдэхүүн"
             query={leftQuery}
             onQueryChange={setLeftQuery}
             onSearch={() => runSearch("left")}
@@ -267,7 +267,7 @@ export default function ComparePage() {
             isLoading={loadingSide === "left"}
           />
           <SearchColumn
-            title="Search Product B"
+            title="Харьцуулах хоёр дахь бүтээгдэхүүн"
             query={rightQuery}
             onQueryChange={setRightQuery}
             onSearch={() => runSearch("right")}
