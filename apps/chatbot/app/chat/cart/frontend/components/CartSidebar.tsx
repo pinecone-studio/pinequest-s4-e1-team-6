@@ -7,6 +7,19 @@ import LocationForm from "@/app/chat/payment/components/form";
 import QPayPayment from "@/app/chat/payment/components/QPayPayment ";
 import { saveOrder } from "@/app/chat/hooks/useOrders";
 
+type AddressData = {
+  city?: string;
+  district?: string;
+  address?: string;
+  street?: string;
+  phone?: string;
+};
+
+type SavedOrderResponse = {
+  id?: string;
+  storeId?: string;
+};
+
 export default function CartSidebar() {
   const {
     cartItems,
@@ -14,11 +27,13 @@ export default function CartSidebar() {
     setIsCartOpen,
     removeFromCart,
     updateQuantity,
+    clearCart,
   } = useCart();
 
   const [showLocationForm, setShowLocationForm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
-  const [addressData, setAddressData] = useState<any>(null);
+  const [addressData, setAddressData] = useState<AddressData | null>(null);
+  const [paymentOrderId, setPaymentOrderId] = useState("CART");
 
   const totalPrice = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -39,6 +54,7 @@ export default function CartSidebar() {
             onClose={() => setShowLocationForm(false)}
             onConfirm={(data) => {
               setAddressData(data);
+              setPaymentOrderId(`CART-${Date.now()}`);
               setShowLocationForm(false);
               setShowPayment(true);
             }}
@@ -56,8 +72,9 @@ export default function CartSidebar() {
         >
           <QPayPayment
             amount={totalPrice}
-            orderId={`CART-${Math.floor(Math.random() * 10000)}`}
+            orderId={paymentOrderId}
             onSuccess={async () => {
+              const orderedItems = [...cartItems];
               const fullAddress = [
                 addressData?.city,
                 addressData?.district,
@@ -68,16 +85,16 @@ export default function CartSidebar() {
                 .join(", ");
 
               try {
-                await fetch("/chat/api/orders", {
+                const response = await fetch("/chat/api/orders", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     totalAmount: totalPrice,
                     customerPhone: addressData?.phone,
                     address: fullAddress,
-                    storeId: cartItems[0]?.storeId,
-                    storeName: cartItems[0]?.product?.storeName,
-                    items: cartItems.map((item) => ({
+                    storeId: orderedItems[0]?.storeId,
+                    storeName: orderedItems[0]?.product?.storeName,
+                    items: orderedItems.map((item) => ({
                       productId: item.id,
                       name: item.name,
                       image: item.image,
@@ -88,20 +105,28 @@ export default function CartSidebar() {
                     })),
                   }),
                 });
+
+                if (!response.ok) {
+                  throw new Error("Order save failed");
+                }
+
+                const savedOrder = (await response.json()) as SavedOrderResponse;
+                saveOrder({
+                  orderId: savedOrder?.id || `CART-${Date.now()}`,
+                  productName:
+                    orderedItems.length === 1
+                      ? orderedItems[0].name
+                      : `Сагсны захиалга (${orderedItems.length} бараа)`,
+                  amount: totalPrice,
+                  date: new Date().toLocaleString(),
+                  image: orderedItems[0]?.image,
+                  store_id: savedOrder?.storeId || orderedItems[0]?.storeId,
+                });
+                clearCart();
+                window.dispatchEvent(new Event("open-orders-panel"));
               } catch (error) {
                 console.error("Cart order save error:", error);
               }
-
-              cartItems.forEach((item) => {
-                saveOrder({
-                  orderId: `CART-${item.id}-${Date.now()}`,
-                  productName: item.name,
-                  amount: item.price * item.quantity,
-                  date: new Date().toLocaleString(),
-                  image: item.image,
-                  store_id: item.storeId,
-                });
-              });
               setShowPayment(false);
               setIsCartOpen(false);
             }}
