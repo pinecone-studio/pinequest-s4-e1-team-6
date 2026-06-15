@@ -1,26 +1,19 @@
 "use client";
 import React from "react";
-import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Camera, Lightbulb, Scale } from "lucide-react";
+import { Lightbulb, Scale } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useVisualSearch } from "@/app/chat/hooks/useVisualSearch";
 
 const QUICK_ACTIONS = [
   {
-    title: "Recommendations",
+    title: "Санал болгож буй зүйл",
     description: "Сүүлд хайсан зүйлс дээр тулгуурлаад надад таарах бараануудыг шууд гаргаж ир.",
     icon: Lightbulb,
   },
   {
-    title: "Comparison",
+    title: "Харьцуулах",
     description: "2 барааг хайж сонгоод үнэ, стиль, материал, давуу талыг нь харьцуул.",
     icon: Scale,
-  },
-  {
-    title: "Image search",
-    description: "Зураг оруулаад түүнтэй төстэй бараануудыг шууд гаргаж ир.",
-    icon: Camera,
   },
 ] as const;
 
@@ -105,31 +98,11 @@ export function WelcomeSection({
 }) {
   const firstName = userName ? userName.split(" ")[0] : "Зочин";
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { searchByImage, isSearching } = useVisualSearch();
-  const [isDragging, setIsDragging] = useState(false);
 
   const recommendationPrompt =
     recentInterestPrompts.length > 0
       ? `Миний сүүлд сонирхсон болон хайж байсан зүйлс: ${recentInterestPrompts.join(" | ")}. Эдгээрээс санаа аваад яг надад тохирох 6 бүтээгдэхүүнийг богино тайлбартай шууд санал болго.`
       : "Миний сонирхолд нийцэх магадлалтай 6 бүтээгдэхүүнийг төрөл бүрээс нь сонгоод шууд санал болго.";
-
-  const handleImageFile = async (file: File) => {
-    const base64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-    });
-
-    const userMsg: VisualSearchUserMessage = {
-      role: "USER",
-      content: "Зургаар хайж байна...",
-      imagePreview: base64,
-    };
-    const result = await searchByImage(file);
-    onVisualResult(userMsg, result.products || []);
-  };
 
   return (
     <div className="relative flex min-h-0 w-full flex-col items-center justify-center overflow-hidden px-3 pb-8 pt-4 md:min-h-[85vh] md:px-6 md:pb-38 md:pt-6">
@@ -138,16 +111,6 @@ export function WelcomeSection({
       </div>
 
       <div className="relative z-10 flex flex-col items-center w-full max-w-5xl">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="mb-3 md:mb-8 px-2.5 py-0.5 rounded-full border border-white/20 bg-white/15 backdrop-blur-sm shadow-sm"
-        >
-          <span className="text-white text-[8px] md:text-[9px] font-black tracking-[0.2em] md:tracking-[0.4em] uppercase">
-            AI Lifestyle Curated
-          </span>
-        </motion.div>
-
         <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-center leading-tight md:leading-[1.1] mb-3 md:mb-6">
           <span className="text-white">Сайн уу, </span>
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-[#d7e7ff] to-white animate-shimmer bg-[length:200%_auto] pr-2 italic">
@@ -168,84 +131,33 @@ export function WelcomeSection({
           <span>тань санал болгож байна.</span>
         </motion.p>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleImageFile(file);
-            e.currentTarget.value = "";
-          }}
-        />
-
         {children ? (
           <div className="relative z-20 mt-1 w-full max-w-[52rem] md:mt-0">
             {children}
           </div>
         ) : null}
 
-        {/* Гар утас дээр 1 баганаар, таблет дээр 2, вэб дээр 3 баганаар маш гоё цэгцтэй харагдана */}
-        <div className="mt-4 grid w-full max-w-5xl grid-cols-1 gap-2.5 px-0.5 sm:grid-cols-2 md:mt-10 md:grid-cols-3 md:gap-4 md:px-2">
-          {QUICK_ACTIONS.map((item, i) => {
-            const isImageCard = item.title === "Image search";
-            return (
-              <div
-                key={item.title}
-                onDragOver={
-                  isImageCard
-                    ? (e) => {
-                        e.preventDefault();
-                        setIsDragging(true);
-                      }
-                    : undefined
-                }
-                onDragLeave={
-                  isImageCard
-                    ? () => {
-                        setIsDragging(false);
-                      }
-                    : undefined
-                }
-                onDrop={
-                  isImageCard
-                    ? (e) => {
-                        e.preventDefault();
-                        setIsDragging(false);
-                        const file = e.dataTransfer.files?.[0];
-                        if (file) void handleImageFile(file);
-                      }
-                    : undefined
-                }
-              >
-                <QuickActionCard
-                  title={item.title}
-                  icon={item.icon}
-                  isUploading={isImageCard && isSearching}
-                  onClick={() => {
-                    if (item.title === "Recommendations") {
-                      onSelect(recommendationPrompt);
-                      return;
-                    }
-
-                    if (item.title === "Comparison") {
-                      router.push("/chat/compare");
-                      return;
-                    }
-
-                    fileInputRef.current?.click();
-                  }}
-                  index={i}
-                />
-              </div>
-            );
-          })}
+        <div className="mt-4 grid w-full max-w-5xl grid-cols-1 gap-2.5 px-0.5 sm:grid-cols-2 md:mt-10 md:grid-cols-2 md:gap-4 md:px-2">
+          {QUICK_ACTIONS.map((item, i) => (
+            <div key={item.title}>
+              <QuickActionCard
+                title={item.title}
+                icon={item.icon}
+                onClick={() => {
+                  if (item.title === "Санал болгож буй зүйл") {
+                    onSelect(recommendationPrompt);
+                    return;
+                  }
+                  if (item.title === "Харьцуулах") {
+                    router.push("/chat/compare");
+                    return;
+                  }
+                }}
+                index={i}
+              />
+            </div>
+          ))}
         </div>
-
-        {isDragging && (
-          <div className="pointer-events-none absolute inset-0 z-20 rounded-[24px] md:rounded-[32px] border border-dashed border-white/30 bg-white/10 backdrop-blur-sm" />
-        )}
       </div>
 
       <style jsx global>{`

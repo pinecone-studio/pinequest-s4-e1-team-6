@@ -27,10 +27,10 @@ export default function Sidebar() {
   const firstLetter = storeName.charAt(0).toUpperCase();
 
   const menu = [
-    { name: "Dashboard", href: "/store", icon: LayoutDashboard },
-    { name: "Products", href: "/store/products", icon: Package },
-    { name: "Orders", href: "/store/orders", icon: ShoppingCart },
-    { name: "Settings", href: "/store/setting", icon: Settings },
+    { name: "Хянах самбар", href: "/store", icon: LayoutDashboard },
+    { name: "Бүтээгдэхүүн", href: "/store/products", icon: Package },
+    { name: "Захиалгууд", href: "/store/orders", icon: ShoppingCart },
+    { name: "Тохиргоо", href: "/store/setting", icon: Settings },
   ];
 
   const sidebarContent = (
@@ -96,14 +96,14 @@ export default function Sidebar() {
       {/* Bottom */}
       <div className="pt-4 border-t border-slate-200 dark:border-white/5">
         {!collapsed && (
-          <div className="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-2xl">
+          <div className="flex items-center justify-center py-2 bg-slate-100 dark:bg-white/5 rounded-2xl">
             <span className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest" />
             <ThemeToggle />
           </div>
         )}
         {collapsed && (
           <div className="flex justify-center">
-            <ThemeToggle iconOnly />
+            <ThemeToggle  />
           </div>
         )}
       </div>

@@ -12,7 +12,7 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="w-full md:w-auto px-4 py-2 rounded-xl text-sm border border-gray-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/2 text-transparent animate-pulse">
+      <button className="w-full md:w-auto px-2 py-2 rounded-xl text-sm border border-gray-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/2 text-transparent animate-pulse">
         …
       </button>
     );

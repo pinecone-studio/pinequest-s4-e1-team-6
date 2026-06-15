@@ -16,7 +16,7 @@ const NAV = [
   { name: "Хэрэглэгчид", href: "/admin/users", icon: Users },
   { name: "Бараа", href: "/admin/products", icon: Package },
   { name: "Захиалга", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Маргаан", href: "/admin/disputes", icon: ShieldAlert },
+  { name: "Асуудал", href: "/admin/disputes", icon: ShieldAlert },
 ];
 
 export default async function AdminLayout({
