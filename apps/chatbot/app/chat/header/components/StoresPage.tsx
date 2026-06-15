@@ -160,9 +160,9 @@ export default function StoresPage() {
   );
 
   return (
-    <div className="w-full flex-1 flex flex-col font-sans text-2xl text-white select-none rounded-2xl ">
+    <div className="w-full flex-1 flex flex-col font-sans text-2xl text-white select-none rounded-2xl">
       {/* ── INTERNAL HEADER ── */}
-      <div className="flex items-center justify-between p-4 border-b border-white/5 bg-black/5 backdrop-blur-md sticky top-0 z-70 gap-2">
+      <div className="flex items-center justify-between p-4 border-b border-white/5 bg-black/5 backdrop-blur-md sticky top-0 z-50 gap-2">
         <div className="min-w-18">
           {view !== "stores" ? (
             <button

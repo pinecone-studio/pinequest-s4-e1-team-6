@@ -140,7 +140,7 @@ export default function Header({
               style={{ left: "auto", right: 0 }}
             >
               <span className="apple-liquid-fx" />
-              <div className="flex items-center justify-between border-b border-white/10 px-4 pb-3 pt-22 text-slate-900 dark:text-slate-100">
+              <div className="flex items-center justify-between border-b border-white/10 px-4 pb-3 pt-2 text-slate-900 dark:text-slate-100">
                 <div className="flex items-center gap-2">
                   <Store className="h-5 w-5 text-[#6c57e6] dark:text-[#9b8cff]" />
                   <span className="text-base font-semibold">Stores</span>
