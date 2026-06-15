@@ -1,11 +1,10 @@
 "use client";
 
-import { X, ShoppingBag, Plus, Minus, CreditCard } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "./components/Footer";
-import { Header } from "./components/Header";
 import { createPortal } from "react-dom";
 import { parsePrice } from "@/lib/utils/price";
 
@@ -17,6 +16,7 @@ interface Product {
   description?: string;
   storeId?: string;
   storeName?: string;
+  stock?: string | number;
   selectedColor?: string;
   selectedSize?: string;
   metadata?: Record<string, unknown>;
@@ -94,11 +94,22 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
     (variant) => variant.color === activeColor && variant.size === activeSize,
   );
   const maxQuantity =
-    selectedVariant?.stock ?? Number(product?.metadata?.stock || 0);
+    selectedVariant?.stock ??
+    Number(product?.metadata?.stock ?? product?.stock ?? 0);
+  const hasStockInfo =
+    variants.length > 0 ||
+    product?.metadata?.stock !== undefined ||
+    product?.stock !== undefined;
+  const isSoldOut = hasStockInfo && maxQuantity <= 0;
 
   if (!product) return null;
 
   const handleAddCart = async () => {
+    if (isSoldOut) {
+      alert("Энэ барааны үлдэгдэл дууссан байна.");
+      return;
+    }
+
     if (variants.length > 0 && (!selectedVariant || selectedVariant.stock < quantity)) {
       alert("Сонгосон өнгө, размерийн үлдэгдэл хүрэлцэхгүй байна.");
       return;
@@ -250,8 +261,8 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
                           : quantity + 1,
                       )
                     }
-                    disabled={variants.length > 0 && maxQuantity <= quantity}
-                    className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"
+                    disabled={isSoldOut || (variants.length > 0 && maxQuantity <= quantity)}
+                    className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Plus size={16} />
                   </button>
@@ -265,7 +276,9 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
             quantity={quantity}
             numericPrice={numericPrice}
             isAdding={isAdding}
+            isSoldOut={isSoldOut}
             onBuy={(name, price) => {
+              if (isSoldOut) return;
               onBuy(name, price, {
                 ...product,
                 selectedColor: activeColor,

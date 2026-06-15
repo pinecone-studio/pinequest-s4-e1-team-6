@@ -21,6 +21,8 @@ type ProductMetadata = {
   storeName?: string;
   brand?: string;
   category?: string;
+  stock?: string | number;
+  status?: string;
 };
 
 type PineconeMatch = {
@@ -28,6 +30,13 @@ type PineconeMatch = {
   score?: number;
   metadata?: ProductMetadata;
 };
+
+function isInStock(metadata?: ProductMetadata) {
+  const stock = Number(metadata?.stock ?? 0);
+  const status = String(metadata?.status || "").toUpperCase();
+
+  return stock > 0 && status !== "OUT_OF_STOCK";
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -63,6 +72,10 @@ export async function GET(req: NextRequest) {
 
     allResults
       .flatMap((result) => result.matches || [])
+      .filter((match) => {
+        const metadata = match.metadata as ProductMetadata;
+        return isInStock(metadata);
+      })
       .sort((a, b) => (b.score || 0) - (a.score || 0))
       .forEach((match) => {
         if (!deduped.has(match.id)) deduped.set(match.id, match);

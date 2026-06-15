@@ -122,6 +122,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         product.selectedColor || defaultVariant.color || product.color || "";
       const selectedSize =
         product.selectedSize || defaultVariant.size || product.size || "";
+      const rawStock = product.metadata?.stock ?? product.stock;
+      if (rawStock !== undefined && Number(rawStock) <= 0) {
+        return prev;
+      }
+
       const cartKey = `${product.id}-${selectedColor}-${selectedSize}`;
       const existingItem = prev.find(
         (item) => (item.cartKey || item.id) === cartKey,

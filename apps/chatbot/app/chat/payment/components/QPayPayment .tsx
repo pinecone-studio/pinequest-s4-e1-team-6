@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   CheckCircle2,
   ShieldCheck,
@@ -11,7 +11,11 @@ import { motion, AnimatePresence } from "framer-motion";
 interface QPayPaymentProps {
   amount: number;
   orderId: string;
-  onSuccess: (details: any) => void;
+  onSuccess: (details: {
+    transactionId: string;
+    amount: number;
+    date: string;
+  }) => void;
   onCancel: () => void;
 }
  
@@ -23,6 +27,8 @@ const QPayPayment = ({
 }: QPayPaymentProps) => {
   const [status, setStatus] = useState<"QR" | "PROCESSING" | "SUCCESS">("QR");
   const [timeLeft, setTimeLeft] = useState(300);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const completedRef = useRef(false);
  
   useEffect(() => {
     if (status === "QR" && timeLeft > 0) {
@@ -32,10 +38,24 @@ const QPayPayment = ({
   }, [status, timeLeft]);
  
   const handleVerify = async () => {
+    if (status !== "QR") return;
+
     setStatus("PROCESSING");
     setTimeout(() => {
       setStatus("SUCCESS");
     }, 2000);
+  };
+
+  const handleComplete = () => {
+    if (completedRef.current) return;
+
+    completedRef.current = true;
+    setIsCompleted(true);
+    onSuccess({
+      transactionId: `QPY-${orderId}`,
+      amount,
+      date: new Date().toLocaleString(),
+    });
   };
  
   const formatTime = (seconds: number) => {
@@ -140,6 +160,7 @@ const QPayPayment = ({
  
                   <button
                     onClick={handleVerify}
+                    disabled={status !== "QR"}
                     className="w-full py-5 bg-[#077eef] hover:bg-[#066fd4] text-white rounded-2xl font-black text-sm shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] uppercase tracking-[0.1em]"
                   >
                     ТӨЛБӨР БАТАЛГААЖУУЛАХ
@@ -214,16 +235,11 @@ const QPayPayment = ({
                 </div>
  
                 <button
-                  onClick={() => {
-                    onSuccess({
-                      transactionId: `QPY-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-                      amount,
-                      date: new Date().toLocaleString(),
-                    });
-                  }}
-                  className="w-full py-5 bg-[#077eef] hover:bg-[#066fd4] text-white rounded-2xl text-sm font-black shadow-xl shadow-blue-500/30 transition-all uppercase tracking-widest active:scale-95"
+                  onClick={handleComplete}
+                  disabled={isCompleted}
+                  className="w-full py-5 bg-[#077eef] hover:bg-[#066fd4] text-white rounded-2xl text-sm font-black shadow-xl shadow-blue-500/30 transition-all uppercase tracking-widest active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  ЗАХИАЛГА ХАРАХ
+                  {isCompleted ? "НЭЭЖ БАЙНА..." : "ЗАХИАЛГА ХАРАХ"}
                 </button>
               </motion.div>
             )}

@@ -116,6 +116,14 @@ function hasKeywordMatch(
   return searchTerms.some((term) => haystack.includes(term));
 }
 
+function isInStock(metadata: Record<string, unknown> | undefined) {
+  if (!metadata) return false;
+  const status = String(metadata.status || "").toUpperCase();
+  const stock = Number(metadata.stock ?? 0);
+
+  return stock > 0 && status !== "OUT_OF_STOCK";
+}
+
 function uniqueById<T extends { id?: string }>(items: T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -225,6 +233,8 @@ export async function POST(req: Request) {
       const queryResults = await Promise.allSettled(queryPromises);
       const allMatches = queryResults.flatMap((result) =>
         result.status === "fulfilled" ? result.value.matches || [] : [],
+      ).filter((match) =>
+        isInStock(match.metadata as Record<string, unknown> | undefined),
       );
 
       const keywordMatches = allMatches.filter((match) =>
