@@ -1,6 +1,6 @@
 "use client";
 
-import { X, ShoppingBag, Plus, Minus, CreditCard } from "lucide-react";
+import { X, ShoppingBag, Plus, Minus, CreditCard, Store, ShieldCheck } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -127,7 +127,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
           animate={{ opacity: 1, z: 1000 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-white/10 backdrop-blur-xl "
+          className="absolute inset-0 bg-slate-950/40 backdrop-blur-md "
         />
 
         <motion.div
@@ -135,12 +135,21 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
           animate={{ x: 0, z: 100 }}
           exit={{ x: "100%" }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="absolute right-0 top-0 h-full w-full md:w-112.5 bg-white/10  border-l border-white/10 shadow-2xl flex flex-col text-white"
+          className="absolute right-0 top-0 h-full w-full md:w-112.5 bg-[#0b1024]/85 backdrop-blur-2xl border-l border-white/10 shadow-2xl flex flex-col text-white"
         >
-          {/* <Header title="Бүтээгдэхүүн" onClose={onClose} /> */}
+          {/* Дээд талын зөөлөн violet туяа */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(159,140,255,0.18),transparent_70%)]" />
 
-          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-linear-to-b from-white/5 to-transparent mb-8">
+          <div className="relative flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <button
+              onClick={onClose}
+              aria-label="Хаах"
+              className="absolute right-6 top-6 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white backdrop-blur-md transition-all hover:bg-black/50 active:scale-95"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="group relative mb-6 overflow-hidden rounded-3xl border border-white/10 bg-white shadow-[0_18px_50px_rgba(8,12,30,0.45)]">
               <img
                 src={product.image}
                 alt={product.name}
@@ -148,16 +157,27 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
               />
             </div>
 
-            <h1 className="text-3xl font-black mb-2 tracking-tight text-black">
+            {product.storeName && (
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
+                <Store size={13} className="text-[#9f8cff]" />
+                {product.storeName}
+              </div>
+            )}
+
+            <h1 className="mb-2 text-3xl font-black tracking-tight text-white">
               {product.name}
             </h1>
-            <p className="text-blue-400 text-3xl font-bold mb-8">
+            <p className="mb-3 inline-block bg-gradient-to-r from-[#b7a6ff] to-[#8b7bff] bg-clip-text text-3xl font-black text-transparent">
               {numericPrice.toLocaleString()}₮
             </p>
+            <div className="mb-8 flex items-center gap-1.5 text-xs font-medium text-slate-400">
+              <ShieldCheck size={14} className="text-emerald-400" />
+              Баталгаат бараа · Хурдан хүргэлт
+            </div>
 
               <div className="space-y-6">
               {variants.length > 0 && (
-                <div className="p-4 rounded-2xl bg-gray-500 border border-white/5 space-y-4">
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                   <h3 className="text-white font-bold uppercase text-[10px] tracking-widest">
                     Сонголт
                   </h3>
@@ -186,7 +206,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
                         className="w-full rounded-xl border border-white/10 bg-white/10 px-3 py-3 text-sm font-bold text-white outline-none"
                       >
                         {colors.map((color) => (
-                          <option key={color} value={color}>
+                          <option key={color} value={color} className="text-black">
                             {color}
                           </option>
                         ))}
@@ -205,7 +225,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
                         className="w-full rounded-xl border border-white/10 bg-white/10 px-3 py-3 text-sm font-bold text-white outline-none"
                       >
                         {availableSizes.map((size) => (
-                          <option key={size} value={size}>
+                          <option key={size} value={size} className="text-black">
                             {size}
                           </option>
                         ))}
@@ -218,24 +238,24 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
                 </div>
               )}
 
-              <div className="p-4 rounded-2xl bg-gray-500 border border-white/5">
-                <h3 className="text-white font-bold uppercase text-[10px] tracking-widest mb-3">
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                <h3 className="text-[#b7a6ff] font-bold uppercase text-[10px] tracking-widest mb-3">
                   Тайлбар
                 </h3>
-                <p className="text-slate-200 leading-relaxed text-sm">
+                <p className="text-slate-300 leading-relaxed text-sm">
                   {product.description ||
                     "Энэ бүтээгдэхүүний дэлгэрэнгүй тайлбар одоогоор байхгүй байна."}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-gray-500 ">
+              <div className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-white/5 ">
                 <span className="text-sm font-medium text-slate-200">
                   Тоо ширхэг
                 </span>
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"
+                    className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center text-white transition-colors hover:border-[#9f8cff]/60 hover:bg-[#9f8cff]/15 hover:text-[#b7a6ff]"
                   >
                     <Minus size={16} />
                   </button>
@@ -251,7 +271,7 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
                       )
                     }
                     disabled={variants.length > 0 && maxQuantity <= quantity}
-                    className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"
+                    className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center text-white transition-colors hover:border-[#9f8cff]/60 hover:bg-[#9f8cff]/15 hover:text-[#b7a6ff] disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-white/15"
                   >
                     <Plus size={16} />
                   </button>
