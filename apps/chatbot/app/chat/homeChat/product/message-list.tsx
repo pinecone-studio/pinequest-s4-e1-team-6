@@ -20,6 +20,8 @@ interface Product {
   storeId?: string;
   brand?: string;
   storeName?: string;
+  selectedColor?: string;
+  selectedSize?: string;
   [key: string]: unknown;
 }
 
@@ -101,9 +103,11 @@ export const MessageList: React.FC<MessageListProps> = ({
       name: name,
       price: price,
       image: match?.image || "",
-      id: match?.id || `id-${Date.now()}`,
+      id: match?.id || `id-${name}-${price}`,
       storeId: match?.storeId || "",
       storeName: storeName || match?.storeName,
+      selectedColor: match?.selectedColor || "",
+      selectedSize: match?.selectedSize || "",
     });
   };
 
@@ -131,6 +135,8 @@ export const MessageList: React.FC<MessageListProps> = ({
         productId: product.id,
         storeId: product.storeId,
         storeName: storeName || product.storeName || "Манай дэлгүүр",
+        selectedColor: product.selectedColor || "",
+        selectedSize: product.selectedSize || "",
         customerPhone: addressData.phone,
         address: fullAddress,
         items: [
@@ -140,6 +146,10 @@ export const MessageList: React.FC<MessageListProps> = ({
             name: product.name,
             price: numericPrice,
             quantity: 1,
+            color: product.selectedColor || "",
+            selectedColor: product.selectedColor || "",
+            size: product.selectedSize || "",
+            selectedSize: product.selectedSize || "",
             product_image_url: product.image || "",
             storeId: product.storeId || "",
             storeName: product.storeName || storeName || "",
@@ -169,6 +179,10 @@ export const MessageList: React.FC<MessageListProps> = ({
               image: paidInfo.image,
               price: paidInfo.amount,
               quantity: 1,
+              color: paidInfo.selectedColor,
+              selectedColor: paidInfo.selectedColor,
+              size: paidInfo.selectedSize,
+              selectedSize: paidInfo.selectedSize,
               storeId: paidInfo.storeId,
               storeName: paidInfo.storeName,
             },

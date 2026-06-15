@@ -3,12 +3,15 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { parsePrice } from "@/lib/utils/price";
 
 export interface CartItem {
+  cartKey?: string;
   id: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
   storeId: string;
+  selectedColor?: string;
+  selectedSize?: string;
   product?: any;
 }
 
@@ -76,7 +79,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const updateQuantity = (id: string, delta: number) => {
     setCartItems((prev) =>
       prev.map((item) => {
-        if (item.id === id) {
+        if ((item.cartKey || item.id) === id) {
           const newQty = Math.max(1, item.quantity + delta);
           return { ...item, quantity: newQty };
         }
@@ -87,6 +90,27 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addToCart = async (product: any, quantity: number = 1) => {
     setCartItems((prev) => {
+      const rawVariants =
+        product.metadata?.colorSizeStock ||
+        product.metadata?.color_size_stock ||
+        product.colorSizeStock ||
+        product.color_size_stock;
+      let defaultVariant = { color: "", size: "" };
+
+      try {
+        const variants =
+          typeof rawVariants === "string" ? JSON.parse(rawVariants) : rawVariants;
+        if (Array.isArray(variants)) {
+          const availableVariant =
+            variants.find((variant) => Number(variant?.stock) > 0) ||
+            variants[0];
+          defaultVariant = {
+            color: String(availableVariant?.color || ""),
+            size: String(availableVariant?.size || ""),
+          };
+        }
+      } catch {}
+
       const price = parsePrice(
         product.price ??
           product.formatted_price ??
@@ -94,10 +118,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           product.metadata?.price ??
           product.metadata?.formatted_price,
       );
-      const existingItem = prev.find((item) => item.id === product.id);
+      const selectedColor =
+        product.selectedColor || defaultVariant.color || product.color || "";
+      const selectedSize =
+        product.selectedSize || defaultVariant.size || product.size || "";
+      const cartKey = `${product.id}-${selectedColor}-${selectedSize}`;
+      const existingItem = prev.find(
+        (item) => (item.cartKey || item.id) === cartKey,
+      );
       if (existingItem) {
         return prev.map((item) =>
-          item.id === product.id
+          (item.cartKey || item.id) === cartKey
             ? {
                 ...item,
                 price: item.price > 0 ? item.price : price,
@@ -115,6 +146,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       return [
         ...prev,
         {
+          cartKey,
           id: product.id,
           productId: product.id,
           name: product.name || "Нэргүй бараа",
@@ -124,6 +156,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           productImage: image,
           quantity,
           storeId: product.storeId || "",
+          selectedColor,
+          selectedSize,
           product: product,
         },
       ];
@@ -132,7 +166,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const removeFromCart = async (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    setCartItems((prev) =>
+      prev.filter((item) => (item.cartKey || item.id) !== id),
+    );
   };
 
   const loadDBCart = async () => {

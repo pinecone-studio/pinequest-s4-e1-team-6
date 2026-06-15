@@ -12,7 +12,12 @@ function parseSizeStockText(value: unknown) {
     if (!Array.isArray(parsed)) return "";
 
     return parsed
-      .map((item) => `${item?.size || ""} размер ${item?.stock || ""} ширхэг`)
+      .map(
+        (item) =>
+          `${item?.color || ""} өнгө ${item?.size || ""} размер ${
+            item?.stock || ""
+          } ширхэг`,
+      )
       .join(", ");
   } catch {
     return String(value);
@@ -28,6 +33,7 @@ function buildProductSearchText(product: {
   size?: unknown;
   sizes?: unknown;
   sizeStock?: unknown;
+  colorSizeStock?: unknown;
   price?: unknown;
   stock?: unknown;
 }) {
@@ -40,7 +46,9 @@ function buildProductSearchText(product: {
     `Брэнд: ${product.brand || ""}`,
     `Өнгө: ${product.color || ""}`,
     `Размер: ${product.size || ""} ${sizes}`,
-    `Размерын үлдэгдэл: ${parseSizeStockText(product.sizeStock)}`,
+    `Өнгө размерын үлдэгдэл: ${parseSizeStockText(
+      product.colorSizeStock || product.sizeStock,
+    )}`,
     `Үнэ: ${product.price || ""}`,
     `Нийт үлдэгдэл: ${product.stock || ""}`,
   ].join(". ");
@@ -66,6 +74,7 @@ export async function POST(req: NextRequest) {
       sizes,
       sizeStock,
       color,
+      colorSizeStock,
       storeName,
     } = body;
 
@@ -106,6 +115,7 @@ export async function POST(req: NextRequest) {
         size,
         sizes,
         sizeStock,
+        colorSizeStock,
         price,
         stock,
       }),
@@ -138,7 +148,8 @@ export async function POST(req: NextRequest) {
             size_stock: sizeStock || "",
             color: color || "",
             colors: Array.isArray(body.colors) ? body.colors : [],
-            colorSizeStock: body.colorSizeStock || "",
+            colorSizeStock: colorSizeStock || "",
+            color_size_stock: colorSizeStock || "",
           },
         },
       ],

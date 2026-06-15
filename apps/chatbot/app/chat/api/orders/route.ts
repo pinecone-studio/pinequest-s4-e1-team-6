@@ -13,11 +13,40 @@ type OrderRequestItem = {
   image?: string;
   quantity?: number | string;
   price?: number | string;
+  color?: string;
+  selectedColor?: string;
+  size?: string;
+  selectedSize?: string;
   storeId?: string;
   store_id?: string;
   storeName?: string;
   store_name?: string;
 };
+
+type ColorSizeStockRow = {
+  color: string;
+  size: string;
+  stock: number;
+};
+
+function parseColorSizeStock(value: unknown): ColorSizeStockRow[] {
+  if (!value) return [];
+
+  try {
+    const parsed = typeof value === "string" ? JSON.parse(value) : value;
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .map((item) => ({
+        color: String(item?.color || "").trim(),
+        size: String(item?.size || "").trim(),
+        stock: Math.max(0, Number(item?.stock) || 0),
+      }))
+      .filter((item) => item.color && item.size);
+  } catch {
+    return [];
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -141,14 +170,48 @@ export async function POST(req: Request) {
         }
 
         const currentStock = Number(match.metadata?.stock) || 0;
-        const newStock = Math.max(0, currentStock - quantity);
+        const itemColor = String(item.selectedColor || item.color || "").trim();
+        const itemSize = String(item.selectedSize || item.size || "").trim();
+        const variantRows = parseColorSizeStock(
+          match.metadata?.colorSizeStock || match.metadata?.color_size_stock,
+        );
+        const variantIndex = variantRows.findIndex(
+          (row) =>
+            row.color.toLowerCase() === itemColor.toLowerCase() &&
+            row.size.toLowerCase() === itemSize.toLowerCase(),
+        );
+        const updatedVariantRows =
+          variantIndex >= 0
+            ? variantRows.map((row, index) =>
+                index === variantIndex
+                  ? { ...row, stock: Math.max(0, row.stock - quantity) }
+                  : row,
+              )
+            : variantRows;
+        const variantTotalStock = updatedVariantRows.reduce(
+          (sum, row) => sum + row.stock,
+          0,
+        );
+        const newStock =
+          variantRows.length > 0
+            ? variantTotalStock
+            : Math.max(0, currentStock - quantity);
         const status = newStock > 0 ? "AVAILABLE" : "OUT_OF_STOCK";
+        const colorSizeStock = JSON.stringify(updatedVariantRows);
 
         await namespace.update({
           id: match.id,
           metadata: {
             ...(match.metadata as Record<string, unknown>),
             stock: newStock,
+            ...(variantRows.length > 0
+              ? {
+                  colorSizeStock,
+                  color_size_stock: colorSizeStock,
+                  sizeStock: colorSizeStock,
+                  size_stock: colorSizeStock,
+                }
+              : {}),
             status,
           },
         });

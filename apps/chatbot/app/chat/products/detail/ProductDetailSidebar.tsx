@@ -2,7 +2,7 @@
 
 import { X, ShoppingBag, Plus, Minus, CreditCard } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -17,29 +17,100 @@ interface Product {
   description?: string;
   storeId?: string;
   storeName?: string;
+  selectedColor?: string;
+  selectedSize?: string;
+  metadata?: Record<string, unknown>;
+  colorSizeStock?: unknown;
+  color_size_stock?: unknown;
+  sizeStock?: unknown;
+  size_stock?: unknown;
 }
 
 interface Props {
   product: Product | null;
   onClose: () => void;
-  onBuy: (name: string, price: any, product?: Product) => void;
+  onBuy: (name: string, price: string | number, product?: Product) => void;
 }
 
 export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const { addToCart, setIsCartOpen } = useCart();
+
+  const numericPrice = parsePrice(product?.price ?? 0);
+  const variants = useMemo(() => {
+    if (!product) return [];
+
+    const raw =
+      product.metadata?.colorSizeStock ||
+      product.metadata?.color_size_stock ||
+      product.colorSizeStock ||
+      product.color_size_stock ||
+      product.metadata?.sizeStock ||
+      product.metadata?.size_stock ||
+      product.sizeStock ||
+      product.size_stock;
+
+    try {
+      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed
+        .map((item) => ({
+          color: String(item?.color || "").trim(),
+          size: String(item?.size || "").trim(),
+          stock: Math.max(0, Number(item?.stock) || 0),
+        }))
+        .filter((item) => item.color && item.size);
+    } catch {
+      return [];
+    }
+  }, [product]);
+  const colors = useMemo(
+    () => Array.from(new Set(variants.map((variant) => variant.color))),
+    [variants],
+  );
+  const firstAvailableVariant =
+    variants.find((variant) => variant.stock > 0) || variants[0];
+  const activeColor = colors.includes(selectedColor)
+    ? selectedColor
+    : firstAvailableVariant?.color || "";
+  const availableSizes = useMemo(
+    () =>
+      variants
+        .filter((variant) => variant.color === activeColor)
+        .map((variant) => variant.size),
+    [activeColor, variants],
+  );
+  const activeSize = availableSizes.includes(selectedSize)
+    ? selectedSize
+    : variants.find((variant) => variant.color === activeColor && variant.stock > 0)
+        ?.size ||
+      variants.find((variant) => variant.color === activeColor)?.size ||
+      "";
+  const selectedVariant = variants.find(
+    (variant) => variant.color === activeColor && variant.size === activeSize,
+  );
+  const maxQuantity =
+    selectedVariant?.stock ?? Number(product?.metadata?.stock || 0);
 
   if (!product) return null;
 
-  const numericPrice = parsePrice(product.price);
-
   const handleAddCart = async () => {
+    if (variants.length > 0 && (!selectedVariant || selectedVariant.stock < quantity)) {
+      alert("Сонгосон өнгө, размерийн үлдэгдэл хүрэлцэхгүй байна.");
+      return;
+    }
+
     setIsAdding(true);
     const productWithQuantity = {
       ...product,
       price: numericPrice,
       quantity: quantity,
+      selectedColor: activeColor,
+      selectedSize: activeSize,
     };
     await new Promise((resolve) => setTimeout(resolve, 500));
     await addToCart(productWithQuantity);
@@ -84,7 +155,69 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
               {numericPrice.toLocaleString()}₮
             </p>
 
-            <div className="space-y-6">
+              <div className="space-y-6">
+              {variants.length > 0 && (
+                <div className="p-4 rounded-2xl bg-gray-500 border border-white/5 space-y-4">
+                  <h3 className="text-white font-bold uppercase text-[10px] tracking-widest">
+                    Сонголт
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-200">
+                        Өнгө
+                      </span>
+                      <select
+                        value={activeColor}
+                        onChange={(event) => {
+                          const color = event.target.value;
+                          const nextSize =
+                            variants.find(
+                              (variant) =>
+                                variant.color === color && variant.stock > 0,
+                            )?.size ||
+                            variants.find((variant) => variant.color === color)
+                              ?.size ||
+                            "";
+
+                          setSelectedColor(color);
+                          setSelectedSize(nextSize);
+                          setQuantity(1);
+                        }}
+                        className="w-full rounded-xl border border-white/10 bg-white/10 px-3 py-3 text-sm font-bold text-white outline-none"
+                      >
+                        {colors.map((color) => (
+                          <option key={color} value={color}>
+                            {color}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-200">
+                        Размер
+                      </span>
+                      <select
+                        value={activeSize}
+                        onChange={(event) => {
+                          setSelectedSize(event.target.value);
+                          setQuantity(1);
+                        }}
+                        className="w-full rounded-xl border border-white/10 bg-white/10 px-3 py-3 text-sm font-bold text-white outline-none"
+                      >
+                        {availableSizes.map((size) => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <p className="text-xs font-bold text-slate-200">
+                    Энэ сонголтын үлдэгдэл: {selectedVariant?.stock ?? 0} ширхэг
+                  </p>
+                </div>
+              )}
+
               <div className="p-4 rounded-2xl bg-gray-500 border border-white/5">
                 <h3 className="text-white font-bold uppercase text-[10px] tracking-widest mb-3">
                   Тайлбар
@@ -110,7 +243,14 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
                     {quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() =>
+                      setQuantity(
+                        maxQuantity > 0
+                          ? Math.min(maxQuantity, quantity + 1)
+                          : quantity + 1,
+                      )
+                    }
+                    disabled={variants.length > 0 && maxQuantity <= quantity}
                     className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"
                   >
                     <Plus size={16} />
@@ -126,7 +266,11 @@ export function ProductDetailSidebar({ product, onClose, onBuy }: Props) {
             numericPrice={numericPrice}
             isAdding={isAdding}
             onBuy={(name, price) => {
-              onBuy(name, price, product);
+              onBuy(name, price, {
+                ...product,
+                selectedColor: activeColor,
+                selectedSize: activeSize,
+              });
               onClose(); 
             }}
             handleAddCart={handleAddCart}
