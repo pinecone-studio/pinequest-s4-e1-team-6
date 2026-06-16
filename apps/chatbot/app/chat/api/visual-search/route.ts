@@ -93,13 +93,6 @@ type ProductMetadata = {
   status?: string;
 };
 
-function isInStock(metadata?: ProductMetadata) {
-  const stock = Number(metadata?.stock ?? 0);
-  const status = String(metadata?.status || "").toUpperCase();
-
-  return stock > 0 && status !== "OUT_OF_STOCK";
-}
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
