@@ -94,9 +94,6 @@ const isDark = theme === "dark";
       variables: {
         colorPrimary: "#6366f1",
         colorBackground: isDark ? "#080808" : "#ffffff",
-        colorText: isDark ? "white" : "#111827",
-        colorTextSecondary: "#6b7280",
-        colorInputBackground: isDark ? "#000000" : "#f9fafb",
       },
     }}
   />
