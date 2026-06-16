@@ -62,6 +62,22 @@ export async function POST(req: Request) {
       { status: 400 },
     );
 
+  if (!bankName)
+    return NextResponse.json(
+      { error: "Bank name is required" },
+      { status: 400 },
+    );
+  if (!/^\d{6,20}$/.test(bankAccountNumber))
+    return NextResponse.json(
+      { error: "Bank account number is invalid" },
+      { status: 400 },
+    );
+  if (!bankAccountHolder)
+    return NextResponse.json(
+      { error: "Bank account holder is required" },
+      { status: 400 },
+    );
+
   const dbUser = await prisma.user.findUnique({
     where: { clerkUserId: userId },
     include: { stores: true },
@@ -109,9 +125,9 @@ export async function POST(req: Request) {
       phone,
       registerNumber,
       idCardImage,
-      bankName: bankName || null,
-      bankAccountNumber: bankAccountNumber || null,
-      bankAccountHolder: bankAccountHolder || null,
+      bankName,
+      bankAccountNumber,
+      bankAccountHolder,
     },
   });
   return NextResponse.json({ success: true, store });

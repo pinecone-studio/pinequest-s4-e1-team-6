@@ -12,6 +12,8 @@ export async function POST(req: Request) {
 
   const code = String(Math.floor(100000 + Math.random() * 900000));
   const resendApiKey = process.env.RESEND_API_KEY;
+  const resendFromEmail =
+    process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
   if (!resendApiKey) {
     return NextResponse.json(
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "onboarding@resend.dev",
+        from: resendFromEmail,
         to: email,
         subject: "Дэлгүүр нээх хүсэлт — баталгаажуулах код",
         html: `
