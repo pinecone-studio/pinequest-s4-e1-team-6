@@ -76,8 +76,6 @@ export default function AdminSettings() {
             variables: {
               colorPrimary: "#6366f1",
               colorBackground: "#080808",
-              colorText: "white",
-              colorTextSecondary: "#6b7280",
             },
           }}
         />
